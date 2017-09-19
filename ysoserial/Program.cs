@@ -62,7 +62,7 @@ namespace ysoserial
                         {
                             ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
                             Generator gg = (Generator)container.Unwrap();
-                            Console.WriteLine("\t" + g + " (" + gg.Description() + ")");
+                            Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                             Console.WriteLine("\t\tFormatters:");
                             foreach (string f in gg.SupportedFormatters().ToArray())
                             {

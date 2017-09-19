@@ -130,7 +130,6 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-
         public override string Name()
         {
             return "ActivitySurrogateSelector";
