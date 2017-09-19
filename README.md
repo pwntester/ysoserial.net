@@ -12,6 +12,8 @@ This project is inspired by [Chris Frohoff's ysoserial project](https://github.c
 ## Disclaimer 
 This software has been created purely for the purposes of academic research and for the development of effective defensive techniques, and is not intended to be used to attack systems except where explicitly authorized. Project maintainers are not responsible or liable for misuse of the software. Use responsibly.
 
+This software is a personal project and not related with any companies, including Project owner and contributors employers.
+
 ## Usage
 ```
 $ ./ysoserial.exe -h
