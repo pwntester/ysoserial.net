@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Web.UI;
 using System.Web.Script.Serialization;
+using System.Linq;
 
 namespace ysoserial.Generators
 {
@@ -17,11 +18,17 @@ namespace ysoserial.Generators
 
         public abstract object Generate(string cmd, string formatter, Boolean test);
 
-        public abstract bool IsSupported(string formatter);
-
         public abstract string Name();
 
         public abstract List<string> SupportedFormatters();
+
+        public Boolean IsSupported(string formatter)
+        {
+            var formatters = SupportedFormatters();
+            var lowercased = formatters.Select(x => x.ToLower()).ToList();
+            if (lowercased.Contains(formatter.ToLower())) return true;
+            else return false;
+        }
 
         public object Serialize(object cmdobj, string formatter, Boolean test)
         {

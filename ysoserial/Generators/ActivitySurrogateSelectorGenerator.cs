@@ -130,13 +130,6 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override Boolean IsSupported(string formatter)
-        {
-            var formatters = SupportedFormatters();
-            var lowercased = formatters.Select(x => x.ToLower()).ToList();
-            if (lowercased.Contains(formatter.ToLower())) return true;
-            else return false;
-        }
 
         public override string Name()
         {

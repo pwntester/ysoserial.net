@@ -18,14 +18,6 @@ namespace ysoserial.Generators
             return new List<string> { "Json.Net", "FastJson", "JavaScriptSerializer" };
         }
 
-        public override Boolean IsSupported(string formatter)
-        {
-            var formatters = SupportedFormatters();
-            var lowercased = formatters.Select(x => x.ToLower()).ToList();
-            if (lowercased.Contains(formatter.ToLower())) return true;
-            else return false;
-        }
-
         public override string Name()
         {
             return "ObjectDataProvider";
