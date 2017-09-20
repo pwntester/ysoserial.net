@@ -16,8 +16,8 @@ This software is a personal project and not related with any companies, includin
 
 ## Usage
 ```
-$ ./ysoserial.exe -h
-ysoserial.net generates deserialization payloads for a variaty of .NET formatters.
+$ ./ysoserial -h
+ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 Available formatters:
         ActivitySurrogateSelector (ActivitySurrogateSelector gadget by James Forshaw. This gadget ignores the command parameter and executes the constructor of ExploitClass class.)
@@ -25,14 +25,13 @@ Available formatters:
                         BinaryFormatter
                         ObjectStateFormatter
                         SoapFormatter
-                        NetDataContractSerializer
                         LosFormatter
         ObjectDataProvider (ObjectDataProvider Gadget by Oleksandr Mirosh and Alvaro Munoz)
                 Formatters:
                         Json.Net
                         FastJson
                         JavaScriptSerializer
-        PSObject (PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz)
+        PSObject (PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
                 Formatters:
                         BinaryFormatter
                         ObjectStateFormatter
@@ -43,17 +42,16 @@ Available formatters:
                 Formatters:
                         BinaryFormatter
                         ObjectStateFormatter
-                        SoapFormatter
                         NetDataContractSerializer
                         LosFormatter
 
 Usage: ysoserial.exe [options]
 Options:
-  -o, --output=VALUE         the output format (raw|base64). Default: base64
-  -g, --gadget=VALUE         the gadget chain. Default: TypeConfuseDelegate
-  -f, --formatter=VALUE      the formatter. Default: BinaryFormatter
-  -c, --command=VALUE        the command to be executed. Default: calc.exe
-  -t, --test                 wheter to run payload locally. Default: false
+  -o, --output=VALUE         the output format (raw|base64).
+  -g, --gadget=VALUE         the gadget chain.
+  -f, --formatter=VALUE      the formatter.
+  -c, --command=VALUE        the command to be executed.
+  -t, --test                 whether to run payload locally. Default: false
   -h, --help                 show this message and exit
 ```
 

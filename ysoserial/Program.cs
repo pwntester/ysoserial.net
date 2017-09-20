@@ -43,7 +43,7 @@ namespace ysoserial
                 System.Environment.Exit(-1);
             }
 
-            if (cmd == "" || formatter == "" || gadget == "" || format == "")
+            if (show_help == false && (cmd == "" || formatter == "" || gadget == "" || format == ""))
             {
                 Console.WriteLine("Missing arguments.");
                 show_help = true;
