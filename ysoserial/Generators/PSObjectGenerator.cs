@@ -36,7 +36,7 @@ namespace ysoserial.Generators
 
         public override string Description()
         {
-            return "PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz";
+            return "PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)";
         }
 
         public override List<string> SupportedFormatters()

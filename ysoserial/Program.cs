@@ -13,19 +13,19 @@ namespace ysoserial
     {
         static void Main(string[] args)
         {
-            string format = "base64";
-            string gadget = "TypeConfuseDelegate";
-            string formatter = "BinaryFormatter";
-            string cmd = "calc.exe";
+            string format = "";
+            string gadget = "";
+            string formatter = "";
+            string cmd = "";
             Boolean test = false;
             Boolean show_help = false;
 
             OptionSet options = new OptionSet()
             {
-                {"o|output=", "the output format (raw|base64). Default: base64", v => format = v },
-                {"g|gadget=", "the gadget chain. Default: TypeConfuseDelegate", v => gadget = v },
-                {"f|formatter=", "the formatter. Default: BinaryFormatter", v => formatter = v },
-                {"c|command=", "the command to be executed. Default: calc.exe", v => cmd = v },
+                {"o|output=", "the output format (raw|base64).", v => format = v },
+                {"g|gadget=", "the gadget chain.", v => gadget = v },
+                {"f|formatter=", "the formatter.", v => formatter = v },
+                {"c|command=", "the command to be executed.", v => cmd = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
                 {"h|help", "show this message and exit", v => show_help = v != null },
             };
@@ -40,6 +40,13 @@ namespace ysoserial
                 Console.Write("ysoserial: ");
                 Console.WriteLine(e.Message);
                 Console.WriteLine("Try 'ysoserial --help' for more information.");
+                System.Environment.Exit(-1);
+            }
+
+            if (cmd == "" || formatter == "" || gadget == "" || format == "")
+            {
+                Console.WriteLine("Missing arguments.");
+                show_help = true;
             }
 
             // Populate list of available gadgets
@@ -114,7 +121,13 @@ namespace ysoserial
                 Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(", ", generator.SupportedFormatters()));
                 System.Environment.Exit(-1);
             }
-           
+
+            // LosFormatter is already base64 encoded
+            if (format.ToLower().Equals("base64") && formatter.ToLower().Equals("losformatter"))
+            {
+                format = "raw";
+            }
+            
             // If requested, base64 encode the output
             if (format.ToLower().Equals("base64"))
             {
