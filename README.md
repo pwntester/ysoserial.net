@@ -43,6 +43,10 @@ Available formatters:
                         ObjectStateFormatter
                         NetDataContractSerializer
                         LosFormatter
+        WindowsIdentity (WindowsIdentity Gadget by Levi Broderick)
+                Formatters:
+                        Json.Net
+
 
 Usage: ysoserial.exe [options]
 Options:
