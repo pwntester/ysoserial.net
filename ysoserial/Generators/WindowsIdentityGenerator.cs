@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using fastJSON;
 using Newtonsoft.Json;
-using System.Web.Script.Serialization;
 
 namespace ysoserial.Generators
 {
@@ -11,6 +9,20 @@ namespace ysoserial.Generators
         public override string Description()
         {
             return "WindowsIdentity Gadget by Levi Broderick";
+
+            // Bridge from BinaryFormatter constructor/callback to BinaryFormatter
+            // Usefule for Json.Net since it invokes ISerializable callbacks during deserialization
+
+            // WindowsIdentity extends ClaimsIdentity
+            // https://referencesource.microsoft.com/#mscorlib/system/security/claims/ClaimsIdentity.cs,60342e51e4acc828,references
+
+            // System.Security.ClaimsIdentity.bootstrapContext is an SerializationInfo key (BootstrapContextKey)
+            // added during serialization with binary formatter serialized Claims
+
+            // protected ClaimsIdentity(SerializationInfo info, StreamingContext context)
+            // private void Deserialize
+            // using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(info.GetString(BootstrapContextKey))))
+            //     m_bootstrapContext = bf.Deserialize(ms, null, false);
         }
 
         public override List<string> SupportedFormatters()
