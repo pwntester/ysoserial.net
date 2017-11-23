@@ -30,6 +30,7 @@ Available formatters:
                         Json.Net
                         FastJson
                         JavaScriptSerializer
+                        XmlSerializer (This formatter generates the expected type into the type attribute of root node. You may need to modify the generated xml based on how XmlSerializer gets the expected type in your case.)
         PSObject (PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
                 Formatters:
                         BinaryFormatter
