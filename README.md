@@ -31,6 +31,7 @@ Available formatters:
                         FastJson
                         JavaScriptSerializer
                         XmlSerializer
+                        DataContractSerializer
         PSObject (PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
                 Formatters:
                         BinaryFormatter
@@ -59,7 +60,7 @@ Options:
   -h, --help                 show this message and exit
 ```
 
-*Note:* XmlSerializer formatter generates a wrapper Xml format incuding the expected type on the "type" attribute of the root node, as used, for example, in DotNetNuke. You may need to modify the generated xml based on how XmlSerializer gets the expected type in your case.
+*Note:* XmlSerializer and DataContractSerializer formatters generate a wrapper Xml format incuding the expected type on the "type" attribute of the root node, as used, for example, in DotNetNuke. You may need to modify the generated xml based on how XmlSerializer gets the expected type in your case.
 
 ## Examples
 ```
