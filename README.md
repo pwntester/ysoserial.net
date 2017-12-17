@@ -48,6 +48,7 @@ Available formatters:
         WindowsIdentity (WindowsIdentity Gadget by Levi Broderick)
                 Formatters:
                         Json.Net
+                        DataContractSerializer
 
 
 Usage: ysoserial.exe [options]

