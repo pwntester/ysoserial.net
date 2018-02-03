@@ -61,7 +61,7 @@ Options:
   -h, --help                 show this message and exit
 ```
 
-*Note:* XmlSerializer and DataContractSerializer formatters generate a wrapper Xml format incuding the expected type on the "type" attribute of the root node, as used, for example, in DotNetNuke. You may need to modify the generated xml based on how XmlSerializer gets the expected type in your case.
+*Note:* XmlSerializer and DataContractSerializer formatters generate a wrapper Xml format including the expected type on the "type" attribute of the root node, as used, for example, in DotNetNuke. You may need to modify the generated xml based on how XmlSerializer gets the expected type in your case.
 
 ## Examples
 ```
