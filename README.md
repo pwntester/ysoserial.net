@@ -47,6 +47,7 @@ Available formatters:
                         LosFormatter
         WindowsIdentity (WindowsIdentity Gadget by Levi Broderick)
                 Formatters:
+                        BinaryFormatter
                         Json.Net
                         DataContractSerializer
 

