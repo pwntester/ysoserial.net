@@ -15,7 +15,7 @@ namespace ysoserial.Generators
 
         public PayloadClassFromFile(string file)
         {
-            string[] files = (string[]) file.Split(new[] { ';' }).Select(s => s.Trim()).ToArray();
+            string[] files = file.Split(new[] { ';' }).Select(s => s.Trim()).ToArray();
             CodeDomProvider codeDomProvider = CodeDomProvider.CreateProvider("CSharp");
             CompilerParameters compilerParameters = new CompilerParameters();
             compilerParameters.CompilerOptions = "-t:library -o+";
@@ -38,6 +38,10 @@ namespace ysoserial.Generators
         public override string Description()
         {
             return "ActivitySurrogateSelector gadget by James Forshaw. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.";
+        }
+        public override string Name()
+        {
+            return "ActivitySurrogateSelectorFromFile";
         }
         public override object Generate(string file, string formatter, Boolean test)
         {
