@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExploitClass.cs" />
+    <Compile Include="Generators\ActivitySurrogateSelectorFromFileGenerator.cs" />
     <Compile Include="Generators\ActivitySurrogateSelectorGenerator.cs" />
     <Compile Include="Generators\Generator.cs" />
     <Compile Include="Generators\GenericGenerator.cs" />

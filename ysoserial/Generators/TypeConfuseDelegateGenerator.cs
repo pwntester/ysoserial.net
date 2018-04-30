@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Reflection;
 
 namespace ysoserial.Generators
@@ -25,6 +25,11 @@ namespace ysoserial.Generators
 
         public override object Generate(string cmd, string formatter, Boolean test)
         {
+            if (File.Exists(cmd))
+            {
+                Console.Error.WriteLine("Reading command from file " + cmd + " ...");
+                cmd = File.ReadAllText(cmd);
+            }
             Delegate da = new Comparison<string>(String.Compare);
             Comparison<string> d = (Comparison<string>)MulticastDelegate.Combine(da, da);
             IComparer<string> comp = Comparer<string>.Create(d);
