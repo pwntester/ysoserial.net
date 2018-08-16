@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Web.Script.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
+using YamlDotNet.Serialization;
 
 namespace ysoserial.Generators
 {
@@ -216,7 +217,6 @@ namespace ysoserial.Generators
                         {
                             var deserializer = new DeserializerBuilder().Build();
                             var result = deserializer.Deserialize(reader);
-                            Console.WriteLine("YamlDotNet string stream test complete.");
                         }
                     }
                     catch
