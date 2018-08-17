@@ -22,7 +22,7 @@ namespace ysoserial.Generators
         public Boolean IsSupported(string formatter)
         {
             var formatters = SupportedFormatters();
-            var lowercased = formatters.Select(x => x.ToLower()).ToList();
+            var lowercased = formatters.Select(x => x.Split(new string[] { " " }, StringSplitOptions.None)[0].ToLower()).ToList();
             if (lowercased.Contains(formatter.ToLower())) return true;
             else return false;
         }
