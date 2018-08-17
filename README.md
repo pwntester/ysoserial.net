@@ -32,6 +32,7 @@ Available formatters:
                         JavaScriptSerializer
                         XmlSerializer
                         DataContractSerializer
+                        YamlDotNet < 5.0.0
         PSObject (PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
                 Formatters:
                         BinaryFormatter
