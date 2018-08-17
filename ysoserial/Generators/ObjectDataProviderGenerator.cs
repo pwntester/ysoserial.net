@@ -20,7 +20,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet" };
+            return new List<string> { "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet < 5.0.0" };
         }
 
         public override string Name()
