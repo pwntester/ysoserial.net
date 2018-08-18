@@ -19,13 +19,19 @@ $ ./ysoserial -h
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 Available formatters:
+         ActivitySurrogateSelectorFromFile (ActivitySurrogateSelector gadget by James Forshaw. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
+                Formatters:
+                        BinaryFormatter
+                        ObjectStateFormatter
+                        SoapFormatter
+                        LosFormatter
         ActivitySurrogateSelector (ActivitySurrogateSelector gadget by James Forshaw. This gadget ignores the command parameter and executes the constructor of ExploitClass class.)
                 Formatters:
                         BinaryFormatter
                         ObjectStateFormatter
                         SoapFormatter
                         LosFormatter
-        ObjectDataProvider (ObjectDataProvider Gadget by Oleksandr Mirosh and Alvaro Munoz)
+        ObjectDataProvider (ObjectDataProvider Gadget by Alvaro Munoz Oleksandr Mirosh)
                 Formatters:
                         Json.Net
                         FastJson
@@ -33,7 +39,7 @@ Available formatters:
                         XmlSerializer
                         DataContractSerializer
                         YamlDotNet < 5.0.0
-        PSObject (PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
+        PSObject (PSObject Gadget by Alvaro Munoz and Oleksandr Mirosh. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
                 Formatters:
                         BinaryFormatter
                         ObjectStateFormatter
@@ -90,6 +96,14 @@ AAEAAAD/////AQAAAAAAAAAMAgAAAF9TeXN0ZW0uTWFuYWdlbWVudC5BdXRvbWF0aW9uLCBWZXJzaW9u
 - Commit your changes (`git commit -am 'Add some feature'`)
 - Push to the branch (`git push origin my-new-feature`)
 - Create new Pull Request
+
+## Thanks
+Special thanks to all contributors:
+- [JarLob](https://github.com/JarLob)
+- [DS-Kurt-Boberg](https://github.com/DS-Kurt-Boberg)
+- [mwulftange](https://github.com/mwulftange)
+- [yallie](https://github.com/yallie)
+- [paralax](https://github.com/paralax)
 
 ## Additional Reading
 - [Attacking .NET serialization](https://speakerdeck.com/pwntester/attacking-net-serialization)
