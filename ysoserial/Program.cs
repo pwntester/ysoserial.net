@@ -1,4 +1,5 @@
 ﻿using ysoserial.Generators;
+using ysoserial.Plugins;
 using System;
 using System.IO;
 using System.Linq;
@@ -17,11 +18,13 @@ namespace ysoserial
             string gadget = "";
             string formatter = "";
             string cmd = "";
+            string plugin_name = "";
             Boolean test = false;
             Boolean show_help = false;
 
             OptionSet options = new OptionSet()
             {
+                {"p|plugin=", "the plugin to be used", v => plugin_name = v },
                 {"o|output=", "the output format (raw|base64).", v => format = v },
                 {"g|gadget=", "the gadget chain.", v => gadget = v },
                 {"f|formatter=", "the formatter.", v => formatter = v },
@@ -35,7 +38,7 @@ namespace ysoserial
             {
                 extra = options.Parse(args);
             }
-            catch(OptionException e)
+            catch (OptionException e)
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine(e.Message);
@@ -43,17 +46,24 @@ namespace ysoserial
                 System.Environment.Exit(-1);
             }
 
-            if (show_help == false && (cmd == "" || formatter == "" || gadget == "" || format == ""))
+            if (
+                (cmd == "" && formatter == "" && gadget == "" && format == "") &&
+                plugin_name == ""
+                )
             {
                 Console.WriteLine("Missing arguments.");
                 show_help = true;
             }
 
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
+
             // Populate list of available gadgets
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => typeof(Generator).IsAssignableFrom(p) && !p.IsInterface);
-            var generators = types.Select(x => x.Name.Replace("Generator", "")).ToList();
+            var generatorTypes = types.Where(p => typeof(Generator).IsAssignableFrom(p) && !p.IsInterface);
+            var generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList();
+
+            // Populate list of available plugins
+            var pluginTypes = types.Where(p => typeof(Plugin).IsAssignableFrom(p) && !p.IsInterface);
+            var plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList();
 
             // Show help if requested
             if (show_help)
@@ -82,7 +92,29 @@ namespace ysoserial
                         Console.WriteLine("Gadget not supported");
                         System.Environment.Exit(-1);
                     }
-                    
+
+                }
+                Console.WriteLine("");
+                Console.WriteLine("Available plugins:");
+                foreach (string p in plugins)
+                {
+                    try
+                    {
+                        if (p != "Generic")
+                        {
+                            ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
+                            Plugin pp = (Plugin)container.Unwrap();
+                            Console.WriteLine("\t" + pp.Name() + " (" + pp.Description() + ")");
+                            Console.WriteLine("\t\tOptions:");
+                            pp.Options().WriteOptionDescriptions(Console.Out);
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Plugin not supported");
+                        System.Environment.Exit(-1);
+                    }
+
                 }
                 Console.WriteLine("");
                 Console.WriteLine("Usage: ysoserial.exe [options]");
@@ -91,51 +123,81 @@ namespace ysoserial
                 System.Environment.Exit(0);
             }
 
-            if (!generators.Contains(gadget))
-            {
-                Console.WriteLine("Gadget not supported.");
-                System.Environment.Exit(-1);
-            }
-
-            // Instantiate Payload Generator
-            Generator generator = null;
-            try
-            {
-                var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget + "Generator");
-                generator = (Generator)container.Unwrap();
-            }
-            catch
-            {
-                Console.WriteLine("Gadget not supported!");
-                System.Environment.Exit(-1);
-            }
-
-            // Check Generator supports specified formatter
             object raw = null;
-            if (generator.IsSupported(formatter))
+
+            // Try to execute plugin first
+            if (plugin_name != "")
             {
-                raw = generator.Generate(cmd, formatter, test);
+                if (!plugins.Contains(plugin_name))
+                {
+                    Console.WriteLine("Plugin not supported.");
+                    System.Environment.Exit(-1);
+                }
+
+                // Instantiate Plugin 
+                Plugin plugin = null;
+                try
+                {
+                    var container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
+                    plugin = (Plugin)container.Unwrap();
+                }
+                catch
+                {
+                    Console.WriteLine("Plugin not supported!");
+                    System.Environment.Exit(-1);
+                }
+
+                raw = plugin.Run(args);
+    
             }
-            else
+            // othersiwe run payload generation
+            else if (cmd != "" && formatter != "" && gadget != "" && format != "")
             {
-                Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(", ", generator.SupportedFormatters()));
-                System.Environment.Exit(-1);
+                if (!generators.Contains(gadget))
+                {
+                    Console.WriteLine("Gadget not supported.");
+                    System.Environment.Exit(-1);
+                }
+
+                // Instantiate Payload Generator
+                Generator generator = null;
+                try
+                {
+                    var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget + "Generator");
+                    generator = (Generator)container.Unwrap();
+                }
+                catch
+                {
+                    Console.WriteLine("Gadget not supported!");
+                    System.Environment.Exit(-1);
+                }
+
+                // Check Generator supports specified formatter
+                if (generator.IsSupported(formatter))
+                {
+                    raw = generator.Generate(cmd, formatter, test);
+                }
+                else
+                {
+                    Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(", ", generator.SupportedFormatters()));
+                    System.Environment.Exit(-1);
+                }
+
+                // LosFormatter is already base64 encoded
+                if (format.ToLower().Equals("base64") && formatter.ToLower().Equals("losformatter"))
+                {
+                    format = "raw";
+                }
             }
 
-            // LosFormatter is already base64 encoded
-            if (format.ToLower().Equals("base64") && formatter.ToLower().Equals("losformatter"))
-            {
-                format = "raw";
-            }
-            
             // If requested, base64 encode the output
             if (format.ToLower().Equals("base64"))
             {
                 if (raw.GetType() == typeof(String))
                 {
-                    raw = Encoding.ASCII.GetBytes((String) raw);
+                    raw = Encoding.ASCII.GetBytes((String)raw);
                 }
-                string b64encoded = Convert.ToBase64String((byte[]) raw);
+                string b64encoded = Convert.ToBase64String((byte[])raw);
                 Console.WriteLine(b64encoded);
             }
             else

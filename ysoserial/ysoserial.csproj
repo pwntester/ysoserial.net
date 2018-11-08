@@ -76,6 +76,8 @@
     <Compile Include="Generators\PSObjectGenerator.cs" />
     <Compile Include="Generators\TypeConfuseDelegateGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
+    <Compile Include="Plugins\DotNetNukePlugin.cs" />
+    <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

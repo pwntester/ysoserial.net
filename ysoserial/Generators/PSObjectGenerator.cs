@@ -2,7 +2,6 @@
 using System.Runtime.Serialization;
 using System.Management.Automation;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ysoserial.Generators
 {
