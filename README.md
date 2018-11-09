@@ -33,6 +33,7 @@ Available formatters:
                         LosFormatter
         ObjectDataProvider (ObjectDataProvider Gadget by Alvaro Munoz Oleksandr Mirosh)
                 Formatters:
+                        Xaml
                         Json.Net
                         FastJson
                         JavaScriptSerializer
@@ -71,6 +72,7 @@ Available plugins:
 
 Usage: ysoserial.exe [options]
 Options:
+  -p, --plugin=VALUE         the plugin to be used
   -o, --output=VALUE         the output format (raw|base64).
   -g, --gadget=VALUE         the gadget chain.
   -f, --formatter=VALUE      the formatter.
