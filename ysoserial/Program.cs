@@ -70,63 +70,82 @@ namespace ysoserial
             {
                 Console.WriteLine("ysoserial.net generates deserialization payloads for a variety of .NET formatters.");
                 Console.WriteLine("");
-                Console.WriteLine("Available formatters:");
-                foreach (string g in generators)
+                if (plugin_name == "")
                 {
-                    try
+                    Console.WriteLine("Available formatters:");
+                    foreach (string g in generators)
                     {
-                        if (g != "Generic")
+                        try
                         {
-                            ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
-                            Generator gg = (Generator)container.Unwrap();
-                            Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
-                            Console.WriteLine("\t\tFormatters:");
-                            foreach (string f in gg.SupportedFormatters().ToArray())
+                            if (g != "Generic")
                             {
-                                Console.WriteLine("\t\t\t" + f);
+                                ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
+                                Generator gg = (Generator)container.Unwrap();
+                                Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
+                                Console.WriteLine("\t\tFormatters:");
+                                foreach (string f in gg.SupportedFormatters().ToArray())
+                                {
+                                    Console.WriteLine("\t\t\t" + f);
+                                }
                             }
                         }
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Gadget not supported");
-                        System.Environment.Exit(-1);
-                    }
+                        catch
+                        {
+                            Console.WriteLine("Gadget not supported");
+                            System.Environment.Exit(-1);
+                        }
 
+                    }
+                    Console.WriteLine("");
+                    Console.WriteLine("Available plugins:");
+                    foreach (string p in plugins)
+                    {
+                        try
+                        {
+                            if (p != "Generic")
+                            {
+                                ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
+                                Plugin pp = (Plugin)container.Unwrap();
+                                Console.WriteLine("\t" + pp.Name() + " (" + pp.Description() + ")");
+                                //Console.WriteLine("\t\tOptions:");
+                                //pp.Options().WriteOptionDescriptions(Console.Out);
+                            }
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Plugin not supported");
+                            System.Environment.Exit(-1);
+                        }
+
+                    }
+                    Console.WriteLine("");
+                    Console.WriteLine("Usage: ysoserial.exe [options]");
+                    Console.WriteLine("Options:");
+                    options.WriteOptionDescriptions(Console.Out);
+                    System.Environment.Exit(0);
                 }
-                Console.WriteLine("");
-                Console.WriteLine("Available plugins:");
-                foreach (string p in plugins)
+                else
                 {
                     try
                     {
-                        if (p != "Generic")
-                        {
-                            ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
-                            Plugin pp = (Plugin)container.Unwrap();
-                            Console.WriteLine("\t" + pp.Name() + " (" + pp.Description() + ")");
-                            Console.WriteLine("\t\tOptions:");
-                            pp.Options().WriteOptionDescriptions(Console.Out);
-                        }
-                    }
-                    catch
+                        ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
+                        Plugin pp = (Plugin)container.Unwrap();
+                        Console.WriteLine("Plugin:\n");
+                        Console.WriteLine(pp.Name() + " (" + pp.Description() + ")");
+                        Console.WriteLine("\nOptions:\n");
+                        pp.Options().WriteOptionDescriptions(Console.Out);
+                    } catch
                     {
                         Console.WriteLine("Plugin not supported");
-                        System.Environment.Exit(-1);
                     }
-
+                    System.Environment.Exit(-1);
                 }
-                Console.WriteLine("");
-                Console.WriteLine("Usage: ysoserial.exe [options]");
-                Console.WriteLine("Options:");
-                options.WriteOptionDescriptions(Console.Out);
-                System.Environment.Exit(0);
             }
 
             object raw = null;
 
             // Try to execute plugin first
-            if (plugin_name != "")
+            if (!show_help && plugin_name != "")
             {
                 if (!plugins.Contains(plugin_name))
                 {
