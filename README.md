@@ -60,6 +60,19 @@ Available formatters:
                         DataContractSerializer
 
 Available plugins:
+        ApplicationTrust (Generates XML payload for the ApplicationTrust class)
+                Options:
+  -c, --command=VALUE        the command to be executed
+  -t, --test                 whether to run payload locally. Default: false
+        Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
+                Options:
+  -F, --format=VALUE         the object format: Csv, DeviceIndependentBitmap,
+                               DataInterchangeFormat, PenData, RiffAudio,
+                               WindowsForms10PersistentObject, System.String,
+                               SymbolicLink, TaggedImageFileFormat, WaveAudio.
+                               Default: System.String
+  -c, --command=VALUE        the command to be executed
+  -t, --test                 whether to run payload locally. Default: false
         DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
                 Options:
   -M, --mode=VALUE           the payload mode: read_file, upload_file,
@@ -69,6 +82,32 @@ Available plugins:
                                mode.
   -F, --file=VALUE           the file to read in read_file mode or the file
                                to write to in write_file_mode.
+        altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
+                Options:
+  -M, --mode=VALUE           the payload mode: HttpStaticObjectsCollection or
+                               SessionStateItemCollection. Default:
+                               HttpStaticObjectsCollection
+  -o, --output=VALUE         the output format (raw|base64).
+  -c, --command=VALUE        the command to be executed
+  -t, --test                 whether to run payload locally. Default: false
+        Resx (Generates RESX files)
+                Options:
+  -M, --mode=VALUE           the payload mode: indirect_resx_file,
+                               BinaryFormatter, SoapFormatter.
+  -c, --command=VALUE        the command to be executed in BinaryFormatter.
+                               If this is provided for SoapFormatter, it will
+                               be used as a file for
+                               ActivitySurrogateSelectorFromFile
+  -F, --file=VALUE           UNC file path location: this is used in
+                               indirect_resx_file mode.
+        SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
+                Options:
+  -c, --command=VALUE        the command to be executed
+  -t, --test                 whether to run payload locally. Default: false
+        TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
+                Options:
+  -c, --command=VALUE        the command to be executed
+  -t, --test                 whether to run payload locally. Default: false
 
 Usage: ysoserial.exe [options]
 Options:
