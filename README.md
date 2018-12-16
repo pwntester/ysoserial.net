@@ -8,13 +8,6 @@ It should be noted that the vulnerability lies in the application performing uns
 
 This project is inspired by [Chris Frohoff's ysoserial project](https://github.com/frohoff/ysoserial)
 
-## Plugins
-Ysoserial.Net can be used to generate raw payloads or more complex ones using a plugin architecture. To use plugins, use `-p <plugin name>` followed by the plugin options (the rest of ysoserial.net options will be ignored). Eg:
-
-```
-ysoserial.exe -p DotNetNuke -m read_file -f win.ini
-```
-
 ## Disclaimer 
 This software has been created purely for the purposes of academic research and for the development of effective defensive techniques, and is not intended to be used to attack systems except where explicitly authorized. Project maintainers are not responsible or liable for misuse of the software. Use responsibly.
 
@@ -85,6 +78,13 @@ Options:
 ```
 
 *Note:* XmlSerializer and DataContractSerializer formatters generate a wrapper Xml format including the expected type on the "type" attribute of the root node, as used, for example, in DotNetNuke. You may need to modify the generated xml based on how XmlSerializer gets the expected type in your case.
+
+## Plugins
+Ysoserial.Net can be used to generate raw payloads or more complex ones using a plugin architecture. To use plugins, use `-p <plugin name>` followed by the plugin options (the rest of ysoserial.net options will be ignored). Eg:
+
+```
+ysoserial.exe -p DotNetNuke -m read_file -f win.ini
+```
 
 ## Examples
 
