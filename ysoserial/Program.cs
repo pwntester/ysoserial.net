@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Linq;
 using NDesk.Options;
-using System.Collections.Generic;
 using System.Runtime.Remoting;
 using System.Text;
 
@@ -33,10 +32,9 @@ namespace ysoserial
                 {"h|help", "show this message and exit", v => show_help = v != null },
             };
 
-            List<string> extra;
             try
             {
-                extra = options.Parse(args);
+                var notMatchedArguments = options.Parse(args);
             }
             catch (OptionException e)
             {
@@ -47,9 +45,9 @@ namespace ysoserial
             }
 
             if (
-                (cmd == "" && formatter == "" && gadget == "" && format == "") &&
+                (cmd == "" || formatter == "" || gadget == "" || format == "") &&
                 plugin_name == ""
-                )
+            )
             {
                 Console.WriteLine("Missing arguments.");
                 show_help = true;
@@ -145,7 +143,7 @@ namespace ysoserial
             object raw = null;
 
             // Try to execute plugin first
-            if (!show_help && plugin_name != "")
+            if (plugin_name != "")
             {
                 if (!plugins.Contains(plugin_name))
                 {
