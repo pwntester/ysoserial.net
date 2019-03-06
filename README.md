@@ -19,7 +19,7 @@ $ ./ysoserial -h
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 Available formatters:
-         ActivitySurrogateSelectorFromFile (ActivitySurrogateSelector gadget by James Forshaw. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
+        ActivitySurrogateSelectorFromFile (ActivitySurrogateSelector gadget by James Forshaw. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
                 Formatters:
                         BinaryFormatter
                         ObjectStateFormatter
@@ -31,7 +31,7 @@ Available formatters:
                         ObjectStateFormatter
                         SoapFormatter
                         LosFormatter
-        ObjectDataProvider (ObjectDataProvider Gadget by Alvaro Munoz Oleksandr Mirosh)
+        ObjectDataProvider (ObjectDataProvider Gadget by Oleksandr Mirosh and Alvaro Munoz)
                 Formatters:
                         Xaml
                         Json.Net
@@ -40,7 +40,14 @@ Available formatters:
                         XmlSerializer
                         DataContractSerializer
                         YamlDotNet < 5.0.0
-        PSObject (PSObject Gadget by Alvaro Munoz and Oleksandr Mirosh. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
+        TextFormattingRunProperties (TextFormattingRunProperties Gadget by Oleksandr Mirosh and Alvaro Munoz.)
+                Formatters:
+                        BinaryFormatter
+                        ObjectStateFormatter
+                        SoapFormatter
+                        NetDataContractSerializer
+                        LosFormatter
+        PSObject (PSObject Gadget by Oleksandr Mirosh and Alvaro Munoz. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
                 Formatters:
                         BinaryFormatter
                         ObjectStateFormatter
@@ -60,12 +67,14 @@ Available formatters:
                         DataContractSerializer
 
 Available plugins:
-        ApplicationTrust (Generates XML payload for the ApplicationTrust class)
-        DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
         altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
+        ApplicationTrust (Generates XML payload for the ApplicationTrust class)
+        Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
+        DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
         Resx (Generates RESX files)
         SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
-               
+        TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
+
 Usage: ysoserial.exe [options]
 Options:
   -p, --plugin=VALUE         the plugin to be used
