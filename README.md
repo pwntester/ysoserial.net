@@ -163,6 +163,7 @@ $ ./ysoserial.exe -p DotNetNuke -m read_file -f win.ini
 
 ## Thanks
 Special thanks to all contributors:
+- [Oleksandr Mirosh](https://twitter.com/olekmirosh)
 - [irsdl](https://github.com/irsdl)
 - [JarLob](https://github.com/JarLob)
 - [DS-Kurt-Boberg](https://github.com/DS-Kurt-Boberg)
