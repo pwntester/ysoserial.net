@@ -10,7 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Web.UI.WebControls;
 using System.Runtime.Serialization;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     class MySurrogateSelector : SurrogateSelector
     {
@@ -19,7 +19,7 @@ namespace ysoserial.Generators
             selector = this;
             if (!type.IsSerializable)
             {
-                Type t = Type.GetType("System.Workflow.ComponentModel.Serialization.ActivitySurrogateSelector+ObjectSurrogate, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                Type t = Type.GetType("System.Workflow.ComponentModel.Serialization.ActivitySurrogateSelector+ObjectSurrogate, System.Workflow.ComponentModel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
                 return (ISerializationSurrogate)Activator.CreateInstance(t);
             }
 

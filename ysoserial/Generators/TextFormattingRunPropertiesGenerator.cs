@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text.Formatting;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     [Serializable]
     public class TextFormattingRunPropertiesMarshal : ISerializable

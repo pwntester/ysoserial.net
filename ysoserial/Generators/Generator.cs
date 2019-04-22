@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     interface Generator
     {

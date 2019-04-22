@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Soap;
 using System.Web.UI;
 using System.Linq;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     abstract class GenericGenerator : Generator
     {

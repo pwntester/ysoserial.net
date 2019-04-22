@@ -1,5 +1,5 @@
-﻿using ysoserial.Generators;
-using ysoserial.Plugins;
+﻿using ysoserial_frmv2.Generators;
+using ysoserial_frmv2.Plugins;
 using System;
 using System.IO;
 using System.Linq;
@@ -7,7 +7,7 @@ using NDesk.Options;
 using System.Runtime.Remoting;
 using System.Text;
 
-namespace ysoserial
+namespace ysoserial_frmv2
 {
     class Program
     {
@@ -77,7 +77,7 @@ namespace ysoserial
                         {
                             if (g != "Generic")
                             {
-                                ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
+                                ObjectHandle container = Activator.CreateInstance(null, "ysoserial_frmv2.Generators." + g + "Generator");
                                 Generator gg = (Generator)container.Unwrap();
                                 Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                                 Console.WriteLine("\t\tFormatters:");
@@ -102,7 +102,7 @@ namespace ysoserial
                         {
                             if (p != "Generic")
                             {
-                                ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
+                                ObjectHandle container = Activator.CreateInstance(null, "ysoserial_frmv2.Plugins." + p + "Plugin");
                                 Plugin pp = (Plugin)container.Unwrap();
                                 Console.WriteLine("\t" + pp.Name() + " (" + pp.Description() + ")");
                                 //Console.WriteLine("\t\tOptions:");
@@ -117,7 +117,7 @@ namespace ysoserial
 
                     }
                     Console.WriteLine("");
-                    Console.WriteLine("Usage: ysoserial.exe [options]");
+                    Console.WriteLine("Usage: ysoserial_frmv2.exe [options]");
                     Console.WriteLine("Options:");
                     options.WriteOptionDescriptions(Console.Out);
                     System.Environment.Exit(0);
@@ -126,7 +126,7 @@ namespace ysoserial
                 {
                     try
                     {
-                        ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
+                        ObjectHandle container = Activator.CreateInstance(null, "ysoserial_frmv2.Plugins." + plugin_name + "Plugin");
                         Plugin pp = (Plugin)container.Unwrap();
                         Console.WriteLine("Plugin:\n");
                         Console.WriteLine(pp.Name() + " (" + pp.Description() + ")");
@@ -155,7 +155,7 @@ namespace ysoserial
                 Plugin plugin = null;
                 try
                 {
-                    var container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
+                    var container = Activator.CreateInstance(null, "ysoserial_frmv2.Plugins." + plugin_name + "Plugin");
                     plugin = (Plugin)container.Unwrap();
                 }
                 catch
@@ -180,7 +180,7 @@ namespace ysoserial
                 Generator generator = null;
                 try
                 {
-                    var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget + "Generator");
+                    var container = Activator.CreateInstance(null, "ysoserial_frmv2.Generators." + gadget + "Generator");
                     generator = (Generator)container.Unwrap();
                 }
                 catch
@@ -196,7 +196,7 @@ namespace ysoserial
                 }
                 else
                 {
-                    Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(", ", generator.SupportedFormatters()));
+                    Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(", ", generator.SupportedFormatters().ToArray()));
                     System.Environment.Exit(-1);
                 }
 

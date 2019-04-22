@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     [Serializable]
     class PayloadClassFromFile : PayloadClass
@@ -37,7 +37,7 @@ namespace ysoserial.Generators
     {
         public override string Description()
         {
-            return "ActivitySurrogateSelector gadget by James Forshaw. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.";
+            return "ActivitySurrogateSelector gadget by James Forshaw. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;./dlls/System.Windows.Forms.dll'.";
         }
         public override string Name()
         {

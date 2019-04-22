@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-namespace ysoserial.Generators
+namespace ysoserial_frmv2.Generators
 {
     class TypeConfuseDelegateGenerator : GenericGenerator
     {

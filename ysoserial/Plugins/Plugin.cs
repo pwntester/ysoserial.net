@@ -1,7 +1,7 @@
 ﻿using System;
 using NDesk.Options;
 
-namespace ysoserial.Plugins
+namespace ysoserial_frmv2.Plugins
 {
     interface Plugin
     {

