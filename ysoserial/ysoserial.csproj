@@ -47,13 +47,14 @@
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>dlls\System.Management.Automation.dll</HintPath>
     </Reference>
-	<Reference Include="Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>dlls\Microsoft.PowerShell.Editor.dll</HintPath>
     </Reference>
@@ -86,7 +87,7 @@
     <Compile Include="Generators\PSObjectGenerator.cs" />
     <Compile Include="Generators\TypeConfuseDelegateGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
-    <Compile Include="Plugins\altserializationPlugin.cs" />
+    <Compile Include="Plugins\AltserializationPlugin.cs" />
     <Compile Include="Plugins\ApplicationTrustPlugin.cs" />
     <Compile Include="Plugins\ClipboardPlugin.cs" />
     <Compile Include="Plugins\DotNetNukePlugin.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Plugins\ResxPlugin.cs" />
     <Compile Include="Plugins\SessionSecurityTokenHandlerPlugin.cs" />
     <Compile Include="Plugins\TransactionManagerReenlist.cs" />
+    <Compile Include="Plugins\ViewStatePlugin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
