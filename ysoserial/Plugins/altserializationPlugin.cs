@@ -18,7 +18,7 @@ using System.IO;
 
 namespace ysoserial_frmv2.Plugins
 {
-    class altserializationPlugin : Plugin
+    class AltserializationPlugin : Plugin
     {
         static string format = "";
         static string mode = "";

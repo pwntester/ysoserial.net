@@ -64,6 +64,7 @@
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Runtime.Serialization" />
@@ -91,13 +92,14 @@
     <Compile Include="Generators\Generator.cs" />
     <Compile Include="Generators\GenericGenerator.cs" />
     <Compile Include="Generators\ObjectDataProviderGenerator.cs" />
-    <Compile Include="Plugins\altserializationPlugin.cs" />
+    <Compile Include="Plugins\AltserializationPlugin.cs" />
     <Compile Include="Plugins\ApplicationTrustPlugin.cs" />
     <Compile Include="Plugins\ClipboardPlugin.cs" />
     <Compile Include="Plugins\DotNetNukePlugin.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\ResxPlugin.cs" />
     <Compile Include="Plugins\TransactionManagerReenlist.cs" />
+    <Compile Include="Plugins\ViewStatePlugin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
