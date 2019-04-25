@@ -53,7 +53,8 @@ Available plugins:
         DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
         Resx (Generates RESX files)
         TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
-
+        ViewState (Generates a ViewState using known MachineKey parameters)
+        
 Usage: ysoserial_frmv2.exe [options]
 Options:
   -p, --plugin=VALUE         the plugin to be used
