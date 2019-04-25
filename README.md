@@ -68,11 +68,7 @@ Options:
 *Note:* XmlSerializer and DataContractSerializer formatters generate a wrapper Xml format including the expected type on the "type" attribute of the root node, as used, for example, in DotNetNuke. You may need to modify the generated xml based on how XmlSerializer gets the expected type in your case.
 
 ## Plugins
-Ysoserial.Net can be used to generate raw payloads or more complex ones using a plugin architecture. To use plugins, use `-p <plugin name>` followed by the plugin options (the rest of ysoserial.net options will be ignored). Eg:
-
-```
-$ ./ysoserial.exe -p DotNetNuke -m read_file -f win.ini
-```
+Ysoserial.Net can be used to generate raw payloads or more complex ones using a plugin architecture. To use plugins, use `-p <plugin name>` followed by the plugin options (the rest of ysoserial.net options will be ignored). 
 
 For more help on plugin options use `-h` along with `-p <plugin name>`. 
 
