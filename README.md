@@ -81,7 +81,8 @@ Available plugins:
         Resx (Generates RESX files)
         SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
         TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
-
+        ViewState (Generates a ViewState using known MachineKey parameters)
+        
 Usage: ysoserial.exe [options]
 Options:
   -p, --plugin=VALUE         the plugin to be used
