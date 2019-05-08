@@ -1,4 +1,4 @@
-﻿using NDesk.Options;
+using NDesk.Options;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -345,11 +345,11 @@ namespace ysoserial.Plugins
                 strPath = "/" + strPath;
 
             String result = strPath;
-
+            
             if (result.LastIndexOf(".") > result.LastIndexOf("/"))
             {
                 // file name needs to be removed
-                result = result.Substring(0, result.LastIndexOf("/"));
+                result = result.Substring(0, result.LastIndexOf("/") + 1);
             }
             result = RemoveSlashFromPathIfNeeded(result);
 
@@ -455,4 +455,3 @@ namespace ysoserial.Plugins
         }
     }
 }
-
