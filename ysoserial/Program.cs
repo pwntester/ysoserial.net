@@ -32,7 +32,7 @@ namespace ysoserial
                 {"g|gadget=", "the gadget chain.", v => gadget = v },
                 {"f|formatter=", "the formatter.", v => formatter = v },
                 {"c|command=", "the command to be executed.", v => cmd = v },
-                {"s|commandstdin", "the command to be executed will be read from standard input.", v => cmdstdin = v != null },
+                {"s|stdin", "the command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
                 {"h|help", "show this message and exit", v => show_help = v != null },
             };
