@@ -90,6 +90,7 @@ Options:
   -g, --gadget=VALUE         the gadget chain.
   -f, --formatter=VALUE      the formatter.
   -c, --command=VALUE        the command to be executed.
+  -s, --stdin                the command to be executed will be read from standard input.
   -t, --test                 whether to run payload locally. Default: false
   -h, --help                 show this message and exit
 ```
