@@ -55,7 +55,7 @@ namespace ysoserial.Plugins
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Try 'ysoserial -p SharePoint --help' for more information.");
+                Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
             string payload = "";
@@ -64,7 +64,7 @@ namespace ysoserial.Plugins
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
-                Console.WriteLine("Try 'ysoserial -p SharePoint --help' for more information.");
+                Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
 
@@ -84,6 +84,15 @@ namespace ysoserial.Plugins
                                 "\r\n-->";
                     break;
             }
+
+            if (String.IsNullOrEmpty(payload))
+            {
+                Console.Write("ysoserial: ");
+                Console.WriteLine("Incorrect plugin mode/arguments combination");
+                Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
+                System.Environment.Exit(-1);
+            }
+
             return payload;
         }
 
