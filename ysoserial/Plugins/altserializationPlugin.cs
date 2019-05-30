@@ -35,7 +35,7 @@ namespace ysoserial.Plugins
 
         public string Name()
         {
-            return "altserialization";
+            return "Altserialization";
         }
 
         public string Description()

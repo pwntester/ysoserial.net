@@ -80,6 +80,7 @@ Available plugins:
         DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
         Resx (Generates RESX files)
         SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
+        SharePoint (Generates poayloads for SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
         TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
         ViewState (Generates a ViewState using known MachineKey parameters)
         

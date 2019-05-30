@@ -94,6 +94,7 @@
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\ResxPlugin.cs" />
     <Compile Include="Plugins\SessionSecurityTokenHandlerPlugin.cs" />
+    <Compile Include="Plugins\SharePointPlugin.cs" />
     <Compile Include="Plugins\TransactionManagerReenlist.cs" />
     <Compile Include="Plugins\ViewStatePlugin.cs" />
     <Compile Include="Program.cs" />
