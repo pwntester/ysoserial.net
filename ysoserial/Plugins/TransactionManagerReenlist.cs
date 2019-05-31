@@ -55,7 +55,7 @@ namespace ysoserial.Plugins
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Try 'ysoserial --help' for more information.");
+                Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
 
@@ -64,7 +64,7 @@ namespace ysoserial.Plugins
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
-                Console.WriteLine("Try 'ysoserial --help' for more information.");
+                Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
 
