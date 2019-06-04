@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -43,10 +44,11 @@ namespace ysoserial.Generators
         {
             return "ActivitySurrogateSelectorFromFile";
         }
+
         public override object Generate(string file, string formatter, Boolean test)
         {
             PayloadClassFromFile payload = new PayloadClassFromFile(file);
-            return Serialize(payload, formatter, test);
+            return base.WrapPayload(payload, formatter, test);
         }
     }
 }
