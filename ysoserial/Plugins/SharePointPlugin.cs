@@ -8,7 +8,8 @@ using System.Text.RegularExpressions;
  * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
  * 
  * Comments: 
- *  This plugin contains SharePoint exploit code.
+ *  This plugin generates payloads that can be used for a few SharePoint vulnerabilities that are related to deserialization.
+ *  Please feel free to contribute to this and add your name at the top.
  *  It currently supports:
  *      CVE-2019-0604: https://www.thezdi.com/blog/2019/3/13/cve-2019-0604-details-of-a-microsoft-sharepoint-rce-vulnerability
  *      CVE-2018-8421: https://www.nccgroup.trust/uk/our-research/technical-advisory-bypassing-microsoft-xoml-workflows-protection-mechanisms-using-deserialisation-of-untrusted-data/
@@ -35,7 +36,7 @@ namespace ysoserial.Plugins
 
         public string Description()
         {
-            return "Generates poayloads for SharePoint CVEs: CVE-2019-0604, CVE-2018-8421";
+            return "Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421";
         }
 
         public OptionSet Options()
