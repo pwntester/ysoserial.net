@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Web.UI;
 using System.Linq;
+using System.Configuration;
 
 namespace ysoserial.Generators
 {
@@ -29,6 +30,9 @@ namespace ysoserial.Generators
 
         public object Serialize(object cmdobj, string formatter, Boolean test)
         {
+            // Disable ActivitySurrogate type protections during generation
+            ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
+
             MemoryStream stream = new MemoryStream();
           
             if (formatter.ToLower().Equals("binaryformatter"))

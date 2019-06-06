@@ -48,7 +48,7 @@ namespace ysoserial.Generators
         public override object Generate(string file, string formatter, Boolean test)
         {
             PayloadClassFromFile payload = new PayloadClassFromFile(file);
-            return base.WrapPayload(payload, formatter, test);
+            return Serialize(payload, formatter, test);
         }
     }
 }
