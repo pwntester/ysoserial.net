@@ -4,7 +4,7 @@
 
 </br>
 
-master ![master status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=master) v2 ![v2 status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)
+master ![master status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=master)  v2 ![v2 status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)
 
 A proof-of-concept tool for generating payloads that exploit unsafe .NET object deserialization.
 
