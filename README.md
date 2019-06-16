@@ -1,11 +1,8 @@
-<div align="center">
-  <img src="logo.png" />
-</div>
-
-</br>
 
 master ![master status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=master) v2 ![v2 status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)
 
+![logo](/logo.png)
+</br>
 A proof-of-concept tool for generating payloads that exploit unsafe .NET object deserialization.
 
 ## Description
