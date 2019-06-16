@@ -3,7 +3,7 @@
 </div>
 
 </br>
-[![Build Status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)](https://dev.azure.com/alvaro0002/ysoserial.net/_build/latest?definitionId=1&branchName=v2)
+![Build Status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)
 
 A proof-of-concept tool for generating payloads that exploit unsafe .NET object deserialization.
 
