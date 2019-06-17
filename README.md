@@ -1,7 +1,7 @@
 ![logo](/logo.png)
 ---
-[![master](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=master)](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/master.svg?label=master%20build)
-[![v2](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/v2.svg?label=v2%20build)
+[![master](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/master.svg?label=master%20branch)](https://dev.azure.com/alvaro0002/ysoserial.net/_build/latest?definitionId=1&branchName=master)
+[![v2](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/v2.svg?label=v2%20branch)](https://dev.azure.com/alvaro0002/ysoserial.net/_build/latest?definitionId=1&branchName=v2)
 
 A proof-of-concept tool for generating payloads that exploit unsafe .NET object deserialization.
 
