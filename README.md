@@ -1,8 +1,10 @@
-master ![master status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=master) v2 ![v2 status](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)
-<hr/>
-</br></br></br>
 ![logo](/logo.png)
-</br></br>
+---
+[![master](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=master)](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/master.svg?label=master%20build)
+[![v2](https://dev.azure.com/alvaro0002/ysoserial.net/_apis/build/status/pwntester.ysoserial.net?branchName=v2)](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/v2.svg?label=v2%20build)
+
+A proof-of-concept tool for generating payloads that exploit unsafe .NET object deserialization.
+
 ## Description
 ysoserial.net is a collection of utilities and property-oriented programming "gadget chains" discovered in common .NET libraries that can, under the right conditions, exploit .NET applications performing unsafe deserialization of objects. The main driver program takes a user-specified command and wraps it in the user-specified gadget chain, then serializes these objects to stdout. When an application with the required gadgets on the classpath unsafely deserializes this data, the chain will automatically be invoked and cause the command to be executed on the application host.
 
