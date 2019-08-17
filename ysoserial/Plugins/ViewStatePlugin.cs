@@ -215,7 +215,12 @@ namespace ysoserial.Plugins
                 config.Decryption = decryptionAlg;
                 config.DecryptionKey = decryptionKey;
             }
-            config.Validation = (MachineKeyValidation)Enum.Parse(typeof(MachineKeyValidation), validationAlg);
+            if (validationAlg.ToUpper().Equals("3DES"))
+            {
+                // If validationAlg is 3DES, modify it to TripleDES in order for Enum.Parse to work.
+                validationAlg = "TripleDES";
+            }
+	    config.Validation = (MachineKeyValidation)Enum.Parse(typeof(MachineKeyValidation), validationAlg);
             config.ValidationKey = validationKey;
             readOnlyField.SetValue(config, true);
 
