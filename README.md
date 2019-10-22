@@ -27,6 +27,13 @@ $ ./ysoserial -h
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 Available formatters:
+        ActivitySurrogateDisableTypeCheck (ActivitySurrogateDisableTypeCheck Gadget by Nick Landers. Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.)
+                Formatters:
+                        BinaryFormatter
+                        ObjectStateFormatter
+                        SoapFormatter
+                        NetDataContractSerializer
+                        LosFormatter
         ActivitySurrogateSelectorFromFile (ActivitySurrogateSelector gadget by James Forshaw. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
                 Formatters:
                         BinaryFormatter
@@ -48,7 +55,7 @@ Available formatters:
                         XmlSerializer
                         DataContractSerializer
                         YamlDotNet < 5.0.0
-        TextFormattingRunProperties (TextFormattingRunProperties Gadget by Oleksandr Mirosh and Alvaro Munoz.)
+        TextFormattingRunProperties (TextFormattingRunProperties Gadget by Oleksandr Mirosh and Alvaro Munoz)
                 Formatters:
                         BinaryFormatter
                         ObjectStateFormatter
@@ -68,23 +75,31 @@ Available formatters:
                         ObjectStateFormatter
                         NetDataContractSerializer
                         LosFormatter
+        TypeConfuseDelegateMono (TypeConfuseDelegate gadget by James Forshaw - Tweaked to work with Mono)
+                Formatters:
+                        BinaryFormatter
+                        ObjectStateFormatter
+                        NetDataContractSerializer
+                        LosFormatter
         WindowsIdentity (WindowsIdentity Gadget by Levi Broderick)
                 Formatters:
                         BinaryFormatter
                         Json.Net
                         DataContractSerializer
+                        SoapFormatter
 
 Available plugins:
-        altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
+        ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
+        Altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
         ApplicationTrust (Generates XML payload for the ApplicationTrust class)
         Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
         DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
         Resx (Generates RESX files)
         SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
-        SharePoint (Generates poayloads for SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
+        SharePoint (Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
         TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
         ViewState (Generates a ViewState using known MachineKey parameters)
-        
+
 Usage: ysoserial.exe [options]
 Options:
   -p, --plugin=VALUE         the plugin to be used
