@@ -15,7 +15,7 @@ namespace ysoserial.Plugins
 
         static OptionSet options = new OptionSet()
             {
-                {"m|mode=", "the payload mode: read_file, upload_file, run_command.", v => mode = v },
+                {"m|mode=", "the payload mode: read_file, write_file, run_command.", v => mode = v },
                 {"c|command=", "the command to be executed in run_command mode.", v => command = v },
                 {"u|url=", "the url to fetch the file from in write_file mode.", v => url = v },
                 {"f|file=", "the file to read in read_file mode or the file to write to in write_file_mode.", v => path = v },
