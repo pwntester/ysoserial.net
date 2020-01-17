@@ -33,17 +33,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="fastjson, Version=2.1.0.0, Culture=neutral, PublicKeyToken=6b75a806b86095cd, processorArchitecture=MSIL">
-      <HintPath>..\packages\fastJSON.2.1.27\lib\net40\fastjson.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="fastjson">
+      <HintPath>.\fastjson.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="NDesk.Options, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="NDesk.Options">
+      <HintPath>.\NDesk.Options.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>.\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="YamlDotNet">
+      <HintPath>.\YamlDotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
