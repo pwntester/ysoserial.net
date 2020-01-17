@@ -19,4 +19,4 @@ jobs:
         uses: actions/upload-artifact@v1.0.0
         with:
           name: ysoserial
-          path: \a\ysoserial\ysoserial\ysoserial\bin\Debug
+          path: \a\ysoserial.net\ysoserial.net\ysoserial\bin\Debug\
