@@ -14,6 +14,8 @@ jobs:
           $msbuildPath = Split-Path (& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find MSBuild\Current\Bin\amd64\MSBuild.exe | Select-Object -First 1) -Parent
           $env:PATH = $msbuildPath + ';' + $env:PATH
           msbuild -v:m -restore -t:Build -p:Configuration=Debug -p:TargetFramework=net4.5.2 ysoserial.sln
+          cp d:\a\ysoserial.net\ysoserial.net\ysoserial\*.dll d:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Debug\
+          cp d:\a\ysoserial.net\ysoserial.net\ysoserial\*.xml d:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Debug\
       
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
