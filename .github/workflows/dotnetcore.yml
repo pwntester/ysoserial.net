@@ -5,10 +5,9 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
-
+    
     steps:
       - uses: actions/checkout@v1
-
       - name: Build
         shell: pwsh
         run: |
