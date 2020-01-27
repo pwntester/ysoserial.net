@@ -7,6 +7,7 @@ namespace ysoserial.Plugins
     {
         string Name();
         string Description();
+        string Credit();
         OptionSet Options();
         object Run(String[] args);
     }

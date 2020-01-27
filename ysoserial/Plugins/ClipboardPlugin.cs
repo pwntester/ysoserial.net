@@ -45,6 +45,12 @@ namespace ysoserial.Plugins
             return "Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps";
         }
 
+        public string Credit()
+        {
+            return "Soroush Dalili";
+        }
+
+
         public OptionSet Options()
         {
             return options;

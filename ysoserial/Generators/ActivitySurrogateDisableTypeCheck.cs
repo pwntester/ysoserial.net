@@ -12,7 +12,12 @@ namespace ysoserial.Generators
 
         public override string Description()
         {
-            return "ActivitySurrogateDisableTypeCheck Gadget by Nick Landers. Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.";
+            return "Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.";
+        }
+
+        public override string Credit()
+        {
+            return "Nick Landers";
         }
 
         public override List<string> SupportedFormatters()

@@ -5,7 +5,7 @@ using ysoserial.Generators;
 using System.IO;
 
 /**
- * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
+ * Author: Soroush Dalili (@irsdl)
  * 
  * Comments: 
  *  This was released as a PoC for NCC Group's research on `Use of Deserialisation in .NET Framework Methods` (December 2018)
@@ -41,6 +41,11 @@ namespace ysoserial.Plugins
         public string Description()
         {
             return "Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection";
+        }
+
+        public string Credit()
+        {
+            return "Soroush Dalili";
         }
 
         public OptionSet Options()

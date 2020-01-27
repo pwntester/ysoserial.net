@@ -16,6 +16,8 @@ namespace ysoserial.Generators
 
         public abstract object Generate(string cmd, string formatter, Boolean test);
 
+        public abstract string Credit();
+
         public abstract string Name();
 
         public abstract List<string> SupportedFormatters();

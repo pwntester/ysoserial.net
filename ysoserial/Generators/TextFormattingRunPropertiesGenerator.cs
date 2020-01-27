@@ -35,7 +35,12 @@ namespace ysoserial.Generators
 
         public override string Description()
         {
-            return "TextFormattingRunProperties Gadget by Oleksandr Mirosh and Alvaro Munoz";
+            return "TextFormattingRunProperties gadget";
+        }
+
+        public override string Credit()
+        {
+            return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
         public override List<string> SupportedFormatters()
