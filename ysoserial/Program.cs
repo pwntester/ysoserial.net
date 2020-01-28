@@ -21,6 +21,7 @@ namespace ysoserial
         static string plugin_name = "";
         static Boolean test = false;
         static Boolean show_help = false;
+        static Boolean show_credit = false;
 
         static IEnumerable<string> generators;
         static IEnumerable<string> plugins;
@@ -34,7 +35,8 @@ namespace ysoserial
                 {"c|command=", "the command to be executed.", v => cmd = v },
                 {"s|stdin", "the command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
-                {"h|help", "show this message and exit", v => show_help = v != null },
+                {"h|help", "shows this message and exit", v => show_help = v != null },
+                {"credit", "shows the credit/history of gadgets and plugins", v => show_credit =  v != null },
             };
 
         static void Main(string[] args)
@@ -53,7 +55,7 @@ namespace ysoserial
 
             if (
                 ((cmd == "" && !cmdstdin) || formatter == "" || gadget == "" || format == "") &&
-                plugin_name == ""
+                plugin_name == "" && !show_credit
             )
             {
                 Console.WriteLine("Missing arguments.");
@@ -69,6 +71,12 @@ namespace ysoserial
             // Populate list of available plugins
             var pluginTypes = types.Where(p => typeof(Plugin).IsAssignableFrom(p) && !p.IsInterface);
             plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList();
+
+            // Show credits if requested
+            if (show_credit)
+            {
+                ShowCredit();
+            }
 
             // Show help if requested
             if (show_help)
@@ -264,6 +272,58 @@ namespace ysoserial
                 }
                 System.Environment.Exit(-1);
             }
+        }
+
+        private static void ShowCredit()
+        {
+            Console.WriteLine("ysoserial.net has been developed by Alvaro Muñoz (@pwntester)");
+            Console.WriteLine("");
+            Console.WriteLine("Credits for available formatters:");
+            foreach (string g in generators)
+            {
+                try
+                {
+                    if (g != "Generic")
+                    {
+                        ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
+                        Generator gg = (Generator)container.Unwrap();
+                        //Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
+                        Console.WriteLine("\t" + gg.Name());
+                        Console.WriteLine("\t\t" + gg.Credit());
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Gadget not supported");
+                    System.Environment.Exit(-1);
+                }
+
+            }
+            Console.WriteLine("");
+            Console.WriteLine("Credits for available plugins:");
+            foreach (string p in plugins)
+            {
+                try
+                {
+                    if (p != "Generic")
+                    {
+                        ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
+                        Plugin pp = (Plugin)container.Unwrap();
+                        //Console.WriteLine("\t" + pp.Name() + " (" + pp.Description() + ")");
+                        Console.WriteLine("\t" + pp.Name());
+                        Console.WriteLine("\t\t" + pp.Credit());
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Plugin not supported");
+                    System.Environment.Exit(-1);
+                }
+            }
+            Console.WriteLine("");
+            Console.WriteLine("Various other people have also donated their time and contributed to this project.");
+            Console.WriteLine("Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to find those who have helped developing more features or have fixed bugs.");
+            System.Environment.Exit(0);
         }
     }
 }

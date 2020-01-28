@@ -4,7 +4,7 @@ using System;
 using ysoserial.Generators;
 
 /**
- * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
+ * Author: Soroush Dalili (@irsdl)
  * 
  * Comments: 
  *  There are a number of techniques to make the resource files (refer to the NCC Group blog post). Only a few of them have been included here.
@@ -39,6 +39,11 @@ namespace ysoserial.Plugins
         public string Description()
         {
             return "Generates RESX files";
+        }
+
+        public string Credit()
+        {
+            return "Soroush Dalili";
         }
 
         public OptionSet Options()

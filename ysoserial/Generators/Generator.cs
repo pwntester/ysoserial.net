@@ -7,6 +7,7 @@ namespace ysoserial.Generators
     {
         string Name();
         string Description();
+        string Credit();
         List<string> SupportedFormatters();
         object Generate(string cmd, string formatter, Boolean test);
         object Serialize(object cmdobj, string formatter, Boolean test);

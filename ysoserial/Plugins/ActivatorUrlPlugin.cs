@@ -37,6 +37,11 @@ namespace ysoserial.Plugins
             return "Sends a generated payload to an activated, presumably remote, object";
         }
 
+        public string Credit()
+        {
+            return "Harrison Neal";
+        }
+
         public OptionSet Options()
         {
             return options;

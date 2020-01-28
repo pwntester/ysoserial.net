@@ -14,7 +14,7 @@ namespace ysoserial.Generators
     {
         public override string Description()
         {
-            return "WindowsIdentity Gadget by Levi Broderick";
+            return "WindowsIdentity gadget";
 
             // Bridge from BinaryFormatter constructor/callback to BinaryFormatter
             // Usefule for Json.Net since it invokes ISerializable callbacks during deserialization
@@ -39,6 +39,11 @@ namespace ysoserial.Generators
         public override string Name()
         {
             return "WindowsIdentity";
+        }
+
+        public override string Credit()
+        {
+            return "Levi Broderick";
         }
 
         [Serializable]

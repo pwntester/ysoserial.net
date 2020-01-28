@@ -20,7 +20,7 @@ namespace ysoserial.Generators
     {
         public override string Description()
         {
-            return "ObjectDataProvider Gadget by Oleksandr Mirosh and Alvaro Munoz";
+            return "ObjectDataProvider gadget";
         }
 
         public override List<string> SupportedFormatters()
@@ -31,6 +31,11 @@ namespace ysoserial.Generators
         public override string Name()
         {
             return "ObjectDataProvider";
+        }
+
+        public override string Credit()
+        {
+            return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
         public override object Generate(string cmd, string formatter, Boolean test)

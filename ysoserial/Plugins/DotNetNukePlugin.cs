@@ -31,6 +31,11 @@ namespace ysoserial.Plugins
             return "Generates payload for DotNetNuke CVE-2017-9822";
         }
 
+        public string Credit()
+        {
+            return "discovered by Oleksandr Mirosh and Alvaro Munoz, implemented by Alvaro Munoz, tested by @GlitchWitch";
+        }
+
         public OptionSet Options()
         {
             return options;

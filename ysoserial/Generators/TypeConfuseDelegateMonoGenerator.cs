@@ -15,7 +15,12 @@ namespace ysoserial.Generators
 
         public override string Description()
         {
-            return "TypeConfuseDelegate gadget by James Forshaw - Tweaked to work with Mono";
+            return "TypeConfuseDelegate gadget - Tweaked to work with Mono";
+        }
+
+        public override string Credit()
+        {
+            return "James Forshaw";
         }
 
         public override List<string> SupportedFormatters()

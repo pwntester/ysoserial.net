@@ -124,7 +124,7 @@ namespace ysoserial.Generators
    
         public override string Description()
         {
-            return "ActivitySurrogateSelector gadget by James Forshaw. This gadget ignores the command parameter and executes the constructor of ExploitClass class.";
+            return "This gadget ignores the command parameter and executes the constructor of ExploitClass class.";
         }
 
         public override List<string> SupportedFormatters()
@@ -135,6 +135,11 @@ namespace ysoserial.Generators
         public override string Name()
         {
             return "ActivitySurrogateSelector";
+        }
+
+        public override string Credit()
+        {
+            return "James Forshaw";
         }
 
         public override object Generate(string cmd, string formatter, Boolean test)

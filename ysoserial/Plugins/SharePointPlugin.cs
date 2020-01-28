@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 /**
- * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
+ * Author: Soroush Dalili (@irsdl)
  * 
  * Comments: 
  *  This plugin generates payloads that can be used for a few SharePoint vulnerabilities that are related to deserialization.
@@ -37,6 +37,11 @@ namespace ysoserial.Plugins
         public string Description()
         {
             return "Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421";
+        }
+
+        public string Credit()
+        {
+            return "CVE-2019-0604: Markus Wulftange, CVE-2018-8421: Soroush Dalili, implemented by Soroush Dalili";
         }
 
         public OptionSet Options()

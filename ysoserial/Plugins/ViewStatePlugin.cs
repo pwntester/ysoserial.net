@@ -11,7 +11,7 @@ using System.Web.Configuration;
 using ysoserial.Generators;
 
 /**
- * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
+ * Author: Soroush Dalili (@irsdl)
  * 
  * Comments: 
  *  This is used when the MachineKey parameters have been stolen for example by downloading the web.config or machine.config file via another vulnerability
@@ -78,6 +78,11 @@ namespace ysoserial.Plugins
         public string Description()
         {
             return "Generates a ViewState using known MachineKey parameters";
+        }
+
+        public string Credit()
+        {
+            return "Soroush Dalili";
         }
 
         public OptionSet Options()

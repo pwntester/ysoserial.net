@@ -15,7 +15,12 @@ namespace ysoserial.Generators
 
         public override string Description()
         {
-            return "TypeConfuseDelegate gadget by James Forshaw";
+            return "TypeConfuseDelegate gadget";
+        }
+
+        public override string Credit()
+        {
+            return "James Forshaw";
         }
 
         public override List<string> SupportedFormatters()
