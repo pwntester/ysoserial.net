@@ -26,5 +26,5 @@ jobs:
         uses: actions/upload-artifact@v1.0.0
         with:
           name: ysoserial
-          path: D:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Debug\
+          path: D:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Release\
         
