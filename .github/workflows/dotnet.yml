@@ -1,6 +1,12 @@
 name: GitHub CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+    - master
 jobs:
   build:
     name: Build
@@ -16,3 +22,9 @@ jobs:
         uses: warrenbuckley/Setup-MSBuild@v1
       - name: Build with MSBuild
         run: msbuild ysoserial.sln -p:Configuration=Release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ysoserial
+          path: \a\ysoserial.net\ysoserial.net\ysoserial\bin\Debug\
+        
