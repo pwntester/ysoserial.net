@@ -23,8 +23,8 @@ jobs:
       - name: Build with MSBuild
         run: msbuild ysoserial.sln -p:Configuration=Release
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v1.0.0
         with:
           name: ysoserial
-          path: \a\ysoserial.net\ysoserial.net\ysoserial\bin\Debug\
+          path: D:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Debug\
         
