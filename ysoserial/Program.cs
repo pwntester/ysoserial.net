@@ -13,7 +13,7 @@ namespace ysoserial
     class Program
     {
         //Command line arguments
-        static string format = "";
+        static string format = "raw";
         static string gadget = "";
         static string formatter = "";
         static string cmd = "";
@@ -28,15 +28,15 @@ namespace ysoserial
 
         static OptionSet options = new OptionSet()
             {
-                {"p|plugin=", "the plugin to be used", v => plugin_name = v },
-                {"o|output=", "the output format (raw|base64).", v => format = v },
-                {"g|gadget=", "the gadget chain.", v => gadget = v },
-                {"f|formatter=", "the formatter.", v => formatter = v },
-                {"c|command=", "the command to be executed.", v => cmd = v },
-                {"s|stdin", "the command to be executed will be read from standard input.", v => cmdstdin = v != null },
-                {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
-                {"h|help", "shows this message and exit", v => show_help = v != null },
-                {"credit", "shows the credit/history of gadgets and plugins", v => show_credit =  v != null },
+                {"p|plugin=", "The plugin to be used.", v => plugin_name = v },
+                {"o|output=", "The output format (raw|base64). Default: raw", v => format = v },
+                {"g|gadget=", "The gadget chain.", v => gadget = v },
+                {"f|formatter=", "The formatter.", v => formatter = v },
+                {"c|command=", "The command to be executed.", v => cmd = v },
+                {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
+                {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
+                {"h|help", "Shows this message and exit.", v => show_help = v != null },
+                {"credit", "Shows the credit/history of gadgets and plugins.", v => show_credit =  v != null },
             };
 
         static void Main(string[] args)
