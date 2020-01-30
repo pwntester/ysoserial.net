@@ -1,6 +1,12 @@
-on: [push, pull_request]
-
 name: Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
