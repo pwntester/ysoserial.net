@@ -15,11 +15,15 @@ jobs:
         uses: warrenbuckley/Setup-MSBuild@v1
       - name: Build with MSBuild
         run: msbuild ysoserial.sln -p:Configuration=Release
+      - name: Prepare build artifact for stashing
+        run: |
+          mkdir release
+          move D:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Release .\release
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
         with:
           name: ysoserial-${{ github.sha }}
-          path: D:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Release\
+          path: .\release
           
   # A Github release is created whenever the git reference contains a tag, starting with 'v*' (e.g. v0.4.2)
   # And the previous build jobs have been successful
@@ -28,20 +32,6 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v1
-      - name: Setup Nuget.exe
-        uses: warrenbuckley/Setup-Nuget@v1
-      - name: Restore packages
-        run: nuget restore ysoserial.sln
-      - name: Setup MSBuild.exe
-        uses: warrenbuckley/Setup-MSBuild@v1
-      - name: Build with MSBuild
-        run: msbuild ysoserial.sln -p:Configuration=Release
-      - name: Upload artifact
-        uses: actions/upload-artifact@v1.0.0
-        with:
-          name: ysoserial-${{ github.sha }}
-          path: D:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Release\
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -62,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: release-url
-          path: D:\a\ysoserial.net\ysoserial.net\ysoserial\bin\Release\
+          path: .\release
           
   # In this job we upload the release artifacts to the corresponding release
   upload:
