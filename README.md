@@ -296,4 +296,3 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 ### CTF write-ups:
 - https://cyku.tw/ctf-hitcon-2018-why-so-serials/
 - https://xz.aliyun.com/t/3019
-
