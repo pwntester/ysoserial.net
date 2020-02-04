@@ -20,7 +20,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace ysoserial.DevTest
+namespace ysoserial.Helpers.DevTest
 {
     class SerializersHelper
     {
@@ -182,8 +182,15 @@ namespace ysoserial.DevTest
         public static object ObjectDataProviderGadget(string cmd)
         {
             ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd";
-            psi.Arguments = "/c " + cmd;
+
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, out hasArgs);
+            psi.FileName = splittedCMD[0];
+            if (hasArgs)
+            {
+                psi.Arguments = splittedCMD[1];
+            }
+
             StringDictionary dict = new StringDictionary();
             psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
             Process p = new Process();
@@ -198,8 +205,15 @@ namespace ysoserial.DevTest
         public static object ResourceDictionaryGadget(string cmd)
         {
             ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd";
-            psi.Arguments = "/c " + cmd;
+
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, out hasArgs);
+            psi.FileName = splittedCMD[0];
+            if (hasArgs)
+            {
+                psi.Arguments = splittedCMD[1];
+            }
+
             StringDictionary dict = new StringDictionary();
             psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
             Process p = new Process();

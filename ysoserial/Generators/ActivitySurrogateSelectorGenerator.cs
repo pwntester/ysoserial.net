@@ -142,10 +142,10 @@ namespace ysoserial.Generators
             return "James Forshaw";
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
         {
             PayloadClass payload = new PayloadClass();
-            return Serialize(payload, formatter, test);
+            return Serialize(payload, formatter, test, minify);
         }
     }
 }

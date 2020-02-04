@@ -9,9 +9,25 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ysoserial</RootNamespace>
     <AssemblyName>ysoserial</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,6 +51,22 @@
   <ItemGroup>
     <Reference Include="fastjson, Version=2.1.0.0, Culture=neutral, PublicKeyToken=6b75a806b86095cd, processorArchitecture=MSIL">
       <HintPath>..\packages\fastJSON.2.1.27\lib\net40\fastjson.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.Core, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FSharp.Core.3.1.2\lib\net40\FSharp.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FsPickler, Version=4.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FsPickler.4.6\lib\net45\FsPickler.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FsPickler.CSharp, Version=4.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FsPickler.CSharp.4.6\lib\net45\FsPickler.CSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FsPickler.Json, Version=4.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FsPickler.Json.4.6\lib\net45\FsPickler.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="microsoft.identitymodel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -82,7 +114,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DevTest\SerializersHelper.cs" />
+    <Compile Include="Helpers\BFMinifier.cs" />
+    <Compile Include="Helpers\CommandArgSplitter.cs" />
+    <Compile Include="Helpers\DevTest\SerializersHelper.cs" />
     <Compile Include="ExploitClass.cs" />
     <Compile Include="Generators\ActivitySurrogateDisableTypeCheck.cs" />
     <Compile Include="Generators\ActivitySurrogateSelectorFromFileGenerator.cs" />
@@ -96,6 +130,9 @@
     <Compile Include="Generators\TypeConfuseDelegateMonoGenerator.cs" />
     <Compile Include="Generators\WindowsClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
+    <Compile Include="Helpers\JSONMinifier.cs" />
+    <Compile Include="Helpers\XMLMinifier.cs" />
+    <Compile Include="Helpers\YamlDotNet.cs" />
     <Compile Include="Plugins\ActivatorUrlPlugin.cs" />
     <Compile Include="Plugins\AltserializationPlugin.cs" />
     <Compile Include="Plugins\ApplicationTrustPlugin.cs" />
@@ -116,6 +153,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dlls\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

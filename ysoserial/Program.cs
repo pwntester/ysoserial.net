@@ -17,9 +17,11 @@ namespace ysoserial
         static string gadget = "";
         static string formatter = "";
         static string cmd = "";
+        static Boolean rawcmd = false;
         static Boolean cmdstdin = false;
         static string plugin_name = "";
         static Boolean test = false;
+        static Boolean minify = false;
         static Boolean show_help = false;
         static Boolean show_credit = false;
 
@@ -33,8 +35,10 @@ namespace ysoserial
                 {"g|gadget=", "The gadget chain.", v => gadget = v },
                 {"f|formatter=", "The formatter.", v => formatter = v },
                 {"c|command=", "The command to be executed.", v => cmd = v },
+                {"rawcmd", "Command will be executed as is without `cmd /c ` being appended (anything after first space is an argument).", v => rawcmd =  v != null },
                 {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
                 {"credit", "Shows the credit/history of gadgets and plugins.", v => show_credit =  v != null },
             };
@@ -60,6 +64,11 @@ namespace ysoserial
             {
                 Console.WriteLine("Missing arguments.");
                 show_help = true;
+            }
+
+            if (!rawcmd)
+            {
+                cmd = "cmd /c " + cmd;
             }
 
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
@@ -140,7 +149,7 @@ namespace ysoserial
                     {
                         cmd = Console.ReadLine();
                     }
-                    raw = generator.Generate(cmd, formatter, test);
+                    raw = generator.Generate(cmd, formatter, test, minify);
                 }
                 else
                 {
@@ -203,7 +212,7 @@ namespace ysoserial
             Console.WriteLine("");
             if (plugin_name == "")
             {
-                Console.WriteLine("Available formatters:");
+                Console.WriteLine("Available gadgets:\n");
                 foreach (string g in generators)
                 {
                     try
@@ -214,10 +223,14 @@ namespace ysoserial
                             Generator gg = (Generator)container.Unwrap();
                             Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                             Console.WriteLine("\t\tFormatters:");
+
+                            Console.WriteLine("\t\t\t" + string.Join(", ", gg.SupportedFormatters()) + "\n");
+                            /*
                             foreach (string f in gg.SupportedFormatters().ToArray())
                             {
                                 Console.WriteLine("\t\t\t" + f);
                             }
+                            */
                         }
                     }
                     catch
