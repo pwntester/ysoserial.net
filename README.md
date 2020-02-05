@@ -24,94 +24,86 @@ This software is a personal project and not related with any companies, includin
 ## Usage
 ```
 $ ./ysoserial -h
+Missing arguments.
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
-Available formatters:
-        ActivitySurrogateDisableTypeCheck (Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.)
-                Formatters:
-                        BinaryFormatter
-                        ObjectStateFormatter
-                        SoapFormatter
-                        NetDataContractSerializer
-                        LosFormatter
-        ActivitySurrogateSelectorFromFile (Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
-                Formatters:
-                        BinaryFormatter
-                        ObjectStateFormatter
-                        SoapFormatter
-                        LosFormatter
-        ActivitySurrogateSelector (This gadget ignores the command parameter and executes the constructor of ExploitClass class.)
-                Formatters:
-                        BinaryFormatter
-                        ObjectStateFormatter
-                        SoapFormatter
-                        LosFormatter
-        ObjectDataProvider (ObjectDataProvider gadget)
-                Formatters:
-                        Xaml
-                        Json.Net
-                        FastJson
-                        JavaScriptSerializer
-                        XmlSerializer
-                        DataContractSerializer
-                        YamlDotNet < 5.0.0
-        TextFormattingRunProperties (TextFormattingRunProperties gadget)
-                Formatters:
-                        BinaryFormatter
-                        ObjectStateFormatter
-                        SoapFormatter
-                        NetDataContractSerializer
-                        LosFormatter
-        PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
-                Formatters:
-                        BinaryFormatter
-                        ObjectStateFormatter
-                        SoapFormatter
-                        NetDataContractSerializer
-                        LosFormatter
-        TypeConfuseDelegate (TypeConfuseDelegate gadget)
-                Formatters:
-                        BinaryFormatter
-                        ObjectStateFormatter
-                        NetDataContractSerializer
-                        LosFormatter
-        TypeConfuseDelegateMono (TypeConfuseDelegate gadget - Tweaked to work with Mono)
-                Formatters:
-                        BinaryFormatter
-                        ObjectStateFormatter
-                        NetDataContractSerializer
-                        LosFormatter
-        WindowsIdentity (WindowsIdentity gadget)
-                Formatters:
-                        BinaryFormatter
-                        Json.Net
-                        DataContractSerializer
-                        SoapFormatter
+Available gadgets:
+
+	ActivitySurrogateDisableTypeCheck (Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.)
+		Formatters:
+			BinaryFormatter, ObjectStateFormatter, SoapFormatter, NetDataContractSerializer, LosFormatter
+
+	ActivitySurrogateSelectorFromFile (Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
+		Formatters:
+			BinaryFormatter, ObjectStateFormatter, SoapFormatter, LosFormatter
+
+	ActivitySurrogateSelector (This gadget ignores the command parameter and executes the constructor of ExploitClass class.)
+		Formatters:
+			BinaryFormatter, ObjectStateFormatter, SoapFormatter, LosFormatter
+
+	ObjectDataProvider (ObjectDataProvider gadget)
+		Formatters:
+			Xaml, Json.Net, FastJson, JavaScriptSerializer, XmlSerializer, DataContractSerializer, YamlDotNet < 5.0.0, FsPickler
+
+	TextFormattingRunProperties (TextFormattingRunProperties gadget)
+		Formatters:
+			BinaryFormatter, ObjectStateFormatter, SoapFormatter, NetDataContractSerializer, LosFormatter
+
+	PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
+		Formatters:
+			BinaryFormatter, ObjectStateFormatter, SoapFormatter, NetDataContractSerializer, LosFormatter
+
+	TypeConfuseDelegate (TypeConfuseDelegate gadget)
+		Formatters:
+			BinaryFormatter, ObjectStateFormatter, NetDataContractSerializer, LosFormatter
+
+	TypeConfuseDelegateMono (TypeConfuseDelegate gadget - Tweaked to work with Mono)
+		Formatters:
+			BinaryFormatter, ObjectStateFormatter, NetDataContractSerializer, LosFormatter
+
+	WindowsClaimsIdentity (WindowsClaimsIdentity (Microsoft.IdentityModel.Claims namespace) gadget)
+		Formatters:
+			BinaryFormatter, Json.Net, DataContractSerializer, NetDataContractSerializer, SoapFormatter
+
+	WindowsIdentity (WindowsIdentity gadget)
+		Formatters:
+			BinaryFormatter, Json.Net, DataContractSerializer, NetDataContractSerializer, SoapFormatter
+
 
 Available plugins:
-        ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
-        Altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
-        ApplicationTrust (Generates XML payload for the ApplicationTrust class)
-        Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
-        DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
-        Resx (Generates RESX files)
-        SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
-        SharePoint (Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
-        TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
-        ViewState (Generates a ViewState using known MachineKey parameters)
+	ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
+	Altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
+	ApplicationTrust (Generates XML payload for the ApplicationTrust class)
+	Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
+	DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
+	Resx (Generates RESX files)
+	SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
+	SharePoint (Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
+	TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
+	ViewState (Generates a ViewState using known MachineKey parameters)
 
 Usage: ysoserial.exe [options]
 Options:
-  -p, --plugin=VALUE         the plugin to be used
-  -o, --output=VALUE         the output format (raw|base64).
-  -g, --gadget=VALUE         the gadget chain.
-  -f, --formatter=VALUE      the formatter.
-  -c, --command=VALUE        the command to be executed.
-  -s, --stdin                the command to be executed will be read from
+  -p, --plugin=VALUE         The plugin to be used.
+  -o, --output=VALUE         The output format (raw|base64). Default: raw
+  -g, --gadget=VALUE         The gadget chain.
+  -f, --formatter=VALUE      The formatter.
+  -c, --command=VALUE        The command to be executed.
+      --rawcmd               Command will be executed as is without `cmd /c ` 
+                               being appended (anything after first space is an 
+                               argument).
+  -s, --stdin                The command to be executed will be read from 
                                standard input.
-  -t, --test                 whether to run payload locally. Default: false
-  -h, --help                 shows this message and exit
-      --credit               shows the credit/history of gadgets and plugins
+  -t, --test                 Whether to run payload locally. Default: false
+      --minify               Whether to minify the payloads where applicable 
+                               (experimental). Default: false
+      --sf, --searchformatter=VALUE
+                             Search in all formatters to show relevant 
+                               gadgets and their formatters (other parameters 
+                               will be ignored).
+  -h, --help                 Shows this message and exit.
+      --credit               Shows the credit/history of gadgets and plugins 
+                               (other parameters will be ignored).
 ```
 
 *Note:* When specifying complex commands, it can be tedious to escape some special character (;, |, &, ..). Use stdin option (-s) to read the command from stdin:
@@ -203,49 +195,51 @@ Special thanks to all contributors:
 
 ## Credits
 ```
-ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
+ysoserial.net has been developed by Alvaro Mu?oz (@pwntester)
 
 Credits for available formatters:
-        ActivitySurrogateDisableTypeCheck
-                Nick Landers
-        ActivitySurrogateSelectorFromFile
-                James Forshaw
-        ActivitySurrogateSelector
-                James Forshaw
-        ObjectDataProvider
-                Oleksandr Mirosh and Alvaro Munoz
-        TextFormattingRunProperties
-                Oleksandr Mirosh and Alvaro Munoz
-        PSObject
-                Oleksandr Mirosh and Alvaro Munoz
-        TypeConfuseDelegate
-                James Forshaw
-        TypeConfuseDelegateMono
-                James Forshaw
-        WindowsIdentity
-                Levi Broderick
+	ActivitySurrogateDisableTypeCheck
+		Nick Landers
+	ActivitySurrogateSelectorFromFile
+		James Forshaw
+	ActivitySurrogateSelector
+		James Forshaw
+	ObjectDataProvider
+		Oleksandr Mirosh and Alvaro Munoz
+	TextFormattingRunProperties
+		Oleksandr Mirosh and Alvaro Munoz
+	PSObject
+		Oleksandr Mirosh and Alvaro Munoz
+	TypeConfuseDelegate
+		James Forshaw
+	TypeConfuseDelegateMono
+		James Forshaw
+	WindowsClaimsIdentity
+		Soroush Dalili
+	WindowsIdentity
+		Levi Broderick, updated by Soroush Dalili
 
 Credits for available plugins:
-        ActivatorUrl
-                Harrison Neal
-        Altserialization
-                Soroush Dalili
-        ApplicationTrust
-                Soroush Dalili
-        Clipboard
-                Soroush Dalili
-        DotNetNuke
-                discovered by Oleksandr Mirosh and Alvaro Munoz, implemented by Alvaro Munoz, tested by @GlitchWitch
-        Resx
-                Soroush Dalili
-        SessionSecurityTokenHandler
-                Soroush Dalili
-        SharePoint
-                CVE-2019-0604: Markus Wulftange, CVE-2018-8421: Soroush Dalili, implemented by Soroush Dalili
-        TransactionManagerReenlist
-                Soroush Dalili
-        ViewState
-                Soroush Dalili
+	ActivatorUrl
+		Harrison Neal
+	Altserialization
+		Soroush Dalili
+	ApplicationTrust
+		Soroush Dalili
+	Clipboard
+		Soroush Dalili
+	DotNetNuke
+		discovered by Oleksandr Mirosh and Alvaro Munoz, implemented by Alvaro Munoz, tested by @GlitchWitch
+	Resx
+		Soroush Dalili
+	SessionSecurityTokenHandler
+		Soroush Dalili
+	SharePoint
+		CVE-2019-0604: Markus Wulftange, CVE-2018-8421: Soroush Dalili, implemented by Soroush Dalili
+	TransactionManagerReenlist
+		Soroush Dalili
+	ViewState
+		Soroush Dalili
 
 Various other people have also donated their time and contributed to this project.
 Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to find those who have helped developing more features or have fixed bugs.
