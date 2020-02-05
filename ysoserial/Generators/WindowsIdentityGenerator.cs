@@ -174,7 +174,7 @@ namespace ysoserial.Generators
 ";
                 if (minify)
                 {
-                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null, Helpers.FormatterType.SoapFormatter);
                 }
 
                 if (test)

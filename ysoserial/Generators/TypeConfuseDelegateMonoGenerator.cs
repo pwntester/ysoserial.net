@@ -56,6 +56,10 @@ namespace ysoserial.Generators
             {
                 set.Add(splittedCMD[1]);
             }
+            else
+            {
+                set.Add(""); // this is needed (as it accepts two args?)
+            }
 
             FieldInfo fi = typeof(MulticastDelegate).GetField("_invocationList", BindingFlags.NonPublic | BindingFlags.Instance);
             object[] invoke_list = d.GetInvocationList();

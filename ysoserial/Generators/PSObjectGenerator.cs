@@ -132,6 +132,7 @@ namespace ysoserial.Generators
             if (minify)
             {
                 // Could not be tested so it may not work here!
+                // also not sure if can use CDATA otherwise we could use the CDATA flag to save more space
                 clixml = Helpers.XMLMinifier.Minify(clixml, null, null);
             }
 

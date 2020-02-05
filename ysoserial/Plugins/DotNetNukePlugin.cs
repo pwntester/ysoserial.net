@@ -82,6 +82,12 @@ namespace ysoserial.Plugins
                 Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
+
+            if (minify)
+            {
+                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+            }
+
             return payload;
 
         }

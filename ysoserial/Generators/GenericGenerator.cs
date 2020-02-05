@@ -102,7 +102,7 @@ namespace ysoserial.Generators
                 if (minify)
                 {
                     stream.Position = 0;
-                    stream = Helpers.XMLMinifier.Minify(stream, new string[] { "mscorlib" }, null, Helpers.FormatterType.NetDataContractXML);
+                    stream = Helpers.XMLMinifier.Minify(stream, new string[] { "mscorlib" }, null, Helpers.FormatterType.NetDataContractXML, true);
                 }
 
                 if (test)

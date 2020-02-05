@@ -177,6 +177,12 @@ namespace ysoserial.Plugins
             }
 
             payload = String.Format(payload, mtype, payloadValue);
+
+            if (minify)
+            {
+                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+            }
+
             return payload;
         }
     }

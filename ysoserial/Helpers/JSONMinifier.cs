@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
+// Coded by Soroush Dalili (@irsdl)
 namespace ysoserial.Helpers
 {
     class JSONMinifier
@@ -31,8 +28,6 @@ namespace ysoserial.Helpers
             // replacing spaces between things like:
             // Microsoft.IdentityModel, Version=3.5.0.0, PublicKeyToken=31bf3856ad364e35
             // clr-namespace:System.Diagnostics; assembly=system
-            //jsonString = Regex.Replace(jsonString, @"[""'](\s*[^,;""']+\s*[,;]\s*)+([^,;""']+\s*)[""']", delegate (Match m) { return m.Value.Replace(" ", ""); });
-
             jsonString = Regex.Replace(jsonString, @"([a-zA-Z0-9\.\-\:=_\s]+[;,]\s*)+([a-zA-Z0-9\.\-\:=_\s]+)[""'\]\<]", delegate (Match m) {
                 // we do not want to remove spaces when two alphanumeric strings are next to each other
                 String finalVal = m.Value;
@@ -42,8 +37,10 @@ namespace ysoserial.Helpers
                 return finalVal;
             });
 
-            // replacing not strong (loose) assembly names
+            // TODO: We are not replacing true with 1 and false with 0 at the moment due to the fact that none of the payloads in here has it
+            // This needs to be implemented in the future if we have such JSON objects in the future
 
+            // replacing not strong (loose) assembly names
             if (LooseAssemblyNames != null)
             {
                 foreach (String asmName in LooseAssemblyNames)

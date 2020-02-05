@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Xsl;
 
@@ -34,19 +33,29 @@ namespace ysoserial.Helpers
 
         public static MemoryStream Minify(Stream xmlDocumentStream, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType)
         {
+            return Minify(xmlDocumentStream, looseAssemblyNames, finalDiscardableRegExStringArray, FormatterType.None, false);
+        }
+
+        public static MemoryStream Minify(Stream xmlDocumentStream, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType, Boolean useCDATA)
+        {
             StreamReader reader = new StreamReader(xmlDocumentStream);
             string xmlDocument = reader.ReadToEnd();
-            xmlDocument = Minify(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, formatterType);
+            xmlDocument = Minify(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, formatterType, useCDATA);
             byte[] byteArray = Encoding.UTF8.GetBytes(xmlDocument);
             return new MemoryStream(byteArray);
         }
 
         public static String Minify(String xmlDocument, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray)
         {
-            return Minify(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, FormatterType.None);
+            return Minify(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, FormatterType.None, false);
         }
 
         public static String Minify(String xmlDocument, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType)
+        {
+            return Minify(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, FormatterType.None, false);
+        }
+
+        public static String Minify(String xmlDocument, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType, Boolean useCDATA)
         {
             xmlDocument = XmlParserNamespaceMinifier(xmlDocument);
 
@@ -63,7 +72,7 @@ namespace ysoserial.Helpers
             }
 
             xmlDocument = XmlXSLTMinifier(xmlDocument);
-            xmlDocument = XmlDirtyMatchReplaceMinifier(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray);
+            xmlDocument = XmlDirtyMatchReplaceMinifier(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, useCDATA);
 
             return xmlDocument;
         }
@@ -167,7 +176,7 @@ namespace ysoserial.Helpers
         }
 
 
-        private static String XmlDirtyMatchReplaceMinifier(String xmlDocument, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray)
+        private static String XmlDirtyMatchReplaceMinifier(String xmlDocument, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, Boolean useCDATA)
         {
             // replacing spaces before > or /> in valid elements
             xmlDocument = Regex.Replace(xmlDocument, @"(\<\/?[\w\:_]+([\s/]+[a-zA-Z0-9\.\-\:=_]+\s*=\s*(""[^""]*""|'[^']*'))*)\s+(\/?>)", "$1$+");
@@ -181,9 +190,6 @@ namespace ysoserial.Helpers
             // clr-namespace:System.Diagnostics; assembly=system
             // {         x:Type      Diag:Process   }
             // Int32 Compare(System.String, System.String)
-
-            //xmlDocument = Regex.Replace(xmlDocument, @"[""'](\s*[^&,;""'<]+\s*[,;]\s*)+([^&,;""'<]+\s*)[""']", delegate (Match m) { return m.Value.Replace(" ", ""); });
-
             xmlDocument = Regex.Replace(xmlDocument, @"([a-zA-Z0-9\.\-\:=_\s]+[;,]\s*)+([a-zA-Z0-9\.\-\:=_\s]+)[""'\]\<]", delegate (Match m) {
                 // we do not want to remove spaces when two alphanumeric strings are next to each other
                 String finalVal = m.Value;
@@ -215,6 +221,38 @@ namespace ysoserial.Helpers
                 {
                     xmlDocument = Regex.Replace(xmlDocument, dRegEx, "");
                 }
+            }
+
+            if (useCDATA)
+            {
+                // at this point, we want to decode all HTML encodings of valid XML elements and use CDATA
+                // we assume we are not already in CDATA! (big assumption)
+                // if we really want to save space, we need to have around 4 encoded values but we also ignore that for now
+
+                string htmlEncodedPattern = @"(?<=>\s*)(\&lt;([\w\:_\-]+)[^<]+)(?=\s*<)";
+                Regex htmlEncodedRegEx = new Regex(htmlEncodedPattern, RegexOptions.Compiled);
+                MatchCollection htmlEncodedMatches = htmlEncodedRegEx.Matches(xmlDocument);
+
+                foreach (Match match in htmlEncodedMatches)
+                {
+                    GroupCollection groups = match.Groups;
+                    String htmlEncodedValue = groups[1].Value;
+                    String newValue =  System.Web.HttpUtility.HtmlDecode(htmlEncodedValue);
+
+                    // now we can also minify this probably
+                    try
+                    {
+                        newValue = Minify(newValue, null, null);
+                    }
+                    catch (Exception e)
+                    {
+                        //
+                    }
+
+                    xmlDocument = xmlDocument.Replace(htmlEncodedValue, "<![CDATA[" + newValue + "]]>");
+                    
+                }
+             
             }
 
             return xmlDocument;

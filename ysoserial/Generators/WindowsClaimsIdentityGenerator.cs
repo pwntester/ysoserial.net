@@ -183,7 +183,7 @@ namespace ysoserial.Generators
 
                 if (minify)
                 {
-                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, Helpers.FormatterType.SoapFormatter);
                 }
 
                 if (test)

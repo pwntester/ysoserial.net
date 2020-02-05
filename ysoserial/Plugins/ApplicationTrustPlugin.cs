@@ -89,6 +89,11 @@ namespace ysoserial.Plugins
             payloadValue = BitConverter.ToString(osf).Replace("-", string.Empty);
             payload = String.Format(payload, payloadValue);
 
+            if (minify)
+            {
+                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+            }
+
             if (test)
             {
                 // PoC on how it works in practice

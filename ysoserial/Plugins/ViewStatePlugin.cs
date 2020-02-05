@@ -68,7 +68,7 @@ namespace ysoserial.Plugins
                 {"decryptionkey=", "this is the decryptionKey attribute from machineKey in the web.config file", v => decryptionKey = v},
                 {"validationalg=", "the validation algorithm can be set to SHA1, HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES, AES. Default: HMACSHA256", v => validationAlg = v},
                 {"validationkey=", "this is the validationKey attribute from machineKey in the web.config file", v => validationKey = v},
-                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                //{"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
                 {"isdebug", "to show useful debugging messages!", v => isDebug = v != null },
             };
 

