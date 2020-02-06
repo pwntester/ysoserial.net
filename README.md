@@ -195,7 +195,7 @@ Special thanks to all contributors:
 
 ## Credits
 ```
-ysoserial.net has been developed by Alvaro Mu?oz (@pwntester)
+ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
 
 Credits for available formatters:
 	ActivitySurrogateDisableTypeCheck
