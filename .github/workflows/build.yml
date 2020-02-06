@@ -78,8 +78,8 @@ jobs:
         run: |
           ls 
           mv ./ysoserial-${{ github.sha }}/* .
-          ls
-          zip -j ysoserial-$VERSION.zip ./*
+          ls Release
+          zip -j ysoserial-$VERSION.zip Release/*
       # Download the previously uploaded artifact which contains the release URL
       - name: Retrieve stashed release URL
         uses: actions/download-artifact@v1
