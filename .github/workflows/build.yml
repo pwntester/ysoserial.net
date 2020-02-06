@@ -47,6 +47,7 @@ jobs:
       - name: Copy release URL into file
         run: |
           mkdir release
+          echo ${{ steps.create_release.outputs.upload_url }}
           printf "%s" "${{ steps.create_release.outputs.upload_url }}" > release/url.txt
       - name: Stash file containing the release URL as an artifact
         uses: actions/upload-artifact@v1
@@ -76,9 +77,7 @@ jobs:
         env:
           VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          ls 
           mv ./ysoserial-${{ github.sha }}/* .
-          ls Release
           zip -j ysoserial-$VERSION.zip Release/*
       # Download the previously uploaded artifact which contains the release URL
       - name: Retrieve stashed release URL
@@ -88,7 +87,9 @@ jobs:
       # Write content of downloaded file (a string which contains the release URL) into a step.outputs variable
       - name: Read release URL
         id: get_release_url
-        run: echo ::set-output name=URL::$(cat release-url/url.txt)
+        run: |
+          echo ::set-output name=URL::$(cat release-url/url.txt)
+          echo $(cat release-url/url.txt)
       # This step is only needed because the upload-release-asset currently doesn't support
       # environment variables. Therefore they must be written and referenced through step.outputs
       - name: Prepare artifact metadata
