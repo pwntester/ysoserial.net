@@ -24,50 +24,53 @@ This software is a personal project and not related with any companies, includin
 ## Usage
 ```
 $ ./ysoserial -h
-Missing arguments.
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 Available gadgets:
 
 	ActivitySurrogateDisableTypeCheck (Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.)
 		Formatters:
-			BinaryFormatter, ObjectStateFormatter, SoapFormatter, NetDataContractSerializer, LosFormatter
-
-	ActivitySurrogateSelectorFromFile (Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
-		Formatters:
-			BinaryFormatter, ObjectStateFormatter, SoapFormatter, LosFormatter
+			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
 	ActivitySurrogateSelector (This gadget ignores the command parameter and executes the constructor of ExploitClass class.)
 		Formatters:
-			BinaryFormatter, ObjectStateFormatter, SoapFormatter, LosFormatter
+			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
+
+	ActivitySurrogateSelectorFromFile (Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.)
+		Formatters:
+			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
 
 	ObjectDataProvider (ObjectDataProvider gadget)
 		Formatters:
-			Xaml, Json.Net, FastJson, JavaScriptSerializer, XmlSerializer, DataContractSerializer, YamlDotNet < 5.0.0, FsPickler
-
-	TextFormattingRunProperties (TextFormattingRunProperties gadget)
-		Formatters:
-			BinaryFormatter, ObjectStateFormatter, SoapFormatter, NetDataContractSerializer, LosFormatter
+			DataContractSerializer, FastJson, FsPickler, JavaScriptSerializer, Json.Net, Xaml, XmlSerializer, YamlDotNet < 5.0.0
 
 	PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
 		Formatters:
-			BinaryFormatter, ObjectStateFormatter, SoapFormatter, NetDataContractSerializer, LosFormatter
+			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
+
+	SessionSecurityToken (SessionSecurityTokenGenerator (System.IdentityModel.Tokens namespace) gadget)
+		Formatters:
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
+
+	TextFormattingRunProperties (TextFormattingRunProperties gadget)
+		Formatters:
+			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
 	TypeConfuseDelegate (TypeConfuseDelegate gadget)
 		Formatters:
-			BinaryFormatter, ObjectStateFormatter, NetDataContractSerializer, LosFormatter
+			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter
 
 	TypeConfuseDelegateMono (TypeConfuseDelegate gadget - Tweaked to work with Mono)
 		Formatters:
-			BinaryFormatter, ObjectStateFormatter, NetDataContractSerializer, LosFormatter
+			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter
 
 	WindowsClaimsIdentity (WindowsClaimsIdentity (Microsoft.IdentityModel.Claims namespace) gadget)
 		Formatters:
-			BinaryFormatter, Json.Net, DataContractSerializer, NetDataContractSerializer, SoapFormatter
+			BinaryFormatter, DataContractSerializer, Json.Net, NetDataContractSerializer, SoapFormatter
 
 	WindowsIdentity (WindowsIdentity gadget)
 		Formatters:
-			BinaryFormatter, Json.Net, DataContractSerializer, NetDataContractSerializer, SoapFormatter
+			BinaryFormatter, DataContractSerializer, Json.Net, NetDataContractSerializer, SoapFormatter
 
 
 Available plugins:
@@ -195,20 +198,24 @@ Special thanks to all contributors:
 
 ## Credits
 ```
+$ ./ysoserial.exe --credit
+
 ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
 
 Credits for available formatters:
 	ActivitySurrogateDisableTypeCheck
 		Nick Landers
-	ActivitySurrogateSelectorFromFile
-		James Forshaw
 	ActivitySurrogateSelector
+		James Forshaw
+	ActivitySurrogateSelectorFromFile
 		James Forshaw
 	ObjectDataProvider
 		Oleksandr Mirosh and Alvaro Munoz
-	TextFormattingRunProperties
-		Oleksandr Mirosh and Alvaro Munoz
 	PSObject
+		Oleksandr Mirosh and Alvaro Munoz
+	SessionSecurityToken
+		Soroush Dalili
+	TextFormattingRunProperties
 		Oleksandr Mirosh and Alvaro Munoz
 	TypeConfuseDelegate
 		James Forshaw
@@ -243,6 +250,7 @@ Credits for available plugins:
 
 Various other people have also donated their time and contributed to this project.
 Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to find those who have helped developing more features or have fixed bugs.
+
 ```
 
 ## Additional Reading

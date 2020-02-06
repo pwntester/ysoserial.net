@@ -64,7 +64,8 @@ namespace ysoserial
                 plugin_name == "" && !show_credit && searchformatter == ""
             )
             {
-                Console.WriteLine("Missing arguments.");
+                if(!show_help)
+                    Console.WriteLine("Missing arguments.");
                 show_help = true;
             }
 
@@ -77,11 +78,11 @@ namespace ysoserial
 
             // Populate list of available gadgets
             var generatorTypes = types.Where(p => typeof(Generator).IsAssignableFrom(p) && !p.IsInterface);
-            generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList();
+            generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList().OrderBy(s=>s, StringComparer.CurrentCultureIgnoreCase);
 
             // Populate list of available plugins
             var pluginTypes = types.Where(p => typeof(Plugin).IsAssignableFrom(p) && !p.IsInterface);
-            plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList();
+            plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList().OrderBy(s => s, StringComparer.CurrentCultureIgnoreCase); ;
 
             // Search in formatters
             if (searchformatter != "")
@@ -161,7 +162,7 @@ namespace ysoserial
                 }
                 else
                 {
-                    Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(", ", generator.SupportedFormatters()));
+                    Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(", ", generator.SupportedFormatters().OrderBy(s => s, StringComparer.CurrentCultureIgnoreCase)));
                     System.Environment.Exit(-1);
                 }
 
@@ -225,7 +226,7 @@ namespace ysoserial
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
                         Generator gg = (Generator)container.Unwrap();
                         Boolean gadgetSelected = false;
-                        foreach(string formatter in gg.SupportedFormatters())
+                        foreach(string formatter in gg.SupportedFormatters().OrderBy(s => s, StringComparer.CurrentCultureIgnoreCase))
                         {
                             if (formatter.ToLower().Contains(searchformatter.ToLower()))
                             {
@@ -267,7 +268,7 @@ namespace ysoserial
                             Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                             Console.WriteLine("\t\tFormatters:");
 
-                            Console.WriteLine("\t\t\t" + string.Join(", ", gg.SupportedFormatters()) + "\n");
+                            Console.WriteLine("\t\t\t" + string.Join(", ", gg.SupportedFormatters().OrderBy(s => s, StringComparer.CurrentCultureIgnoreCase)) + "\n");
                             /*
                             foreach (string f in gg.SupportedFormatters().ToArray())
                             {
