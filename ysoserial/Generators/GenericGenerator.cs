@@ -14,7 +14,7 @@ namespace ysoserial.Generators
     {
         public abstract string Description();
 
-        public abstract object Generate(string cmd, string formatter, Boolean test);
+        public abstract object Generate(string cmd, string formatter, Boolean test, Boolean minify);
 
         public abstract string Credit();
 
@@ -30,7 +30,7 @@ namespace ysoserial.Generators
             else return false;
         }
 
-        public object Serialize(object cmdobj, string formatter, Boolean test)
+        public object Serialize(object cmdobj, string formatter, Boolean test, Boolean minify)
         {
             // Disable ActivitySurrogate type protections during generation
             ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
@@ -74,6 +74,13 @@ namespace ysoserial.Generators
             {
                 SoapFormatter sf = new SoapFormatter();
                 sf.Serialize(stream, cmdobj);
+
+                if (minify)
+                {
+                    stream.Position = 0;
+                    stream = Helpers.XMLMinifier.Minify(stream, null, null, Helpers.FormatterType.SoapFormatter);
+                }
+
                 if (test)
                 {
                     try
@@ -91,6 +98,13 @@ namespace ysoserial.Generators
             {
                 NetDataContractSerializer ndcs = new NetDataContractSerializer();
                 ndcs.Serialize(stream, cmdobj);
+
+                if (minify)
+                {
+                    stream.Position = 0;
+                    stream = Helpers.XMLMinifier.Minify(stream, new string[] { "mscorlib" }, null, Helpers.FormatterType.NetDataContractXML, true);
+                }
+
                 if (test)
                 {
                     try

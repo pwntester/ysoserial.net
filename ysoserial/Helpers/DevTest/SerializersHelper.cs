@@ -1,26 +1,18 @@
-﻿using Microsoft.VisualStudio.Text.Formatting;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.Specialized;
-using System.ComponentModel.Design;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace ysoserial.DevTest
+namespace ysoserial.Helpers.DevTest
 {
     class SerializersHelper
     {
@@ -182,8 +174,15 @@ namespace ysoserial.DevTest
         public static object ObjectDataProviderGadget(string cmd)
         {
             ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd";
-            psi.Arguments = "/c " + cmd;
+
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, out hasArgs);
+            psi.FileName = splittedCMD[0];
+            if (hasArgs)
+            {
+                psi.Arguments = splittedCMD[1];
+            }
+
             StringDictionary dict = new StringDictionary();
             psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
             Process p = new Process();
@@ -198,8 +197,15 @@ namespace ysoserial.DevTest
         public static object ResourceDictionaryGadget(string cmd)
         {
             ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd";
-            psi.Arguments = "/c " + cmd;
+
+            Boolean hasArgs;
+            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, out hasArgs);
+            psi.FileName = splittedCMD[0];
+            if (hasArgs)
+            {
+                psi.Arguments = splittedCMD[1];
+            }
+
             StringDictionary dict = new StringDictionary();
             psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
             Process p = new Process();

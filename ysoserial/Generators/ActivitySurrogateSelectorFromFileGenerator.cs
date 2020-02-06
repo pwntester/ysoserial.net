@@ -16,6 +16,10 @@ namespace ysoserial.Generators
 
         public PayloadClassFromFile(string file)
         {
+            if(file.StartsWith("cmd /c "))
+            {
+                file = file.Substring("cmd /c ".Length);
+            }
             string[] files = file.Split(new[] { ';' }).Select(s => s.Trim()).ToArray();
             CodeDomProvider codeDomProvider = CodeDomProvider.CreateProvider("CSharp");
             CompilerParameters compilerParameters = new CompilerParameters();
@@ -51,10 +55,10 @@ namespace ysoserial.Generators
             return "James Forshaw";
         }
 
-        public override object Generate(string file, string formatter, Boolean test)
+        public override object Generate(string file, string formatter, Boolean test, Boolean minify)
         {
             PayloadClassFromFile payload = new PayloadClassFromFile(file);
-            return Serialize(payload, formatter, test);
+            return Serialize(payload, formatter, test, minify);
         }
     }
 }

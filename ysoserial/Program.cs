@@ -16,10 +16,13 @@ namespace ysoserial
         static string format = "raw";
         static string gadget = "";
         static string formatter = "";
+        static string searchformatter = "";
         static string cmd = "";
+        static Boolean rawcmd = false;
         static Boolean cmdstdin = false;
         static string plugin_name = "";
         static Boolean test = false;
+        static Boolean minify = false;
         static Boolean show_help = false;
         static Boolean show_credit = false;
 
@@ -33,10 +36,13 @@ namespace ysoserial
                 {"g|gadget=", "The gadget chain.", v => gadget = v },
                 {"f|formatter=", "The formatter.", v => formatter = v },
                 {"c|command=", "The command to be executed.", v => cmd = v },
+                {"rawcmd", "Command will be executed as is without `cmd /c ` being appended (anything after first space is an argument).", v => rawcmd =  v != null },
                 {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"sf|searchformatter=", "Search in all formatters to show relevant gadgets and their formatters (other parameters will be ignored).", v => searchformatter =  v},
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
-                {"credit", "Shows the credit/history of gadgets and plugins.", v => show_credit =  v != null },
+                {"credit", "Shows the credit/history of gadgets and plugins (other parameters will be ignored).", v => show_credit =  v != null },
             };
 
         static void Main(string[] args)
@@ -55,11 +61,16 @@ namespace ysoserial
 
             if (
                 ((cmd == "" && !cmdstdin) || formatter == "" || gadget == "" || format == "") &&
-                plugin_name == "" && !show_credit
+                plugin_name == "" && !show_credit && searchformatter == ""
             )
             {
                 Console.WriteLine("Missing arguments.");
                 show_help = true;
+            }
+
+            if (!rawcmd)
+            {
+                cmd = "cmd /c " + cmd;
             }
 
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
@@ -71,6 +82,12 @@ namespace ysoserial
             // Populate list of available plugins
             var pluginTypes = types.Where(p => typeof(Plugin).IsAssignableFrom(p) && !p.IsInterface);
             plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList();
+
+            // Search in formatters
+            if (searchformatter != "")
+            {
+                SearchFormatters(searchformatter);
+            }
 
             // Show credits if requested
             if (show_credit)
@@ -140,7 +157,7 @@ namespace ysoserial
                     {
                         cmd = Console.ReadLine();
                     }
-                    raw = generator.Generate(cmd, formatter, test);
+                    raw = generator.Generate(cmd, formatter, test, minify);
                 }
                 else
                 {
@@ -196,6 +213,41 @@ namespace ysoserial
             }
         }
 
+        private static void SearchFormatters(string searchformatter)
+        {
+            Console.WriteLine("Formatter search result for \"" + searchformatter + "\":\n");
+            foreach (string g in generators)
+            {
+                try
+                {
+                    if (g != "Generic")
+                    {
+                        ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
+                        Generator gg = (Generator)container.Unwrap();
+                        Boolean gadgetSelected = false;
+                        foreach(string formatter in gg.SupportedFormatters())
+                        {
+                            if (formatter.ToLower().Contains(searchformatter.ToLower()))
+                            {
+                                if(gadgetSelected == false)
+                                {
+                                    Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
+                                    Console.WriteLine("\t\tFound formatters:");
+                                    gadgetSelected = true;
+                                }
+                                Console.WriteLine("\t\t\t" + formatter);
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    
+                }
+
+            }
+            System.Environment.Exit(-1);
+        }
 
         private static void ShowHelp()
         {
@@ -203,7 +255,7 @@ namespace ysoserial
             Console.WriteLine("");
             if (plugin_name == "")
             {
-                Console.WriteLine("Available formatters:");
+                Console.WriteLine("Available gadgets:\n");
                 foreach (string g in generators)
                 {
                     try
@@ -214,10 +266,14 @@ namespace ysoserial
                             Generator gg = (Generator)container.Unwrap();
                             Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                             Console.WriteLine("\t\tFormatters:");
+
+                            Console.WriteLine("\t\t\t" + string.Join(", ", gg.SupportedFormatters()) + "\n");
+                            /*
                             foreach (string f in gg.SupportedFormatters().ToArray())
                             {
                                 Console.WriteLine("\t\t\t" + f);
                             }
+                            */
                         }
                     }
                     catch
