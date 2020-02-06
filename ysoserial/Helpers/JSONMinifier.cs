@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
-// Coded by Soroush Dalili (@irsdl)
 namespace ysoserial.Helpers
 {
     class JSONMinifier
