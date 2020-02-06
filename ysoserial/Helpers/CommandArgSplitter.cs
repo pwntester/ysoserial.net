@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Xml;
 
-// Coded by Soroush Dalili (@irsdl)
 namespace ysoserial.Helpers
 {
     class CommandArgSplitter
