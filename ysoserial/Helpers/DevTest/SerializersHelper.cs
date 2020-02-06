@@ -12,7 +12,6 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 
-// Coded by Soroush Dalili (@irsdl)
 namespace ysoserial.Helpers.DevTest
 {
     class SerializersHelper
