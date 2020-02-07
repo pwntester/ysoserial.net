@@ -15,7 +15,7 @@ namespace ysoserial.Generators
     {
         public override string Description()
         {
-            return "SessionSecurityTokenGenerator (System.IdentityModel.Tokens namespace) gadget";
+            return "SessionSecurityTokenGenerator gadget";
             // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
         }
 
@@ -31,7 +31,7 @@ namespace ysoserial.Generators
 
         public override string Credit()
         {
-            return "Soroush Dalili";
+            return "Soroush Dalili, @mufinnnnnnn";
         }
 
 
