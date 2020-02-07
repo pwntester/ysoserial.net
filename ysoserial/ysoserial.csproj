@@ -114,6 +114,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
     <Compile Include="Helpers\BFMinifier.cs" />
     <Compile Include="Helpers\CommandArgSplitter.cs" />
     <Compile Include="Helpers\DevTest\SerializersHelper.cs" />
@@ -132,7 +133,7 @@
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
     <Compile Include="Helpers\JSONMinifier.cs" />
     <Compile Include="Helpers\XMLMinifier.cs" />
-    <Compile Include="Helpers\YamlDotNet.cs" />
+    <Compile Include="Helpers\YamlDocumentMinifier.cs" />
     <Compile Include="Plugins\ActivatorUrlPlugin.cs" />
     <Compile Include="Plugins\AltserializationPlugin.cs" />
     <Compile Include="Plugins\ApplicationTrustPlugin.cs" />

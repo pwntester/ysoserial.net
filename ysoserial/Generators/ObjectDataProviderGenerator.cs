@@ -367,7 +367,7 @@ namespace ysoserial.Generators
 }";
                 if (minify)
                 {
-                    payload = Helpers.YamlDotNet.Minify(payload);
+                    payload = Helpers.YamlDocumentMinifier.Minify(payload);
                 }
 
                 if (test)

@@ -7,8 +7,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Xsl;
 
-// Coded by Soroush Dalili (@irsdl)
-// This is shorten the XML payloads
 namespace ysoserial.Helpers
 {
     public enum FormatterType : ushort
@@ -33,7 +31,7 @@ namespace ysoserial.Helpers
 
         public static MemoryStream Minify(Stream xmlDocumentStream, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType)
         {
-            return Minify(xmlDocumentStream, looseAssemblyNames, finalDiscardableRegExStringArray, FormatterType.None, false);
+            return Minify(xmlDocumentStream, looseAssemblyNames, finalDiscardableRegExStringArray, formatterType, false);
         }
 
         public static MemoryStream Minify(Stream xmlDocumentStream, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType, Boolean useCDATA)
@@ -52,7 +50,7 @@ namespace ysoserial.Helpers
 
         public static String Minify(String xmlDocument, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType)
         {
-            return Minify(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, FormatterType.None, false);
+            return Minify(xmlDocument, looseAssemblyNames, finalDiscardableRegExStringArray, formatterType, false);
         }
 
         public static String Minify(String xmlDocument, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray, FormatterType formatterType, Boolean useCDATA)
@@ -94,7 +92,14 @@ namespace ysoserial.Helpers
                 if (isNotInternalRegEx.IsMatch(xmlDocument))
                 {
                     GroupCollection groups = match.Groups;
-                    String namespaceValue = groups[2].Value;
+                    String namespaceValue = groups[2].Value; 
+                    if (Uri.UnescapeDataString(namespaceValue) != namespaceValue)
+                    {
+                        // URL decoding name spaces
+                        string newNamespaceValue = Uri.UnescapeDataString(namespaceValue);
+                        xmlDocument = Regex.Replace(xmlDocument, namespaceValue, newNamespaceValue);
+                        namespaceValue = newNamespaceValue;
+                    }
                     String namespaceLocalName = "";
                     if (namespaceLocalNames.TryGetValue(namespaceValue, out namespaceLocalName))
                     {
