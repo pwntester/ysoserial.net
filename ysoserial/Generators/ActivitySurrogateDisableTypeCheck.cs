@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -20,12 +21,17 @@ namespace ysoserial.Generators
             return "Nick Landers";
         }
 
+        public override bool isDerived()
+        {
+            return true;
+        }
+
         public override List<string> SupportedFormatters()
         {
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
         {
             string xaml_payload = @"<ResourceDictionary
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
@@ -60,11 +66,11 @@ xmlns:r=""clr-namespace:System.Reflection;assembly=mscorlib"">
             
             if (minify)
             {
-                xaml_payload = Helpers.XMLMinifier.Minify(xaml_payload, null, null);
+                xaml_payload = XMLMinifier.Minify(xaml_payload, null, null);
             }
 
             TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
-            return Serialize(payload, formatter, test, minify);
+            return Serialize(payload, formatter, test, minify, useSimpleType);
         }
 
     }

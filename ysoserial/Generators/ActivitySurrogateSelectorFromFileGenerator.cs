@@ -55,10 +55,15 @@ namespace ysoserial.Generators
             return "James Forshaw";
         }
 
-        public override object Generate(string file, string formatter, Boolean test, Boolean minify)
+        public override bool isDerived()
+        {
+            return false;
+        }
+
+        public override object Generate(string file, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
         {
             PayloadClassFromFile payload = new PayloadClassFromFile(file);
-            return Serialize(payload, formatter, test, minify);
+            return Serialize(payload, formatter, test, minify, useSimpleType);
         }
     }
 }

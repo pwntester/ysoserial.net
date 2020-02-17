@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Soap;
 using System.Web.UI;
 using System.Linq;
 using System.Configuration;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -14,11 +15,13 @@ namespace ysoserial.Generators
     {
         public abstract string Description();
 
-        public abstract object Generate(string cmd, string formatter, Boolean test, Boolean minify);
+        public abstract object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType);
 
         public abstract string Credit();
 
         public abstract string Name();
+
+        public abstract bool isDerived();
 
         public abstract List<string> SupportedFormatters();
 
@@ -31,6 +34,11 @@ namespace ysoserial.Generators
         }
 
         public object Serialize(object cmdobj, string formatter, Boolean test, Boolean minify)
+        {
+            return Serialize(cmdobj, formatter, test, minify, false);
+        }
+
+        public object Serialize(object cmdobj, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
         {
             // Disable ActivitySurrogate type protections during generation
             ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
@@ -78,7 +86,14 @@ namespace ysoserial.Generators
                 if (minify)
                 {
                     stream.Position = 0;
-                    stream = Helpers.XMLMinifier.Minify(stream, null, null, Helpers.FormatterType.SoapFormatter);
+                    if (useSimpleType)
+                    {
+                        stream = XMLMinifier.Minify(stream, new String[] { "Microsoft.PowerShell.Editor" }, null, FormatterType.SoapFormatter, true);
+                    }
+                    else
+                    {
+                        stream = XMLMinifier.Minify(stream, null, null, FormatterType.SoapFormatter, true);
+                    }
                 }
 
                 if (test)
@@ -102,7 +117,14 @@ namespace ysoserial.Generators
                 if (minify)
                 {
                     stream.Position = 0;
-                    stream = Helpers.XMLMinifier.Minify(stream, new string[] { "mscorlib" }, null, Helpers.FormatterType.NetDataContractXML, true);
+                    if (useSimpleType)
+                    {
+                        stream = XMLMinifier.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
+                    }
+                    else
+                    {
+                        stream = XMLMinifier.Minify(stream, null, null, FormatterType.NetDataContractXML, true);
+                    }
                 }
 
                 if (test)

