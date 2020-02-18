@@ -16,7 +16,15 @@ using System.Collections.Specialized;
 using System.Windows;
 using ysoserial.Helpers;
 
-//TODO: using startinfo, moving xmlns to the objects when it can save space
+/*
+ * NOTEs:
+ *  What is Xaml2? 
+ *      Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
+ *  What is DataContractSerializer2? 
+ *      DataContractSerializer2 uses Xaml.Parse rather than using ObjectDataProvider directly (as in DataContractSerializer) which is useful for bypassing blacklists
+ * 
+ * 
+ * */
 
 namespace ysoserial.Generators
 {
@@ -49,6 +57,7 @@ namespace ysoserial.Generators
 
         public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
         {
+            // NOTE: What is Xaml2? Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
             if (formatter.ToLower().Equals("xaml") || formatter.ToLower().Equals("xaml2"))
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
