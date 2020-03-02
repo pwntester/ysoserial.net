@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
-using Newtonsoft.Json;
-using System.Runtime.Serialization.Formatters.Soap;
 using ysoserial.Helpers;
 using System.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
-using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {

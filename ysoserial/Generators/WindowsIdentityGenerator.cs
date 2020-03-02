@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Security.Principal;
-using System.Xml;
-using Newtonsoft.Json;
-using System.Runtime.Serialization.Formatters.Soap;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators

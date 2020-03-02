@@ -48,7 +48,7 @@ namespace ysoserial.Generators
         
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.CmdRawNoEncoding);
+            PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.Cmd);
             return Serialize(payload, formatter, inputArgs);
         }
     }

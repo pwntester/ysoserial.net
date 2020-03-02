@@ -21,8 +21,9 @@ namespace ysoserial.Generators
 
         public object GenerateWithNoTest(string formatter, InputArgs inputArgs)
         {
-            inputArgs.Test = false;
-            return Generate(formatter, inputArgs);
+            InputArgs tempInputArgs = inputArgs.DeepCopy();
+            tempInputArgs.Test = false;
+            return Generate(formatter, tempInputArgs);
         }
 
         public virtual List<string> Labels()
