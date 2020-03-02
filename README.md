@@ -52,6 +52,10 @@ Available gadgets:
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
+	ResourceSet (ResourceSet gadget (WARNING: your command will be executed at least once during payload generation))
+		Formatters:
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
+
 	SessionSecurityToken (SessionSecurityToken gadget)
 		Formatters:
 			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
@@ -226,6 +230,8 @@ Credits for available formatters:
 		[Finders: Oleksandr Mirosh and Alvaro Munoz]
 	PSObject
 		[Finders: Oleksandr Mirosh and Alvaro Munoz]
+	ResourceSet
+		[Finders: Soroush Dalili]
 	SessionSecurityToken
 		[Finders: Soroush Dalili, @mufinnnnnnn]
 	SessionViewStateHistoryItem
