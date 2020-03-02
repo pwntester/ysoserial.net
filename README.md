@@ -54,7 +54,7 @@ Available gadgets:
 
 	ResourceSet (ResourceSet gadget (WARNING: your command will be executed at least once during payload generation))
 		Formatters:
-			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
+			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter
 
 	SessionSecurityToken (SessionSecurityToken gadget)
 		Formatters:
