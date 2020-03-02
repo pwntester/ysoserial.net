@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -20,9 +21,7 @@ namespace ysoserial.Plugins
     class SharePointPlugin : Plugin
     {
         static string cve = "";
-        static string file = "";
         static string cmd = "";
-        static Boolean minify = false;
 
         static OptionSet options = new OptionSet()
             {
@@ -106,7 +105,7 @@ namespace ysoserial.Plugins
         public string CVE_2018_8421()
         {
             Boolean hasArgs;
-            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+            string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
 
             String cmdPart;
 
@@ -147,7 +146,7 @@ PublicKeyToken=31bf3856ad364e35"">
         public string CVE_2019_0604()
         {
             Boolean hasArgs;
-            string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+            string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
 
             String cmdPart;
 

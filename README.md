@@ -40,15 +40,23 @@ Available gadgets:
 		Formatters:
 			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
 
+	DataSet (DataSet gadget)
+		Formatters:
+			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
+
 	ObjectDataProvider (ObjectDataProvider gadget)
 		Formatters:
-			DataContractSerializer, FastJson, FsPickler, JavaScriptSerializer, Json.Net, Xaml, XmlSerializer, YamlDotNet < 5.0.0
+			DataContractSerializer, DataContractSerializer2, FastJson, FsPickler, JavaScriptSerializer, Json.Net, Xaml, Xaml2, XmlSerializer, YamlDotNet < 5.0.0
 
 	PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	SessionSecurityToken (SessionSecurityTokenGenerator (System.IdentityModel.Tokens namespace) gadget)
+	SessionSecurityToken (SessionSecurityToken gadget)
+		Formatters:
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
+
+	SessionViewStateHistoryItem (SessionViewStateHistoryItem gadget)
 		Formatters:
 			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
@@ -64,13 +72,13 @@ Available gadgets:
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter
 
-	WindowsClaimsIdentity (WindowsClaimsIdentity (Microsoft.IdentityModel.Claims namespace) gadget)
+	WindowsClaimsIdentity (WindowsClaimsIdentity gadget (requires Microsoft.IdentityModel.Claims namespace))
 		Formatters:
-			BinaryFormatter, DataContractSerializer, Json.Net, NetDataContractSerializer, SoapFormatter
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
 	WindowsIdentity (WindowsIdentity gadget)
 		Formatters:
-			BinaryFormatter, DataContractSerializer, Json.Net, NetDataContractSerializer, SoapFormatter
+			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
 
 Available plugins:
@@ -100,6 +108,9 @@ Options:
   -t, --test                 Whether to run payload locally. Default: false
       --minify               Whether to minify the payloads where applicable 
                                (experimental). Default: false
+      --ust, --usesimpletype This is to remove additional info only when 
+                               minifying and FormatterAssemblyStyle=Simple. 
+                               Default: true
       --sf, --searchformatter=VALUE
                              Search in all formatters to show relevant 
                                gadgets and their formatters (other parameters 
@@ -204,27 +215,31 @@ ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
 
 Credits for available formatters:
 	ActivitySurrogateDisableTypeCheck
-		Nick Landers
+		[Finders: Nick Landers]
 	ActivitySurrogateSelector
-		James Forshaw
+		[Finders: James Forshaw]
 	ActivitySurrogateSelectorFromFile
-		James Forshaw
+		[Finders: James Forshaw]
+	DataSet
+		[Finders: James Forshaw] [Contributors: Soroush Dalili]
 	ObjectDataProvider
-		Oleksandr Mirosh and Alvaro Munoz
+		[Finders: Oleksandr Mirosh and Alvaro Munoz]
 	PSObject
-		Oleksandr Mirosh and Alvaro Munoz
+		[Finders: Oleksandr Mirosh and Alvaro Munoz]
 	SessionSecurityToken
-		Soroush Dalili
+		[Finders: Soroush Dalili, @mufinnnnnnn]
+	SessionViewStateHistoryItem
+		[Finders: Soroush Dalili]
 	TextFormattingRunProperties
-		Oleksandr Mirosh and Alvaro Munoz
+		[Finders: Oleksandr Mirosh and Alvaro Munoz]
 	TypeConfuseDelegate
-		James Forshaw
+		[Finders: James Forshaw]
 	TypeConfuseDelegateMono
-		James Forshaw
+		[Finders: James Forshaw]
 	WindowsClaimsIdentity
-		Soroush Dalili
+		[Finders: Soroush Dalili]
 	WindowsIdentity
-		Levi Broderick, updated by Soroush Dalili
+		[Finders: Levi Broderick] [Contributors: Levi Broderick, Soroush Dalili]
 
 Credits for available plugins:
 	ActivatorUrl
@@ -250,7 +265,6 @@ Credits for available plugins:
 
 Various other people have also donated their time and contributed to this project.
 Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to find those who have helped developing more features or have fixed bugs.
-
 ```
 
 ## Additional Reading
@@ -269,6 +283,9 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2018/august/aspnet-resource-files-resx-and-deserialisation-issues/
 - https://www.nccgroup.trust/uk/our-research/use-of-deserialisation-in-.net-framework-methods-and-classes/?research=Whitepapers
 - https://community.microfocus.com/t5/Security-Research-Blog/New-NET-deserialization-gadget-for-compact-payload-When-size/ba-p/1763282
+- https://soroush.secproject.com/blog/2019/04/exploiting-deserialisation-in-asp-net-via-viewstate/
+- https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2019/august/getting-shell-with-xamlx-files/
+- https://soroush.secproject.com/blog/2019/08/uploading-web-config-for-fun-and-profit-2/
 
 ### Usage:
 - https://cert.360.cn/warning/detail?id=e689288863456481733e01b093c986b6
@@ -281,6 +298,8 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://www.zerodayinitiative.com/blog/2018/8/14/voicemail-vandalism-getting-remote-code-execution-on-microsoft-exchange-server
 - https://www.nccgroup.trust/uk/our-research/technical-advisory-multiple-vulnerabilities-in-smartermail/
 - https://www.nccgroup.trust/uk/our-research/technical-advisory-code-execution-by-viewing-resource-files-in-net-reflector/
+- https://www.mdsec.co.uk/2020/02/cve-2020-0618-rce-in-sql-server-reporting-services-ssrs/
+- https://www.thezdi.com/blog/2020/2/24/cve-2020-0688-remote-code-execution-on-microsoft-exchange-server-through-fixed-cryptographic-keys
 
 ### Talks:
 - https://www.blackhat.com/docs/us-17/thursday/us-17-Munoz-Friday-The-13th-Json-Attacks.pdf

