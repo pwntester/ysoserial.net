@@ -24,14 +24,19 @@ namespace ysoserial.Generators
             return "DataSet gadget";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
-            return "James Forshaw, implemented by Soroush Dalili";
+            return "James Forshaw";
         }
 
-        public override bool isDerived()
+        public override string Contributors()
         {
-            return true;
+            return "Soroush Dalili";
+        }
+
+        public override List<string> Labels()
+        {
+            return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
         public override List<string> SupportedFormatters()
@@ -80,17 +85,17 @@ namespace ysoserial.Generators
             }
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
 
-            object init_payload = TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(cmd, minify, useSimpleType);
+            object init_payload = TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("soapformatter", StringComparison.OrdinalIgnoreCase))
             { 
-                return Serialize(DataSetGeneratorGadget(init_payload), formatter, test, minify, useSimpleType);
+                return Serialize(DataSetGeneratorGadget(init_payload), formatter, inputArgs);
             }
             else
             {

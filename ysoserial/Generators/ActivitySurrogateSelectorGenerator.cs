@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Web.UI.WebControls;
 using System.Runtime.Serialization;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -141,20 +142,20 @@ namespace ysoserial.Generators
             return "ActivitySurrogateSelector";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "James Forshaw";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return false;
+            return new List<string> { GadgetTypes.NotBridgeNotDerived };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             PayloadClass payload = new PayloadClass();
-            return Serialize(payload, formatter, test, minify, useSimpleType);
+            return Serialize(payload, formatter, inputArgs);
         }
 
     }

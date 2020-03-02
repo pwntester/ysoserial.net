@@ -7,6 +7,7 @@ using NDesk.Options;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Collections.Generic;
+using ysoserial.Helpers;
 
 namespace ysoserial
 {
@@ -49,9 +50,15 @@ namespace ysoserial
 
         static void Main(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             try
             {
                 var notMatchedArguments = options.Parse(args);
+                inputArgs.CmdFullString = cmd;
+                inputArgs.IsRawCmd = rawcmd;
+                inputArgs.Test = test;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
             }
             catch (OptionException e)
             {
@@ -69,11 +76,6 @@ namespace ysoserial
                 if(!show_help)
                     Console.WriteLine("Missing arguments.");
                 show_help = true;
-            }
-
-            if (!rawcmd)
-            {
-                cmd = "cmd /c " + cmd;
             }
 
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
@@ -160,7 +162,7 @@ namespace ysoserial
                     {
                         cmd = Console.ReadLine();
                     }
-                    raw = generator.Generate(cmd, formatter, test, minify, useSimpleType);
+                    raw = generator.Generate(formatter, inputArgs);
                 }
                 else
                 {
@@ -234,7 +236,7 @@ namespace ysoserial
                             {
                                 if(gadgetSelected == false)
                                 {
-                                    Console.WriteLine("\t" + gg.Name() + (gg.isDerived() ? " [derived method]" : ""));
+                                    Console.WriteLine("\t" + gg.Name());
                                     Console.WriteLine("\t\tFound formatters:");
                                     gadgetSelected = true;
                                 }
@@ -267,7 +269,7 @@ namespace ysoserial
                         {
                             ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
                             Generator gg = (Generator)container.Unwrap();
-                            Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")" + (gg.isDerived() ? " [derived method]" : ""));
+                            Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                             Console.WriteLine("\t\tFormatters:");
 
                             Console.WriteLine("\t\t\t" + string.Join(", ", gg.SupportedFormatters().OrderBy(s => s, StringComparer.CurrentCultureIgnoreCase)) + "\n");
@@ -347,7 +349,7 @@ namespace ysoserial
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
                         Generator gg = (Generator)container.Unwrap();
                         //Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
-                        Console.WriteLine("\t" + gg.Name() + (gg.isDerived() ? " [derived method]" : ""));
+                        Console.WriteLine("\t" + gg.Name());
                         Console.WriteLine("\t\t" + gg.Credit());
                     }
                 }

@@ -4,6 +4,7 @@ using System;
 using ysoserial.Generators;
 using System.IO;
 using System.Transactions;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -55,10 +56,15 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
+                inputArgs.Test = test;
             }
             catch (OptionException e)
             {
@@ -77,7 +83,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
+            byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest( "BinaryFormatter", inputArgs);
             byte[] newSerializedData = new byte[serializedData.Length + 5]; // it has BinaryReader ReadInt32() + 1 additional byte read
             serializedData.CopyTo(newSerializedData, 5);
             newSerializedData[0] = 1;

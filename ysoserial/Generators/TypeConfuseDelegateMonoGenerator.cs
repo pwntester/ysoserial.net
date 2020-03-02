@@ -19,14 +19,14 @@ namespace ysoserial.Generators
             return "TypeConfuseDelegate gadget - Tweaked to work with Mono";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "James Forshaw";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return false;
+            return new List<string> { GadgetTypes.NotBridgeNotDerived };
         }
 
         public override List<string> SupportedFormatters()
@@ -34,33 +34,38 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
-            return Serialize(TypeConfuseDelegateGadget(cmd), formatter, test, minify, useSimpleType);
+            return Serialize(TypeConfuseDelegateGadget(inputArgs), formatter, inputArgs);
         }
 
         /* this can be used easily by the plugins as well */
+
+        // This is for those plugins that only accepts cmd and do not want to use any of the input argument features such as minification
         public static object TypeConfuseDelegateGadget(string cmd)
         {
-            String potentialCmdFile = cmd.Replace("cmd /c ", ""); // as we add this automatically to the command
+            InputArgs inputArgs = new InputArgs();
+            inputArgs.CmdFullString = cmd;
+            return TypeConfuseDelegateGadget(inputArgs);
+        }
 
-            if (File.Exists(potentialCmdFile))
+        public static object TypeConfuseDelegateGadget(InputArgs inputArgs)
+        {
+            string cmdFromFile = inputArgs.CmdFromFile;
+
+            if (!string.IsNullOrEmpty(cmdFromFile))
             {
-                Console.Error.WriteLine("Reading command from file " + cmd + " ...");
-                cmd = File.ReadAllText(potentialCmdFile);
+                inputArgs.CmdFullString = cmdFromFile;
             }
 
-            Boolean hasArgs;
-            string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, out hasArgs);
-            
             Delegate da = new Comparison<string>(String.Compare);
             Comparison<string> d = (Comparison<string>)MulticastDelegate.Combine(da, da);
             IComparer<string> comp = Comparer<string>.Create(d);
             SortedSet<string> set = new SortedSet<string>(comp);
-            set.Add(splittedCMD[0]);
-            if (hasArgs)
+            set.Add(inputArgs.CmdFileName);
+            if (inputArgs.HasArguments)
             {
-                set.Add(splittedCMD[1]);
+                set.Add(inputArgs.CmdArguments);
             }
             else
             {

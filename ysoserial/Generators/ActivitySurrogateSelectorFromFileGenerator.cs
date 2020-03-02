@@ -1,9 +1,9 @@
 ﻿using System;
 using System.CodeDom.Compiler;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -16,10 +16,6 @@ namespace ysoserial.Generators
 
         public PayloadClassFromFile(string file)
         {
-            if(file.StartsWith("cmd /c "))
-            {
-                file = file.Substring("cmd /c ".Length);
-            }
             string[] files = file.Split(new[] { ';' }).Select(s => s.Trim()).ToArray();
             CodeDomProvider codeDomProvider = CodeDomProvider.CreateProvider("CSharp");
             CompilerParameters compilerParameters = new CompilerParameters();
@@ -49,21 +45,11 @@ namespace ysoserial.Generators
         {
             return "ActivitySurrogateSelectorFromFile";
         }
-
-        public override string Credit()
+        
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
-            return "James Forshaw";
-        }
-
-        public override bool isDerived()
-        {
-            return false;
-        }
-
-        public override object Generate(string file, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
-        {
-            PayloadClassFromFile payload = new PayloadClassFromFile(file);
-            return Serialize(payload, formatter, test, minify, useSimpleType);
+            PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.CmdRawNoEncoding);
+            return Serialize(payload, formatter, inputArgs);
         }
     }
 }

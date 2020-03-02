@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
@@ -8,11 +9,22 @@ namespace ysoserial.Generators
         string Name();
         string Description();
         string Credit();
-        bool isDerived();
+        string Finders();
+        string Contributors();
+        List<string> Labels();
         List<string> SupportedFormatters();
-        object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType);
-        object Serialize(object cmdobj, string formatter, Boolean test, Boolean minify);
-        object Serialize(object cmdobj, string formatter, Boolean test, Boolean minify, Boolean useSimpleType);
+        object Generate(string formatter, InputArgs inputArgs);
+        object GenerateWithNoTest(string formatter, InputArgs inputArgs);
+        object Serialize(object payloadObj, string formatter, InputArgs inputArgs);
         Boolean IsSupported(string formatter);
+    }
+
+    // Discussion here: https://github.com/pwntester/ysoserial.net/pull/57#discussion_r381159793
+    public static class GadgetTypes
+    {
+        public const string
+        NotBridgeNotDerived = "Not bridge or derived", 
+        NotBridgeButDervied = "Not bridge but derived", // Bridge has dervied meaning in it too
+        BridgeAndDerived = "Bridge and dervied";
     }
 }

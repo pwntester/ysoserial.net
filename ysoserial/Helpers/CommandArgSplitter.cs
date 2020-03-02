@@ -72,6 +72,11 @@ namespace ysoserial.Helpers
                     result[1] = "'" + result[1] + "'";
                 }
             }
+            else
+            {
+                // CommandType.None
+                // Do nothing, all is good here!
+            }
 
             return result;
         }
@@ -94,6 +99,13 @@ namespace ysoserial.Helpers
             hasArgs = false;
             String[] result = SplitCommand(cmd);
             if (result.Length == 2) hasArgs = true;
+            return result;
+        }
+
+        public static String[] SplitCommand(string cmd, CommandType cmdType)
+        {
+            bool hasArgs;
+            String[] result = SplitCommand(cmd, cmdType, out hasArgs);
             return result;
         }
 
