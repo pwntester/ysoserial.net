@@ -57,9 +57,7 @@ namespace ysoserial.Generators
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
-            //Boolean hasArgs;
-           // string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
-
+            
             String cmdPart;
 
             if (inputArgs.HasArguments)

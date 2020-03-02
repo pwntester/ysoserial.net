@@ -454,9 +454,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("fspickler"))
             {
                 inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
-                //Boolean hasArgs;
-                //string[] splittedCMD = CommandArgSplitter.SplitCommand(cmd, CommandArgSplitter.CommandType.XML, out hasArgs);
-
+                
                 String cmdPart;
 
                 if (inputArgs.HasArguments)
