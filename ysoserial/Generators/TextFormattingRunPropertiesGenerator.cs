@@ -120,7 +120,7 @@ namespace ysoserial.Generators
         public static object TextFormattingRunPropertiesGadget(string cmd)
         {
             InputArgs inputArgs = new InputArgs();
-            inputArgs.CmdFullString = cmd;
+            inputArgs.Cmd = cmd;
             return TextFormattingRunPropertiesGadget(inputArgs);
         }
 

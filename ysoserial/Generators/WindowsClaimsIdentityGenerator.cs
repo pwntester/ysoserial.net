@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.Serialization;
-using System.Xml;
-using Newtonsoft.Json;
-using System.Runtime.Serialization.Formatters.Soap;
 using Microsoft.IdentityModel.Claims;
 using ysoserial.Helpers;
 

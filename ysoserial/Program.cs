@@ -54,7 +54,7 @@ namespace ysoserial
             try
             {
                 var notMatchedArguments = options.Parse(args);
-                inputArgs.CmdFullString = cmd;
+                inputArgs.Cmd = cmd;
                 inputArgs.IsRawCmd = rawcmd;
                 inputArgs.Test = test;
                 inputArgs.Minify = minify;

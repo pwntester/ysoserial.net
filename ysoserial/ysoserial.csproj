@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Generators\DataSetGenerator.cs" />
+    <Compile Include="Generators\ResourceSetGenerator.cs" />
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
     <Compile Include="Helpers\BFMinifier.cs" />
