@@ -13,11 +13,6 @@ namespace ysoserial.Generators
             return "TypeConfuseDelegate";
         }
 
-        public override string Description()
-        {
-            return "TypeConfuseDelegate gadget";
-        }
-
         public override string Finders()
         {
             return "James Forshaw";

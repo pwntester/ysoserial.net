@@ -127,9 +127,9 @@ namespace ysoserial.Generators
     class ActivitySurrogateSelectorGenerator : GenericGenerator
     {
    
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "This gadget ignores the command parameter and executes the constructor of ExploitClass class.";
+            return "This gadget ignores the command parameter and executes the constructor of ExploitClass class";
         }
 
         public override List<string> SupportedFormatters()

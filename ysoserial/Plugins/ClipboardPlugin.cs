@@ -118,7 +118,10 @@ namespace ysoserial.Plugins
                         IDataObject dataObj = Clipboard.GetDataObject();
                         Object test = dataObj.GetData(format);
                     }
-                    catch { }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
                 }
             });
             staThread.SetApartmentState(ApartmentState.STA);

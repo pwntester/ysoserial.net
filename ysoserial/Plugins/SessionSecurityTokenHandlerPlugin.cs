@@ -119,9 +119,9 @@ namespace ysoserial.Plugins
                     SessionSecurityTokenHandler mySessionSecurityTokenHandler = new SessionSecurityTokenHandler();
                     mySessionSecurityTokenHandler.ReadToken(tokenXML);
                 }
-                catch
+                catch (Exception err)
                 {
-                    // there will be an error!
+                    Debugging.ShowErrors(inputArgs, err);
                 }
             }
 

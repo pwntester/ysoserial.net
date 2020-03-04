@@ -9,9 +9,9 @@ namespace ysoserial.Generators
 {
     class ResourceSetGenerator : GenericGenerator
     {
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "ResourceSet gadget (WARNING: your command will be executed at least once during payload generation)";
+            return "WARNING: your command will be executed at least once during payload generation";
             // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
         }
 

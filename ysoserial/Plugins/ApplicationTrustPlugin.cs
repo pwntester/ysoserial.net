@@ -112,7 +112,10 @@ namespace ysoserial.Plugins
                     myApplicationTrust.FromXml(malPayload);
                     Console.WriteLine(myApplicationTrust.ExtraInfo);
                 }
-                catch { }
+                catch (Exception err)
+                {
+                    Debugging.ShowErrors(inputArgs, err);
+                }
             }
 
             return payload;

@@ -14,11 +14,6 @@ namespace ysoserial.Generators
             return "DataSet";
         }
 
-        public override string Description()
-        {
-            return "DataSet gadget";
-        }
-
         public override string Finders()
         {
             return "James Forshaw";

@@ -10,9 +10,9 @@ namespace ysoserial.Generators
             return "ActivitySurrogateDisableTypeCheck";
         }
 
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored.";
+            return "Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored";
         }
 
         public override string Finders()
