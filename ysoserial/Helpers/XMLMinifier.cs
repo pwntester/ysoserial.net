@@ -253,7 +253,7 @@ namespace ysoserial.Helpers
         }
 
 
-        private static String XmlXSLTMinifier(String xmlDocument)
+        public static String XmlXSLTMinifier(String xmlDocument)
         {
             XmlDocument minifiedXMLDoc = new XmlDocument();
             minifiedXMLDoc.LoadXml(xmlDocument);

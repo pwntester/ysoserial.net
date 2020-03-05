@@ -137,7 +137,7 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root", "type");
                     }
                     catch (Exception err)
                     {

