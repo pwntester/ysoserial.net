@@ -370,6 +370,7 @@ namespace ysoserial
             {
                 try
                 {
+                    plugin_name = plugins.Where(p => String.Equals(p, plugin_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                     ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
                     Plugin pp = (Plugin)container.Unwrap();
                     Console.WriteLine("Plugin:\n");
