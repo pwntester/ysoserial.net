@@ -9,9 +9,9 @@ namespace ysoserial.Generators
 {
     class ResourceSetGenerator : GenericGenerator
     {
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "ResourceSet gadget (WARNING: your command will be executed at least once during payload generation)";
+            return "WARNING: your command will be executed at least once during payload generation";
             // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
         }
 
@@ -52,9 +52,7 @@ namespace ysoserial.Generators
                 rw.Generate();
                 rw.Close();
             }
-
-            ResourceReader myResourceReader = new ResourceReader(@".\ResourceSetGenerator.resources");
-
+            
             // Payload will be executed once here which is annoying but without surgical insertion or something to parse binaryformatter objects, it is quite hard to prevent this
             ResourceSet myResourceSet = new ResourceSet(@".\ResourceSetGenerator.resources");
             

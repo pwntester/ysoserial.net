@@ -34,9 +34,9 @@ namespace ysoserial.Generators
             return "PSObject";
         }
 
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "PSObject gadget. Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)";
+            return "Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)";
         }
 
         public override string Finders()

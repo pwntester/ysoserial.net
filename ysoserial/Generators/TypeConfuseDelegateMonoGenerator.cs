@@ -13,9 +13,9 @@ namespace ysoserial.Generators
             return "TypeConfuseDelegateMono";
         }
 
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "TypeConfuseDelegate gadget - Tweaked to work with Mono";
+            return "Tweaked TypeConfuseDelegate gadget to work with Mono";
         }
 
         public override string Finders()

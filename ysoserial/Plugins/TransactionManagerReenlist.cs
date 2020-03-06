@@ -97,9 +97,10 @@ namespace ysoserial.Plugins
                 {
                     TestMe myTransactionEnlistment = new TestMe();
                     TransactionManager.Reenlist(Guid.NewGuid(), newSerializedData, myTransactionEnlistment);
-                }catch
+                }
+                catch (Exception err)
                 {
-                    // always an error because of how it's been made
+                    Debugging.ShowErrors(inputArgs, err);
                 }
             }
             

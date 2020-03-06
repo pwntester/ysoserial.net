@@ -114,12 +114,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\AxHostStateGenerator.cs" />
     <Compile Include="Generators\DataSetGenerator.cs" />
     <Compile Include="Generators\ResourceSetGenerator.cs" />
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
     <Compile Include="Helpers\BFMinifier.cs" />
     <Compile Include="Helpers\CommandArgSplitter.cs" />
+    <Compile Include="Helpers\Debugging.cs" />
     <Compile Include="Helpers\FormatterType.cs" />
     <Compile Include="Helpers\InputArgs.cs" />
     <Compile Include="Helpers\SerializersHelper.cs" />

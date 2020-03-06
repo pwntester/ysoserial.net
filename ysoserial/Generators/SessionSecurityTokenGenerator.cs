@@ -11,11 +11,7 @@ namespace ysoserial.Generators
 {
     class SessionSecurityTokenGenerator : GenericGenerator
     {
-        public override string Description()
-        {
-            return "SessionSecurityToken gadget";
-            // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
-        }
+        // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
 
         public override List<string> SupportedFormatters()
         {
@@ -152,8 +148,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.JsonNet_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -174,10 +171,11 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root", "type");
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -200,8 +198,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.NetDataContractSerializer_deserialize(payload, "root");
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -230,8 +229,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.SoapFormatter_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;

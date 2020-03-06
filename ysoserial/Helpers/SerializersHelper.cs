@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using System.Web.UI;
 using System.Windows.Markup;
@@ -192,10 +193,10 @@ namespace ysoserial.Helpers
 
         public static object XMLSerializer_deserialize(string str, string type)
         {
-            return XMLSerializer_deserialize(str, type, "");
+            return XMLSerializer_deserialize(str, type, "" , "");
         }
 
-        public static object XMLSerializer_deserialize(string str, string type, string rootElement)
+        public static object XMLSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
         {
             object obj = null; 
 
@@ -204,7 +205,11 @@ namespace ysoserial.Helpers
                 var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(str);
                 XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode(rootElement);
-                var s = new XmlSerializer(Type.GetType(xmlItem.GetAttribute("type")));
+                if (string.IsNullOrEmpty(typeAttributeName))
+                {
+                    typeAttributeName = "type";
+                }
+                var s = new XmlSerializer(Type.GetType(xmlItem.GetAttribute(typeAttributeName)));
                 obj = s.Deserialize(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
             }
             else
@@ -223,6 +228,72 @@ namespace ysoserial.Helpers
             return obj;
         }
 
+        // This to replace our bespoked marshal objects with the actual object
+        // Example: when we use DataContractSerializer_serialize for TextFormattingRunPropertiesMarshal
+        // it will add the rootTagName when rootTagName is not empty 
+        // default for typeAttributeName is type
+        public static string DataContractSerializer_Marshal_2_MainType(string dirtymarshal)
+        {
+            return DataContractSerializer_Marshal_2_MainType(dirtymarshal, "", "", null);
+        }
+
+        public static string DataContractSerializer_Marshal_2_MainType(string dirtymarshal, string rootTagName, string typeAttributeName, Type objectType)
+        {
+            string result = "";
+
+            // Finding the namespace tag prefix of "http://schemas.microsoft.com/2003/10/Serialization/"
+            Regex tagPrefixSerializationRegex = new Regex(@"xmlns:([\w]+)\s*=\s*""http://schemas.microsoft.com/2003/10/Serialization/""", RegexOptions.IgnoreCase);
+            Match tagPrefixSerializationMatch = tagPrefixSerializationRegex.Match(dirtymarshal);
+            if(tagPrefixSerializationMatch.Groups.Count > 1)
+            {
+                string tagPrefixSerialization = tagPrefixSerializationMatch.Groups[1].Value;
+                if (!string.IsNullOrEmpty(tagPrefixSerialization))
+                {
+                    // Finding the main type using tagPrefixSerialization:FactoryType
+                    Regex regexFactoryType = new Regex(tagPrefixSerialization + @":FactoryType\s*=\s*""([^:]+):([^""]+)""", RegexOptions.IgnoreCase);
+                    Match matchFactoryType = regexFactoryType.Match(dirtymarshal);
+                    if (matchFactoryType.Groups.Count > 2)
+                    {
+                        string factoryTypeFullString = matchFactoryType.Groups[0].Value;
+                        string mainTypeTagPrefix = matchFactoryType.Groups[1].Value;
+                        string mainTypeTagName = matchFactoryType.Groups[2].Value;
+                        if(!string.IsNullOrEmpty(mainTypeTagName) && !string.IsNullOrEmpty(mainTypeTagPrefix))
+                        {
+                            // start replacing the dirty bits!
+
+                            // we need to remove <?xml at the beginning if there is any
+                            result = Regex.Replace(dirtymarshal, @"\s*\<\?xml[^\>]+\?\>", "", RegexOptions.IgnoreCase);
+
+                            Regex regexMarshaledTagName = new Regex(@"^\s*<([^\s>]+)");
+                            Match matchMarshaledTagName = regexMarshaledTagName.Match(result);
+                            string marshaledTagName = matchMarshaledTagName.Groups[1].Value;
+                            result = result.Replace(marshaledTagName, mainTypeTagName); // replacing the marshaled tag with the main tag
+                            result = result.Replace(factoryTypeFullString, ""); // removing FactoryType bit
+                            result = Regex.Replace(result, @"(?<=\<" + mainTypeTagName + @"[^>]+)\s+xmlns=""http://schemas.datacontract.org/[^""]+""", ""); // removing current namespace
+                            result = result.Replace(":" + mainTypeTagPrefix, ""); // creating the new namespace
+
+                            if (!string.IsNullOrEmpty(rootTagName) && objectType != null)
+                            {
+                                // adding the root type
+                                if (string.IsNullOrEmpty(typeAttributeName))
+                                {
+                                    typeAttributeName = "type";
+                                }
+
+                                // we need this to make it standard
+                                result = XMLMinifier.XmlXSLTMinifier(dirtymarshal);
+
+                                result = "<" + rootTagName + " "+ typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
+                            }
+
+                        }
+                    }
+                        
+                }
+            }
+            
+            return result;
+        }
 
         public static void DataContractSerializer_test(object myobj)
         {
@@ -261,10 +332,10 @@ namespace ysoserial.Helpers
 
         public static object DataContractSerializer_deserialize(string str, string type)
         {
-            return DataContractSerializer_deserialize(str, type, "");
+            return DataContractSerializer_deserialize(str, type, "", "");
         }
 
-        public static object DataContractSerializer_deserialize(string str, string type, string rootElement)
+        public static object DataContractSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
         {
             object obj = null;
             
@@ -273,7 +344,11 @@ namespace ysoserial.Helpers
                 var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(str);
                 XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode(rootElement);
-                var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute("type")));
+                if (string.IsNullOrEmpty(typeAttributeName))
+                {
+                    typeAttributeName = "type";
+                }
+                var s = new DataContractSerializer(Type.GetType(xmlItem.GetAttribute(typeAttributeName)));
                 obj = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
             }
             else
@@ -305,6 +380,7 @@ namespace ysoserial.Helpers
 
         public static string Xaml_serialize(object myobj)
         {
+            // return XamlWriter.Save(myobj); // we lose indentation here so:
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             using (XmlWriter writer = XmlWriter.Create("test.xaml", settings))
@@ -319,6 +395,13 @@ namespace ysoserial.Helpers
         {
             object obj = XamlReader.Load(new XmlTextReader(new StringReader(str)));
             return obj;
+        }
+
+        // This to replace our bespoked marshal objects with the actual object
+        // Example: when we use NetDataContractSerializer_serialize for TextFormattingRunPropertiesMarshal
+        public static string NetDataContractSerializer_Marshal_2_MainType(string dirtymarshal)
+        {
+            return DataContractSerializer_Marshal_2_MainType(dirtymarshal);
         }
 
         public static void NetDataContractSerializer_test(object myobj)
@@ -558,5 +641,6 @@ namespace ysoserial.Helpers
             JavaScriptSerializer jss = new JavaScriptSerializer(new SimpleTypeResolver());
             return jss.Deserialize<Object>(str);
         }
+        
     }
 }

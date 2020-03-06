@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using static ysoserial.Helpers.CommandArgSplitter;
 
@@ -6,7 +7,6 @@ namespace ysoserial.Helpers
 {
     class InputArgs
     {
-        private string _cmdFullString;
         private string _cmdFileName;
         private string _cmdArguments;
         private string _cmdFromFile;
@@ -18,7 +18,10 @@ namespace ysoserial.Helpers
         private bool _minify = false;
         private bool _useSimpleType = false;
         private bool _isRawCmd = false;
-        
+        private bool _isDebugMode = false;
+        private List<String> _extraArguments = new List<string>();
+        private List<String> _extraInternalArguments = new List<string>(); // This is used as ExtraArguments when calling GenerateWithNoTest to stop passing unwanted extra options 
+
         public string CmdFullString
         {
             get
@@ -114,10 +117,10 @@ namespace ysoserial.Helpers
         {
             get
             {
-                if (File.Exists(_cmdFullString))
+                if (File.Exists(Cmd))
                 {
-                    Console.Error.WriteLine("Reading command from file " + _cmdFullString + " ...");
-                    _cmdFromFile = File.ReadAllText(_cmdFullString);
+                    Console.Error.WriteLine("Reading command from file " + Cmd + " ...");
+                    _cmdFromFile = File.ReadAllText(Cmd);
                 }
                 else
                 {
@@ -219,6 +222,44 @@ namespace ysoserial.Helpers
             }
         }
 
+        public List<string> ExtraArguments
+        {
+            get
+            {
+                return _extraArguments;
+            }
+
+            set
+            {
+                _extraArguments = value;
+            }
+        }
+
+        public bool IsDebugMode
+        {
+            get
+            {
+                return _isDebugMode;
+            }
+
+            set
+            {
+                _isDebugMode = value;
+            }
+        }
+
+        public List<string> ExtraInternalArguments
+        {
+            get
+            {
+                return _extraInternalArguments;
+            }
+
+            set
+            {
+                _extraInternalArguments = value;
+            }
+        }
 
         public InputArgs ShallowCopy()
         {
@@ -233,6 +274,9 @@ namespace ysoserial.Helpers
             newInputArgs.Test = this._test;
             newInputArgs.Minify = this._minify;
             newInputArgs.UseSimpleType = this._useSimpleType;
+            newInputArgs.ExtraArguments = this.ExtraArguments;
+            newInputArgs.ExtraInternalArguments = this.ExtraInternalArguments;
+            newInputArgs.IsDebugMode = this.IsDebugMode;
             return newInputArgs;
         }
 
