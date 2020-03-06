@@ -150,9 +150,7 @@ namespace ysoserial.Generators
             }
             else if (formatter.Equals("NetDataContractSerializer", StringComparison.OrdinalIgnoreCase))
             {
-                InputArgs tempInputArgs = inputArgs.DeepCopy();
-                tempInputArgs.Test = false;
-                string utfString = System.Text.Encoding.UTF8.GetString((byte [])Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, tempInputArgs));
+                string utfString = System.Text.Encoding.UTF8.GetString((byte [])SerializeWithNoTest(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs));
 
                 string payload = SerializersHelper.NetDataContractSerializer_Marshal_2_MainType(utfString);
 

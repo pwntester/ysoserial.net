@@ -18,6 +18,8 @@ namespace ysoserial.Generators
         object GenerateWithInit(string formatter, InputArgs inputArgs);
         object GenerateWithNoTest(string formatter, InputArgs inputArgs);
         object Serialize(object payloadObj, string formatter, InputArgs inputArgs);
+        object SerializeWithInit(object payloadObj, string formatter, InputArgs inputArgs);
+        object SerializeWithNoTest(object payloadObj, string formatter, InputArgs inputArgs);
         Boolean IsSupported(string formatter);
         OptionSet Options();
         void Init(InputArgs inputArgs);

@@ -72,6 +72,19 @@ namespace ysoserial.Generators
             return GenerateWithInit(formatter, tempInputArgs);
         }
 
+        public object SerializeWithInit(object payloadObj, string formatter, InputArgs inputArgs)
+        {
+            Init(inputArgs);
+            return Serialize(payloadObj, formatter, inputArgs);
+        }
+
+        public object SerializeWithNoTest(object payloadObj, string formatter, InputArgs inputArgs)
+        {
+            InputArgs tempInputArgs = inputArgs.DeepCopy();
+            tempInputArgs.Test = false;
+            return SerializeWithInit(payloadObj, formatter, tempInputArgs);
+        }
+
         public virtual List<string> Labels()
         {
             return new List<string> {""};
