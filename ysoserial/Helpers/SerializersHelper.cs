@@ -260,14 +260,17 @@ namespace ysoserial.Helpers
                         if(!string.IsNullOrEmpty(mainTypeTagName) && !string.IsNullOrEmpty(mainTypeTagPrefix))
                         {
                             // start replacing the dirty bits!
-                            
-                            Regex regexMarshaledTagName = new Regex(@"\<\?xml[^\?\>]+\?>\s*<([^\s>]+)|^\s*<([^\s>]+)");
-                            Match matchMarshaledTagName = regexMarshaledTagName.Match(dirtymarshal);
+
+                            // we need to remove <?xml at the beginning if there is any
+                            result = Regex.Replace(dirtymarshal, @"\s*\<\?xml[^\>]+\?\>", "", RegexOptions.IgnoreCase);
+
+                            Regex regexMarshaledTagName = new Regex(@"^\s*<([^\s>]+)");
+                            Match matchMarshaledTagName = regexMarshaledTagName.Match(result);
                             string marshaledTagName = matchMarshaledTagName.Groups[1].Value;
-                            result = dirtymarshal.Replace(marshaledTagName, mainTypeTagName); // replacing the marshaled tag with the main tag
+                            result = result.Replace(marshaledTagName, mainTypeTagName); // replacing the marshaled tag with the main tag
                             result = result.Replace(factoryTypeFullString, ""); // removing FactoryType bit
-                            result = Regex.Replace(result, @"(?<=\<"+ mainTypeTagName + @"[^>]+)\s+xmlns=""http://schemas.datacontract.org/[^""]+""", ""); // removing current namespace
-                            result = result.Replace(":"+ mainTypeTagPrefix, ""); // creating the new namespace
+                            result = Regex.Replace(result, @"(?<=\<" + mainTypeTagName + @"[^>]+)\s+xmlns=""http://schemas.datacontract.org/[^""]+""", ""); // removing current namespace
+                            result = result.Replace(":" + mainTypeTagPrefix, ""); // creating the new namespace
 
                             if (!string.IsNullOrEmpty(rootTagName) && objectType != null)
                             {
@@ -277,11 +280,10 @@ namespace ysoserial.Helpers
                                     typeAttributeName = "type";
                                 }
 
-                                // we need this to make it standard (mainly to remove <?xml or other unnecessary bits at the beginning)
-                                result = XMLMinifier.XmlXSLTMinifier(result);
-                                
-                                result = "<" + rootTagName + " "+ typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
+                                // we need this to make it standard
+                                result = XMLMinifier.XmlXSLTMinifier(dirtymarshal);
 
+                                result = "<" + rootTagName + " "+ typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
                             }
 
                         }
@@ -393,6 +395,13 @@ namespace ysoserial.Helpers
         {
             object obj = XamlReader.Load(new XmlTextReader(new StringReader(str)));
             return obj;
+        }
+
+        // This to replace our bespoked marshal objects with the actual object
+        // Example: when we use NetDataContractSerializer_serialize for TextFormattingRunPropertiesMarshal
+        public static string NetDataContractSerializer_Marshal_2_MainType(string dirtymarshal)
+        {
+            return DataContractSerializer_Marshal_2_MainType(dirtymarshal);
         }
 
         public static void NetDataContractSerializer_test(object myobj)

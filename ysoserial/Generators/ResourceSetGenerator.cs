@@ -52,9 +52,7 @@ namespace ysoserial.Generators
                 rw.Generate();
                 rw.Close();
             }
-
-            ResourceReader myResourceReader = new ResourceReader(@".\ResourceSetGenerator.resources");
-
+            
             // Payload will be executed once here which is annoying but without surgical insertion or something to parse binaryformatter objects, it is quite hard to prevent this
             ResourceSet myResourceSet = new ResourceSet(@".\ResourceSetGenerator.resources");
             

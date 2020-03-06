@@ -7,7 +7,6 @@ namespace ysoserial.Helpers
 {
     class InputArgs
     {
-        private string _cmdFullString;
         private string _cmdFileName;
         private string _cmdArguments;
         private string _cmdFromFile;
@@ -118,10 +117,10 @@ namespace ysoserial.Helpers
         {
             get
             {
-                if (File.Exists(_cmdFullString))
+                if (File.Exists(Cmd))
                 {
-                    Console.Error.WriteLine("Reading command from file " + _cmdFullString + " ...");
-                    _cmdFromFile = File.ReadAllText(_cmdFullString);
+                    Console.Error.WriteLine("Reading command from file " + Cmd + " ...");
+                    _cmdFromFile = File.ReadAllText(Cmd);
                 }
                 else
                 {
