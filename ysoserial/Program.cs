@@ -390,7 +390,7 @@ namespace ysoserial
         {
             Console.WriteLine("ysoserial.net has been developed by Alvaro Muñoz (@pwntester)");
             Console.WriteLine("");
-            Console.WriteLine("Credits for available formatters:");
+            Console.WriteLine("Credits for available gadgets:");
             foreach (string g in generators)
             {
                 try
