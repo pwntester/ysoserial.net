@@ -5,7 +5,7 @@ using static ysoserial.Helpers.CommandArgSplitter;
 
 namespace ysoserial.Helpers
 {
-    class InputArgs
+    public class InputArgs
     {
         private string _cmdFileName;
         private string _cmdArguments;

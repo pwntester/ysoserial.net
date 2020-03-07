@@ -7,7 +7,7 @@ using NDesk.Options;
 
 namespace ysoserial.Generators
 {
-    class WindowsClaimsIdentityGenerator : GenericGenerator
+    public class WindowsClaimsIdentityGenerator : GenericGenerator
     {
         private int variant_number = 1; // Default
         public override string AdditionalInfo()

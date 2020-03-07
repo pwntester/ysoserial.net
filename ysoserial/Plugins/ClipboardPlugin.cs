@@ -23,7 +23,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    class ClipboardPlugin : Plugin
+    public class ClipboardPlugin : Plugin
     {
         static string format = System.Windows.Forms.DataFormats.Serializable;
         static string command = "";

@@ -8,7 +8,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class SessionViewStateHistoryItemGenerator : GenericGenerator
+    public class SessionViewStateHistoryItemGenerator : GenericGenerator
     {
         public override List<string> SupportedFormatters()
         {

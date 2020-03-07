@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ysoserial.Helpers
 {
-    class Debugging
+    public class Debugging
     {
         public static void ShowErrors(InputArgs inputArgs, Exception err)
         {

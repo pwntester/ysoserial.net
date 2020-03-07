@@ -9,7 +9,7 @@ namespace ysoserial.Plugins
 {
     // Author: Harrison Neal
     // Inspired by targets with BinaryServerFormatterSink.typeFilterLevel = Full
-    internal class ActivatorUrlPlugin : Plugin
+    public class ActivatorUrlPlugin : Plugin
     {
         private static string command = "";
         private static string url = "";

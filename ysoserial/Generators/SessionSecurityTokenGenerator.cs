@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace ysoserial.Generators
 {
-    class SessionSecurityTokenGenerator : GenericGenerator
+    public class SessionSecurityTokenGenerator : GenericGenerator
     {
         // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
 

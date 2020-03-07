@@ -19,7 +19,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    class ResxPlugin : Plugin
+    public class ResxPlugin : Plugin
     {
         static string mode = "";
         static string file = "";

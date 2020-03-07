@@ -6,7 +6,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class TypeConfuseDelegateMonoGenerator : GenericGenerator
+    public class TypeConfuseDelegateMonoGenerator : GenericGenerator
     {
         public override string Name()
         {

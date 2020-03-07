@@ -27,7 +27,7 @@ namespace ysoserial.Generators
         }
     }
 
-    class PSObjectGenerator : GenericGenerator
+    public class PSObjectGenerator : GenericGenerator
     {
         public override string Name()
         {

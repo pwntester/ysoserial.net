@@ -6,7 +6,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    class DotNetNukePlugin : Plugin
+    public class DotNetNukePlugin : Plugin
     {
         static string mode = "";
         static string path = "";

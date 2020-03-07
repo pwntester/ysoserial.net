@@ -6,7 +6,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class WindowsIdentityGenerator : GenericGenerator
+    public class WindowsIdentityGenerator : GenericGenerator
     {
         // Bridge from BinaryFormatter constructor/callback to BinaryFormatter
         // Usefule for Json.Net since it invokes ISerializable callbacks during deserialization

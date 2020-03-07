@@ -16,7 +16,7 @@ using YamlDotNet.Serialization;
 
 namespace ysoserial.Helpers
 {
-    class SerializersHelper
+    public class SerializersHelper
     {
         public static void ShowAll(object myobj)
         {

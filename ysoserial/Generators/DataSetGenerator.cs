@@ -7,7 +7,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class DataSetGenerator:GenericGenerator
+    public class DataSetGenerator:GenericGenerator
     {
         public override string Name()
         {
