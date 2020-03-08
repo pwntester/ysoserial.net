@@ -225,7 +225,6 @@ namespace ysoserial.Generators
 
     class ActivitySurrogateSelectorGenerator : GenericGenerator
     {
-<<<<<<< HEAD
         private int variant_number = 1;
 
         public override OptionSet Options()
@@ -236,9 +235,6 @@ namespace ysoserial.Generators
             };
             return options;
         }
-=======
-   
->>>>>>> refs/remotes/pwntester/master
         public override string AdditionalInfo()
         {
             return "This gadget ignores the command parameter and executes the constructor of ExploitClass class";
