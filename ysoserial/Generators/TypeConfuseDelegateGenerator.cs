@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using ysoserial.Helpers;
 
@@ -12,11 +11,6 @@ namespace ysoserial.Generators
         public override string Name()
         {
             return "TypeConfuseDelegate";
-        }
-
-        public override string Description()
-        {
-            return "TypeConfuseDelegate gadget";
         }
 
         public override string Finders()
@@ -46,7 +40,7 @@ namespace ysoserial.Generators
         public static object TypeConfuseDelegateGadget(string cmd)
         {
             InputArgs inputArgs = new InputArgs();
-            inputArgs.CmdFullString = cmd;
+            inputArgs.Cmd = cmd;
             return TypeConfuseDelegateGadget(inputArgs);
         }
 
@@ -56,7 +50,7 @@ namespace ysoserial.Generators
 
             if (!string.IsNullOrEmpty(cmdFromFile))
             {
-                inputArgs.CmdFullString = cmdFromFile;
+                inputArgs.Cmd = cmdFromFile;
             }
             
             Delegate da = new Comparison<string>(String.Compare);

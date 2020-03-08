@@ -2,7 +2,6 @@
 using NDesk.Options;
 using System;
 using ysoserial.Generators;
-using System.IO;
 using System.Transactions;
 using ysoserial.Helpers;
 
@@ -61,7 +60,7 @@ namespace ysoserial.Plugins
             try
             {
                 extra = options.Parse(args);
-                inputArgs.CmdFullString = command;
+                inputArgs.Cmd = command;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
                 inputArgs.Test = test;
@@ -98,9 +97,10 @@ namespace ysoserial.Plugins
                 {
                     TestMe myTransactionEnlistment = new TestMe();
                     TransactionManager.Reenlist(Guid.NewGuid(), newSerializedData, myTransactionEnlistment);
-                }catch
+                }
+                catch (Exception err)
                 {
-                    // always an error because of how it's been made
+                    Debugging.ShowErrors(inputArgs, err);
                 }
             }
             

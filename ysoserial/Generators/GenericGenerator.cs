@@ -8,21 +8,81 @@ using System.Web.UI;
 using System.Linq;
 using System.Configuration;
 using ysoserial.Helpers;
+using NDesk.Options;
 
 namespace ysoserial.Generators
 {
     abstract class GenericGenerator : Generator
     {
-        public abstract string Description();
         public abstract object Generate(string formatter, InputArgs inputArgs);
         public abstract string Finders();
         public abstract string Name();
         public abstract List<string> SupportedFormatters();
 
+        public virtual string AdditionalInfo()
+        {
+            // This is when we have nothing more to add to keep the help section cleaner
+            return "";
+        }
+        public virtual void Init(InputArgs inputArgs)
+        {
+            // Overridable to provide more flexibility for rare cases
+            OptionSet options = Options();
+            if (options != null)
+            {
+                InputArgs tempInputArgs = inputArgs.DeepCopy();
+
+                if (tempInputArgs.ExtraInternalArguments.Count > 0)
+                {
+                    // This means it is an internal call from other gadgets or plugins so current ExtraArguments becomes irrelevant and ExtraInternalArguments are important
+                    tempInputArgs.ExtraArguments = tempInputArgs.ExtraInternalArguments;
+                    tempInputArgs.ExtraInternalArguments = new List<string>(); // Clearing the list to prevent double use just in case!
+                }
+
+                try
+                {
+                    List<String> extraArguments = Options().Parse(tempInputArgs.ExtraArguments);
+                }
+                catch (OptionException e)
+                {
+                    Console.Write("ysoserial: ");
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Extra options for " + Name() + " are as follows:");
+                    options.WriteOptionDescriptions(Console.Out);
+                    System.Environment.Exit(-1);
+                }
+            }
+        }
+
+        public virtual OptionSet Options()
+        {
+            return null;
+        }
+
+        public object GenerateWithInit(string formatter, InputArgs inputArgs)
+        {
+            Init(inputArgs);
+            return Generate(formatter, inputArgs);
+        }
+
         public object GenerateWithNoTest(string formatter, InputArgs inputArgs)
         {
-            inputArgs.Test = false;
-            return Generate(formatter, inputArgs);
+            InputArgs tempInputArgs = inputArgs.DeepCopy();
+            tempInputArgs.Test = false;
+            return GenerateWithInit(formatter, tempInputArgs);
+        }
+
+        public object SerializeWithInit(object payloadObj, string formatter, InputArgs inputArgs)
+        {
+            Init(inputArgs);
+            return Serialize(payloadObj, formatter, inputArgs);
+        }
+
+        public object SerializeWithNoTest(object payloadObj, string formatter, InputArgs inputArgs)
+        {
+            InputArgs tempInputArgs = inputArgs.DeepCopy();
+            tempInputArgs.Test = false;
+            return SerializeWithInit(payloadObj, formatter, tempInputArgs);
         }
 
         public virtual List<string> Labels()
@@ -74,7 +134,8 @@ namespace ysoserial.Generators
                         stream.Position = 0;
                         fmt.Deserialize(stream);
                     } 
-                    catch {
+                    catch(Exception err){
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return stream.ToArray();
@@ -90,8 +151,9 @@ namespace ysoserial.Generators
                         stream.Position = 0;
                         osf.Deserialize(stream);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return stream.ToArray();
@@ -121,8 +183,9 @@ namespace ysoserial.Generators
                         stream.Position = 0;
                         sf.Deserialize(stream);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return stream.ToArray();
@@ -152,8 +215,9 @@ namespace ysoserial.Generators
                         stream.Position = 0;
                         ndcs.Deserialize(stream);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return stream.ToArray();
@@ -169,8 +233,9 @@ namespace ysoserial.Generators
                         stream.Position = 0;
                         lf.Deserialize(stream);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return stream.ToArray();

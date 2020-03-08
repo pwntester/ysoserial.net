@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Soap;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml;
-using ysoserial.Helpers;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
     class SessionViewStateHistoryItemGenerator : GenericGenerator
     {
-        public override string Description()
-        {
-            return "SessionViewStateHistoryItem gadget";
-            // Although it looks similar to WindowsIdentityGenerator but "actor" does not work in this context 
-        }
-
         public override List<string> SupportedFormatters()
         {
             return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "Json.Net" , "DataContractSerializer" };
@@ -103,8 +91,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.JsonNet_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -125,10 +114,11 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root");
+                        SerializersHelper.DataContractSerializer_deserialize(payload, null, "root", "type");
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -151,8 +141,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.NetDataContractSerializer_deserialize(payload, "root");
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;
@@ -180,8 +171,9 @@ namespace ysoserial.Generators
                     {
                         SerializersHelper.SoapFormatter_deserialize(payload);
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Debugging.ShowErrors(inputArgs, err);
                     }
                 }
                 return payload;

