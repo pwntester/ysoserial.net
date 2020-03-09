@@ -25,9 +25,14 @@ namespace ysoserial.Generators
 
         public override string Finders()
         {
-            return "Soroush Dalili, @mufinnnnnnn";
+            return "@mufinnnnnnn, Soroush Dalili";
         }
 
+        public override string Contributors()
+        {
+            return "Soroush Dalili";
+        }
+        
         public override List<string> Labels()
         {
             return new List<string> { GadgetTypes.BridgeAndDerived };
