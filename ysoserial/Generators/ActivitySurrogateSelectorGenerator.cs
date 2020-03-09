@@ -252,7 +252,12 @@ namespace ysoserial.Generators
 
         public override string Finders()
         {
-            return "James Forshaw,fixed by zcgonvh";
+            return "James Forshaw";
+        }
+
+        public override string Contributors()
+        {
+            return "Alvaro Muñoz, zcgonvh";
         }
 
         public override List<string> Labels()
