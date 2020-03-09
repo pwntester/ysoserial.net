@@ -23,7 +23,7 @@ namespace ysoserial.Generators
             return "James Forshaw";
         }
         
-        public override string Finders()
+        public override string Contributors()
         {
             return "Denis Andzakovic";
         }
