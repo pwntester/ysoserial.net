@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ysoserial", "ysoserial\ysoserial.csproj", "{6B40FDE7-14EA-4F57-8B7B-CC2EB4A25E6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExploitClass", "ExploitClass\ExploitClass.csproj", "{0746F37A-9825-4E9D-A1EB-6DCC03B25C45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{6B40FDE7-14EA-4F57-8B7B-CC2EB4A25E6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B40FDE7-14EA-4F57-8B7B-CC2EB4A25E6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B40FDE7-14EA-4F57-8B7B-CC2EB4A25E6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0746F37A-9825-4E9D-A1EB-6DCC03B25C45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0746F37A-9825-4E9D-A1EB-6DCC03B25C45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0746F37A-9825-4E9D-A1EB-6DCC03B25C45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0746F37A-9825-4E9D-A1EB-6DCC03B25C45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9F1672F3-4451-4E9C-87D3-54B0C5F2CF8A}
 	EndGlobalSection
 EndGlobal
