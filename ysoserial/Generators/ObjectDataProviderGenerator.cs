@@ -55,7 +55,7 @@ namespace ysoserial.Generators
 
         public override string Contributors()
         {
-            return "Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili";
+            return "Alvaro Munoz, Soroush Dalili";
         }
 
         public override List<string> Labels()
