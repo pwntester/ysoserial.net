@@ -22,6 +22,11 @@ namespace ysoserial.Generators
         {
             return "James Forshaw";
         }
+        
+        public override string Finders()
+        {
+            return "Denis Andzakovic";
+        }
 
         public override List<string> Labels()
         {
