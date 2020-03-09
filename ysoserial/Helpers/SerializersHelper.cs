@@ -146,33 +146,79 @@ namespace ysoserial.Helpers
 
         public static void TestAll(object myobj, Type type)
         {
-            XmlSerializer_test(myobj, type);
-            DataContractSerializer_test(myobj, type);
-            Xaml_test(myobj);
-            NetDataContractSerializer_test(myobj);
-            JsonNet_test(myobj);
-            SoapFormatter_test(myobj);
-            BinaryFormatter_test(myobj);
-            LosFormatter_test(myobj);
-            ObjectStateFormatter_test(myobj);
-            YamlDotNet_test(myobj);
-            JavaScriptSerializer_test(myobj);
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Object returned from:");            
+            if(XmlSerializer_test(myobj, type) != null)
+            {
+                sb.AppendLine("XmlSerializer_test");
+            }
+            if(DataContractSerializer_test(myobj, type) != null)
+            {
+                sb.AppendLine("DataContractSerializer_test");
+            }
+            if(Xaml_test(myobj) != null)
+            {
+                sb.AppendLine("Xaml_test");
+            }
+            if (NetDataContractSerializer_test(myobj) != null)
+            {
+                sb.AppendLine("NetDataContractSerializer_test");
+            }
+            if (JsonNet_test(myobj) != null)
+            {
+                sb.AppendLine("JsonNet_test");
+            }
+            if (SoapFormatter_test(myobj) != null)
+            {
+                sb.AppendLine("SoapFormatter_test");
+            }
+            if (BinaryFormatter_test(myobj) != null)
+            {
+                sb.AppendLine("BinaryFormatter_test");
+            }
+            if (LosFormatter_test(myobj) != null)
+            {
+                sb.AppendLine("LosFormatter_test");
+            }
+            if (ObjectStateFormatter_test(myobj) != null)
+            {
+                sb.AppendLine("ObjectStateFormatter_test");
+            }
+            if (YamlDotNet_test(myobj) != null)
+            {
+                sb.AppendLine("YamlDotNet_test");
+            }
+            if (JavaScriptSerializer_test(myobj) != null)
+            {
+                sb.AppendLine("JavaScriptSerializer_test");
+            }
         }
 
-        public static void XmlSerializer_test(object myobj)
-        {
-            XMLSerializer_deserialize(XmlSerializer_serialize(myobj), myobj.GetType());
-        }
-
-        public static void XmlSerializer_test(object myobj, Type type)
+        public static object XmlSerializer_test(object myobj)
         {
             try
             {
-                XMLSerializer_deserialize(XmlSerializer_serialize(myobj, type), type);
+                return XMLSerializer_deserialize(XmlSerializer_serialize(myobj), myobj.GetType());
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
+            }
+
+            
+        }
+
+        public static object XmlSerializer_test(object myobj, Type type)
+        {
+            try
+            {
+                return XMLSerializer_deserialize(XmlSerializer_serialize(myobj, type), type);
+            }
+            catch (Exception e)
+            {
+                //ignore
+                return null;
             }
         }
 
@@ -295,20 +341,21 @@ namespace ysoserial.Helpers
             return result;
         }
 
-        public static void DataContractSerializer_test(object myobj)
+        public static object DataContractSerializer_test(object myobj)
         {
-            DataContractSerializer_deserialize(DataContractSerializer_serialize(myobj), myobj.GetType());
+            return DataContractSerializer_deserialize(DataContractSerializer_serialize(myobj), myobj.GetType());
         }
 
-        public static void DataContractSerializer_test(object myobj, Type type)
+        public static object DataContractSerializer_test(object myobj, Type type)
         {
             try
             {
-                DataContractSerializer_deserialize(DataContractSerializer_serialize(myobj, type), type);
+                return DataContractSerializer_deserialize(DataContractSerializer_serialize(myobj, type), type);
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -366,15 +413,16 @@ namespace ysoserial.Helpers
             return obj;
         }
 
-        public static void Xaml_test(object myobj)
+        public static object Xaml_test(object myobj)
         {
             try
             {
-                Xaml_deserialize(Xaml_serialize(myobj));
+                return Xaml_deserialize(Xaml_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -404,15 +452,16 @@ namespace ysoserial.Helpers
             return DataContractSerializer_Marshal_2_MainType(dirtymarshal);
         }
 
-        public static void NetDataContractSerializer_test(object myobj)
+        public static object NetDataContractSerializer_test(object myobj)
         {
             try
             {
-                NetDataContractSerializer_deserialize(NetDataContractSerializer_serialize(myobj));
+                return NetDataContractSerializer_deserialize(NetDataContractSerializer_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -455,15 +504,16 @@ namespace ysoserial.Helpers
             return obj;
         }
 
-        public static void JsonNet_test(object myobj)
+        public static object JsonNet_test(object myobj)
         {
             try
             {
-                JsonNet_deserialize(JsonNet_serialize(myobj));
+                return JsonNet_deserialize(JsonNet_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -485,15 +535,16 @@ namespace ysoserial.Helpers
             return obj;
         }
 
-        public static void SoapFormatter_test(object myobj)
+        public static object SoapFormatter_test(object myobj)
         {
             try
             {
-                SoapFormatter_deserialize(SoapFormatter_serialize(myobj));
+                return SoapFormatter_deserialize(SoapFormatter_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -513,15 +564,16 @@ namespace ysoserial.Helpers
             return sf.Deserialize(ms);
         }
 
-        public static void BinaryFormatter_test(object myobj)
+        public static object BinaryFormatter_test(object myobj)
         {
             try
             {
-                BinaryFormatter_deserialize(BinaryFormatter_serialize(myobj));
+                return BinaryFormatter_deserialize(BinaryFormatter_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -533,6 +585,14 @@ namespace ysoserial.Helpers
             return Convert.ToBase64String(ms.ToArray());
         }
 
+        public static byte[] BinaryFormatter_serialize_toByteArray(object myobj)
+        {
+            BinaryFormatter sf = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream();
+            sf.Serialize(ms, myobj);
+            return ms.ToArray();
+        }
+
         public static object BinaryFormatter_deserialize(string str)
         {
             byte[] byteArray = Convert.FromBase64String(str);
@@ -540,15 +600,24 @@ namespace ysoserial.Helpers
             BinaryFormatter sf = new BinaryFormatter();
             return sf.Deserialize(ms);
         }
-        public static void LosFormatter_test(object myobj)
+
+        public static object BinaryFormatter_deserialize_fromByteArray(byte[] byteArray)
+        {
+            MemoryStream ms = new MemoryStream(byteArray);
+            BinaryFormatter sf = new BinaryFormatter();
+            return sf.Deserialize(ms);
+        }
+
+        public static object LosFormatter_test(object myobj)
         {
             try
             {
-                LosFormatter_deserialize(LosFormatter_serialize(myobj));
+                return LosFormatter_deserialize(LosFormatter_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -565,15 +634,16 @@ namespace ysoserial.Helpers
             return new LosFormatter().Deserialize(str);
         }
 
-        public static void ObjectStateFormatter_test(object myobj)
+        public static object ObjectStateFormatter_test(object myobj)
         {
             try
             {
-                ObjectStateFormatter_deserialize(ObjectStateFormatter_serialize(myobj));
+                return ObjectStateFormatter_deserialize(ObjectStateFormatter_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -587,15 +657,16 @@ namespace ysoserial.Helpers
             return new ObjectStateFormatter().Deserialize(str);
         }
 
-        public static void YamlDotNet_test(object myobj)
+        public static object YamlDotNet_test(object myobj)
         {
             try
             {
-                YamlDotNet_deserialize(YamlDotNet_serialize(myobj));
+                return YamlDotNet_deserialize(YamlDotNet_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 
@@ -618,15 +689,16 @@ namespace ysoserial.Helpers
             return result;
         }
 
-        public static void JavaScriptSerializer_test(object myobj)
+        public static object JavaScriptSerializer_test(object myobj)
         {
             try
             {
-                JavaScriptSerializer_deserialize(JavaScriptSerializer_serialize(myobj));
+                return JavaScriptSerializer_deserialize(JavaScriptSerializer_serialize(myobj));
             }
             catch (Exception e)
             {
                 //ignore
+                return null;
             }
         }
 

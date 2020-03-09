@@ -119,6 +119,7 @@
     <Compile Include="Generators\ResourceSetGenerator.cs" />
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
+    <Compile Include="Generators\RolePrincipalGenerator.cs" />
     <Compile Include="Helpers\BFMinifier.cs" />
     <Compile Include="Helpers\CommandArgSplitter.cs" />
     <Compile Include="Helpers\Debugging.cs" />

@@ -7,11 +7,11 @@ namespace ysoserial.Helpers
 {
     public class InputArgs
     {
-        private string _cmdFileName;
-        private string _cmdArguments;
-        private string _cmdFromFile;
-        private string _cmdRawNoEncoding;
-        private bool _hasArguments;
+        private string _cmdFileName; // set internally using _cmdRawNoEncoding (Cmd)
+        private string _cmdArguments; // set internally using _cmdRawNoEncoding (Cmd)
+        private string _cmdFromFile; // can be set internally using _cmdRawNoEncoding (Cmd)
+        private string _cmdRawNoEncoding; // Cmd
+        private bool _hasArguments; // set internally using _cmdRawNoEncoding (Cmd)
         private CommandType _cmdType = CommandType.None;
 
         private bool _test = false;
@@ -21,6 +21,20 @@ namespace ysoserial.Helpers
         private bool _isDebugMode = false;
         private List<String> _extraArguments = new List<string>();
         private List<String> _extraInternalArguments = new List<string>(); // This is used as ExtraArguments when calling GenerateWithNoTest to stop passing unwanted extra options 
+
+        public InputArgs(){}
+
+        public InputArgs(string cmd, bool rawcmd, bool test, bool minify, bool useSimpleType, bool isDebugMode, List<String> extraArguments)
+        {
+            this.Cmd = cmd;
+            this.IsRawCmd = rawcmd;
+            this.Test = test;
+            this.Minify = minify;
+            this.UseSimpleType = useSimpleType;
+            this.IsDebugMode = isDebugMode;
+            if(extraArguments != null)
+                this.ExtraArguments = extraArguments;
+        }
 
         public string CmdFullString
         {
@@ -226,6 +240,9 @@ namespace ysoserial.Helpers
         {
             get
             {
+                if (_extraArguments == null)
+                    return new List<string>();
+
                 return _extraArguments;
             }
 
@@ -252,6 +269,9 @@ namespace ysoserial.Helpers
         {
             get
             {
+                if (_extraInternalArguments == null)
+                    return new List<string>();
+
                 return _extraInternalArguments;
             }
 

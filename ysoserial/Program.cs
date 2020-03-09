@@ -55,6 +55,7 @@ namespace ysoserial
         static void Main(string[] args)
         {
             InputArgs inputArgs = new InputArgs();
+
             try
             {
                 List<String> extraArguments = options.Parse(args);
