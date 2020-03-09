@@ -29,10 +29,10 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 == GADGETS ==
 	(*) ActivitySurrogateDisableTypeCheck [Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored]
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-	(*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class]
-		Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
-	(*) ActivitySurrogateSelectorFromFile [Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
-		Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
+	(*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class] (supports extra options: use the '--fullhelp' argument to view)
+		Formatters: BinaryFormatter (2) , LosFormatter , ObjectStateFormatter , SoapFormatter
+	(*) ActivitySurrogateSelectorFromFile [Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'] (supports extra options: use the '--fullhelp' argument to view)
+		Formatters: BinaryFormatter (2) , LosFormatter , ObjectStateFormatter , SoapFormatter
 	(*) AxHostState
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
 	(*) DataSet
@@ -199,35 +199,35 @@ Credits for available gadgets:
 	ActivitySurrogateDisableTypeCheck
 		[Finders: Nick Landers]
 	ActivitySurrogateSelector
-		[Finders: James Forshaw]
+		[Finders: James Forshaw] [Contributors: Alvaro Munoz, zcgonvh]
 	ActivitySurrogateSelectorFromFile
-		[Finders: James Forshaw]
+		[Finders: James Forshaw] [Contributors: Alvaro Munoz, zcgonvh]
 	AxHostState
 		[Finders: Soroush Dalili]
 	DataSet
 		[Finders: James Forshaw] [Contributors: Soroush Dalili]
 	ObjectDataProvider
-		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili]
+		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili]
 	PSObject
-		[Finders: Oleksandr Mirosh and Alvaro Munoz]
+		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Alvaro Munoz]
 	ResourceSet
 		[Finders: Soroush Dalili]
 	RolePrincipal
 		[Finders: Soroush Dalili]
 	SessionSecurityToken
-		[Finders: Soroush Dalili, @mufinnnnnnn]
+		[Finders: @mufinnnnnnn, Soroush Dalili] [Contributors: Soroush Dalili]
 	SessionViewStateHistoryItem
 		[Finders: Soroush Dalili]
 	TextFormattingRunProperties
-		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili]
+		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili]
 	TypeConfuseDelegate
-		[Finders: James Forshaw]
+		[Finders: James Forshaw] [Contributors: Alvaro Munoz]
 	TypeConfuseDelegateMono
-		[Finders: James Forshaw]
+		[Finders: James Forshaw] [Contributors: Denis Andzakovic]
 	WindowsClaimsIdentity
 		[Finders: Soroush Dalili]
 	WindowsIdentity
-		[Finders: Levi Broderick] [Contributors: Levi Broderick, Soroush Dalili]
+		[Finders: Levi Broderick] [Contributors: Alvaro Munoz, Soroush Dalili]
 
 Credits for available plugins:
 	ActivatorUrl

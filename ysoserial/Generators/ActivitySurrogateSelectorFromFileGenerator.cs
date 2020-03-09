@@ -8,7 +8,7 @@ using ysoserial.Helpers;
 namespace ysoserial.Generators
 {
     [Serializable]
-    class PayloadClassFromFile : PayloadClass
+    public class PayloadClassFromFile : PayloadClass
     {
         protected PayloadClassFromFile(SerializationInfo info, StreamingContext context) : base(info, context)
         {
@@ -34,7 +34,8 @@ namespace ysoserial.Generators
             File.Delete(compilerResults.PathToAssembly);
         }
     }
-    class ActivitySurrogateSelectorFromFileGenerator : ActivitySurrogateSelectorGenerator
+
+    public class ActivitySurrogateSelectorFromFileGenerator : ActivitySurrogateSelectorGenerator
     {
         public override string AdditionalInfo()
         {

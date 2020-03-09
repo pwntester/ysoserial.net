@@ -14,7 +14,7 @@ using NDesk.Options;
 
 namespace ysoserial.Generators
 {
-    class MySurrogateSelector : SurrogateSelector
+    public class MySurrogateSelector : SurrogateSelector
     {
         public override ISerializationSurrogate GetSurrogate(Type type, StreamingContext context, out ISurrogateSelector selector)
         {
@@ -223,7 +223,7 @@ namespace ysoserial.Generators
         }
     }
 
-    class ActivitySurrogateSelectorGenerator : GenericGenerator
+    public class ActivitySurrogateSelectorGenerator : GenericGenerator
     {
         private int variant_number = 1;
 
@@ -231,7 +231,7 @@ namespace ysoserial.Generators
         {
             OptionSet options = new OptionSet()
             {
-                {"var|variant=", "Payload variant number where applicable. Choices: 1, 2 based on formatter.", v => int.TryParse(v, out this.variant_number) },
+                {"var|variant=", "Payload variant number where applicable. Choices: 1 (default), 2 (shorter but may not work between versions)", v => int.TryParse(v, out this.variant_number) },
             };
             return options;
         }
@@ -257,7 +257,7 @@ namespace ysoserial.Generators
 
         public override string Contributors()
         {
-            return "Alvaro Muñoz, zcgonvh";
+            return "Alvaro Munoz, zcgonvh"; // Actually Alvaro Muñoz but powershell clipboard can't take ñ sadly!
         }
 
         public override List<string> Labels()

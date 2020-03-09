@@ -3,7 +3,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class ActivitySurrogateDisableTypeCheckGenerator : GenericGenerator
+    public class ActivitySurrogateDisableTypeCheckGenerator : GenericGenerator
     {
         public override string Name()
         {
