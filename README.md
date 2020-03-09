@@ -27,48 +27,50 @@ $ ./ysoserial -h
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 == GADGETS ==
-        (*) ActivitySurrogateDisableTypeCheck [Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored]
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-        (*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class]
-                Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
-        (*) ActivitySurrogateSelectorFromFile [Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
-                Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
-        (*) AxHostState
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-        (*) DataSet
-                Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
-        (*) ObjectDataProvider (supports extra options: use the '--fullhelp' argument to view)
-                Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , Xaml (3) , XmlSerializer , YamlDotNet < 5.0.0
-        (*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-        (*) ResourceSet [WARNING: your command will be executed at least once during payload generation]
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
-        (*) SessionSecurityToken
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-        (*) SessionViewStateHistoryItem
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-        (*) TextFormattingRunProperties [This normally generates the shortest payload] (supports extra options: use the '--fullhelp' argument to view)
-                Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-        (*) TypeConfuseDelegate
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
-        (*) TypeConfuseDelegateMono [Tweaked TypeConfuseDelegate gadget to work with Mono]
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
-        (*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)] (supports extra options: use the '--fullhelp' argument to view)
-                Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , ObjectStateFormatter (3) , SoapFormatter (2)
-        (*) WindowsIdentity
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) ActivitySurrogateDisableTypeCheck [Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored]
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class]
+		Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
+	(*) ActivitySurrogateSelectorFromFile [Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
+		Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
+	(*) AxHostState
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) DataSet
+		Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
+	(*) ObjectDataProvider (supports extra options: use the '--fullhelp' argument to view)
+		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , Xaml (3) , XmlSerializer , YamlDotNet < 5.0.0
+	(*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) ResourceSet [WARNING: your command will be executed at least once during payload generation]
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
+	(*) RolePrincipal
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) SessionSecurityToken
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) SessionViewStateHistoryItem
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) TextFormattingRunProperties [This normally generates the shortest payload] (supports extra options: use the '--fullhelp' argument to view)
+		Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+	(*) TypeConfuseDelegate
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
+	(*) TypeConfuseDelegateMono [Tweaked TypeConfuseDelegate gadget to work with Mono]
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
+	(*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)] (supports extra options: use the '--fullhelp' argument to view)
+		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , ObjectStateFormatter (3) , SoapFormatter (2)
+	(*) WindowsIdentity
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
 
 == PLUGINS ==
-        (*) ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
-        (*) Altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
-        (*) ApplicationTrust (Generates XML payload for the ApplicationTrust class)
-        (*) Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
-        (*) DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
-        (*) Resx (Generates RESX files)
-        (*) SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
-        (*) SharePoint (Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
-        (*) TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
-        (*) ViewState (Generates a ViewState using known MachineKey parameters)
+	(*) ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
+	(*) Altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
+	(*) ApplicationTrust (Generates XML payload for the ApplicationTrust class)
+	(*) Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
+	(*) DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
+	(*) Resx (Generates RESX files)
+	(*) SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
+	(*) SharePoint (Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
+	(*) TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
+	(*) ViewState (Generates a ViewState using known MachineKey parameters)
 
 Usage: ysoserial.exe [options]
 Options:
@@ -77,26 +79,26 @@ Options:
   -g, --gadget=VALUE         The gadget chain.
   -f, --formatter=VALUE      The formatter.
   -c, --command=VALUE        The command to be executed.
-      --rawcmd               Command will be executed as is without `cmd /c `
-                               being appended (anything after first space is an
+      --rawcmd               Command will be executed as is without `cmd /c ` 
+                               being appended (anything after first space is an 
                                argument).
-  -s, --stdin                The command to be executed will be read from
+  -s, --stdin                The command to be executed will be read from 
                                standard input.
   -t, --test                 Whether to run payload locally. Default: false
-      --minify               Whether to minify the payloads where applicable.
+      --minify               Whether to minify the payloads where applicable. 
                                Default: false
-      --ust, --usesimpletype This is to remove additional info only when
-                               minifying and FormatterAssemblyStyle=Simple.
+      --ust, --usesimpletype This is to remove additional info only when 
+                               minifying and FormatterAssemblyStyle=Simple. 
                                Default: true
       --sf, --searchformatter=VALUE
-                             Search in all formatters to show relevant
-                               gadgets and their formatters (other parameters
+                             Search in all formatters to show relevant 
+                               gadgets and their formatters (other parameters 
                                will be ignored).
       --debugmode            Enable debugging to show exception errors
   -h, --help                 Shows this message and exit.
-      --fullhelp             Shows this message + extra options for gadgets
+      --fullhelp             Shows this message + extra options for gadgets 
                                and plugins and exit.
-      --credit               Shows the credit/history of gadgets and plugins
+      --credit               Shows the credit/history of gadgets and plugins 
                                (other parameters will be ignored).
 ```
 
@@ -194,58 +196,60 @@ $ ./ysoserial.exe --credit
 ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
 
 Credits for available gadgets:
-        ActivitySurrogateDisableTypeCheck
-                [Finders: Nick Landers]
-        ActivitySurrogateSelector
-                [Finders: James Forshaw]
-        ActivitySurrogateSelectorFromFile
-                [Finders: James Forshaw]
-        AxHostState
-                [Finders: Soroush Dalili]
-        DataSet
-                [Finders: James Forshaw] [Contributors: Soroush Dalili]
-        ObjectDataProvider
-                [Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili]
-        PSObject
-                [Finders: Oleksandr Mirosh and Alvaro Munoz]
-        ResourceSet
-                [Finders: Soroush Dalili]
-        SessionSecurityToken
-                [Finders: Soroush Dalili, @mufinnnnnnn]
-        SessionViewStateHistoryItem
-                [Finders: Soroush Dalili]
-        TextFormattingRunProperties
-                [Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili]
-        TypeConfuseDelegate
-                [Finders: James Forshaw]
-        TypeConfuseDelegateMono
-                [Finders: James Forshaw]
-        WindowsClaimsIdentity
-                [Finders: Soroush Dalili]
-        WindowsIdentity
-                [Finders: Levi Broderick] [Contributors: Levi Broderick, Soroush Dalili]
+	ActivitySurrogateDisableTypeCheck
+		[Finders: Nick Landers]
+	ActivitySurrogateSelector
+		[Finders: James Forshaw]
+	ActivitySurrogateSelectorFromFile
+		[Finders: James Forshaw]
+	AxHostState
+		[Finders: Soroush Dalili]
+	DataSet
+		[Finders: James Forshaw] [Contributors: Soroush Dalili]
+	ObjectDataProvider
+		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili]
+	PSObject
+		[Finders: Oleksandr Mirosh and Alvaro Munoz]
+	ResourceSet
+		[Finders: Soroush Dalili]
+	RolePrincipal
+		[Finders: Soroush Dalili]
+	SessionSecurityToken
+		[Finders: Soroush Dalili, @mufinnnnnnn]
+	SessionViewStateHistoryItem
+		[Finders: Soroush Dalili]
+	TextFormattingRunProperties
+		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Alvaro Munoz, Soroush Dalili]
+	TypeConfuseDelegate
+		[Finders: James Forshaw]
+	TypeConfuseDelegateMono
+		[Finders: James Forshaw]
+	WindowsClaimsIdentity
+		[Finders: Soroush Dalili]
+	WindowsIdentity
+		[Finders: Levi Broderick] [Contributors: Levi Broderick, Soroush Dalili]
 
 Credits for available plugins:
-        ActivatorUrl
-                Harrison Neal
-        Altserialization
-                Soroush Dalili
-        ApplicationTrust
-                Soroush Dalili
-        Clipboard
-                Soroush Dalili
-        DotNetNuke
-                discovered by Oleksandr Mirosh and Alvaro Munoz, implemented by Alvaro Munoz, tested by @GlitchWitch
-        Resx
-                Soroush Dalili
-        SessionSecurityTokenHandler
-                Soroush Dalili
-        SharePoint
-                CVE-2019-0604: Markus Wulftange, CVE-2018-8421: Soroush Dalili, implemented by Soroush Dalili
-        TransactionManagerReenlist
-                Soroush Dalili
-        ViewState
-                Soroush Dalili
+	ActivatorUrl
+		Harrison Neal
+	Altserialization
+		Soroush Dalili
+	ApplicationTrust
+		Soroush Dalili
+	Clipboard
+		Soroush Dalili
+	DotNetNuke
+		discovered by Oleksandr Mirosh and Alvaro Munoz, implemented by Alvaro Munoz, tested by @GlitchWitch
+	Resx
+		Soroush Dalili
+	SessionSecurityTokenHandler
+		Soroush Dalili
+	SharePoint
+		CVE-2019-0604: Markus Wulftange, CVE-2018-8421: Soroush Dalili, implemented by Soroush Dalili
+	TransactionManagerReenlist
+		Soroush Dalili
+	ViewState
+		Soroush Dalili
 
 Various other people have also donated their time and contributed to this project.
 Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to find those who have helped developing more features or have fixed bugs.
