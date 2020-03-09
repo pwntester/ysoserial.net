@@ -18,6 +18,11 @@ namespace ysoserial.Generators
             return "James Forshaw";
         }
 
+        public override string Contributors()
+        {
+            return "Alvaro Munoz";
+        }
+
         public override List<string> Labels()
         {
             return new List<string> { GadgetTypes.NotBridgeNotDerived };
