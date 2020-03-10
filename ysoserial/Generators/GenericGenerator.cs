@@ -12,7 +12,7 @@ using NDesk.Options;
 
 namespace ysoserial.Generators
 {
-    abstract class GenericGenerator : Generator
+    public abstract class GenericGenerator : Generator
     {
         public abstract object Generate(string formatter, InputArgs inputArgs);
         public abstract string Finders();

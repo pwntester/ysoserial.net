@@ -2,7 +2,7 @@
 
 namespace ysoserial.Helpers
 {
-    class BFMinifier
+    public class BFMinifier
     {
         //TODO
     }

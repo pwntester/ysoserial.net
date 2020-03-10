@@ -23,7 +23,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    class ClipboardPlugin : Plugin
+    public class ClipboardPlugin : Plugin
     {
         static string format = System.Windows.Forms.DataFormats.Serializable;
         static string command = "";
@@ -33,7 +33,7 @@ namespace ysoserial.Plugins
 
         static OptionSet options = new OptionSet()
             {
-                {"F|format=", "the object format: Csv, DeviceIndependentBitmap, DataInterchangeFormat, PenData, RiffAudio, WindowsForms10PersistentObject, System.String, SymbolicLink, TaggedImageFileFormat, WaveAudio. Default: Serializable (the only one that works in Feb 2020 as a result of an incomplete silent patch - - will not be useful to target text based fields anymore)", v => format = v },
+                {"F|format=", "the object format: Csv, DeviceIndependentBitmap, DataInterchangeFormat, PenData, RiffAudio, WindowsForms10PersistentObject, System.String, SymbolicLink, TaggedImageFileFormat, WaveAudio. Default: WindowsForms10PersistentObject (the only one that works in Feb 2020 as a result of an incomplete silent patch - - will not be useful to target text based fields anymore)", v => format = v },
                 {"c|command=", "the command to be executed", v => command = v },
                 {"t|test", "whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },

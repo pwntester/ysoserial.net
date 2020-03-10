@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace ysoserial.Helpers
 {
-    class CommandArgSplitter
+    public class CommandArgSplitter
     {
         public enum CommandType : ushort
         {

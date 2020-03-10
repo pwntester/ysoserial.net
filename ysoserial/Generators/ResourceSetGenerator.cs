@@ -7,7 +7,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class ResourceSetGenerator : GenericGenerator
+    public class ResourceSetGenerator : GenericGenerator
     {
         public override string AdditionalInfo()
         {

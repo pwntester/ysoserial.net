@@ -24,7 +24,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    class ViewStatePlugin : Plugin
+    public class ViewStatePlugin : Plugin
     {
         static bool showExamples = false;
         static bool dryRun = false;

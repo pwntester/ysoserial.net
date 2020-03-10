@@ -17,7 +17,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    class ApplicationTrustPlugin : Plugin
+    public class ApplicationTrustPlugin : Plugin
     {
         static string command = "";
         static bool test = false;

@@ -22,7 +22,7 @@ using NDesk.Options;
 
 namespace ysoserial.Generators
 {
-    class ObjectDataProviderGenerator : GenericGenerator
+    public class ObjectDataProviderGenerator : GenericGenerator
     {
         private int variant_number = 1; // Default
         private string xaml_url = "";

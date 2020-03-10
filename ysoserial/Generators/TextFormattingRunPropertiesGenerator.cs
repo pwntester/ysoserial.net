@@ -29,7 +29,7 @@ namespace ysoserial.Generators
     }
 
 
-    class TextFormattingRunPropertiesGenerator : GenericGenerator
+    public class TextFormattingRunPropertiesGenerator : GenericGenerator
     {
         private string xaml_url = "";
         private bool hasRootDCS = false;

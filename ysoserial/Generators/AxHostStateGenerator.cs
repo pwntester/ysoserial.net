@@ -7,7 +7,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class AxHostStateGenerator : GenericGenerator
+    public class AxHostStateGenerator : GenericGenerator
     {
         public override string Name()
         {

@@ -9,7 +9,7 @@ using System.Xml.Xsl;
 
 namespace ysoserial.Helpers
 {
-    class XMLMinifier
+    public class XMLMinifier
     {
         
 

