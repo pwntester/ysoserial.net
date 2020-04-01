@@ -58,6 +58,7 @@ namespace ysoserial.Helpers
 
             return jsonString;
         }
+
         private static String JSONNETMinifier(String jsonString)
         {
             using (StringWriter stringWriter = new StringWriter())

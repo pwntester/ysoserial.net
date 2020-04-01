@@ -126,7 +126,19 @@ namespace ysoserial.Generators
             if (formatter.ToLower().Equals("binaryformatter"))
             {
                 BinaryFormatter fmt = new BinaryFormatter();
-                fmt.Serialize(stream, payloadObj);
+
+                if (inputArgs.Minify)
+                {
+                    ModifiedVulnerableBinaryFormatter.BinaryFormatter fmtLocal = new ModifiedVulnerableBinaryFormatter.BinaryFormatter();
+                    fmtLocal.Serialize(stream, payloadObj);
+                }
+                else
+                {
+                    
+                    fmt.Serialize(stream, payloadObj);
+                }
+                
+                
                 if (inputArgs.Test)
                 {
                     try

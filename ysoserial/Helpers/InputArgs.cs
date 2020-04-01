@@ -19,6 +19,7 @@ namespace ysoserial.Helpers
         private bool _useSimpleType = false;
         private bool _isRawCmd = false;
         private bool _isDebugMode = false;
+        private bool _isSTAThread = false; // this is for when STAThreadAttribute is needed to execute!
         private List<String> _extraArguments = new List<string>();
         private List<String> _extraInternalArguments = new List<string>(); // This is used as ExtraArguments when calling GenerateWithNoTest to stop passing unwanted extra options 
 
@@ -278,6 +279,19 @@ namespace ysoserial.Helpers
             set
             {
                 _extraInternalArguments = value;
+            }
+        }
+
+        public bool IsSTAThread
+        {
+            get
+            {
+                return _isSTAThread;
+            }
+
+            set
+            {
+                _isSTAThread = value;
             }
         }
 

@@ -120,7 +120,19 @@
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
     <Compile Include="Generators\RolePrincipalGenerator.cs" />
+    <Compile Include="Helpers\binary\binarycommonclasses.cs" />
+    <Compile Include="Helpers\binary\binaryconverter.cs" />
+    <Compile Include="Helpers\binary\binaryenums.cs" />
+    <Compile Include="Helpers\binary\binaryformatter.cs" />
+    <Compile Include="Helpers\binary\binaryformatterwriter.cs" />
+    <Compile Include="Helpers\binary\binarymethodmessage.cs" />
     <Compile Include="Helpers\BFMinifier.cs" />
+    <Compile Include="Helpers\binary\binaryobjectinfo.cs" />
+    <Compile Include="Helpers\binary\binaryobjectreader.cs" />
+    <Compile Include="Helpers\binary\binaryobjectwriter.cs" />
+    <Compile Include="Helpers\binary\binaryparser.cs" />
+    <Compile Include="Helpers\binary\binaryutilclasses.cs" />
+    <Compile Include="Helpers\binary\Environment.cs" />
     <Compile Include="Helpers\CommandArgSplitter.cs" />
     <Compile Include="Helpers\Debugging.cs" />
     <Compile Include="Helpers\FormatterType.cs" />
@@ -173,6 +185,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Helpers\binary\info.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

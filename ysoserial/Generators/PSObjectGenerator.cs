@@ -41,7 +41,7 @@ namespace ysoserial.Generators
 
         public override string Finders()
         {
-            return "Oleksandr Mirosh and Alvaro Munoz";
+            return "Oleksandr Mirosh, Alvaro Munoz";
         }
 	
 	public override string Contributors()
@@ -143,7 +143,7 @@ namespace ysoserial.Generators
             {
                 // Could not be tested so it may not work here!
                 // also not sure if can use CDATA otherwise we could use the CDATA flag to save more space
-                clixml = XMLMinifier.Minify(clixml, null, null);
+                clixml = XMLMinifier.Minify(clixml, null, null, FormatterType.None, true);
             }
 
             PsObjectMarshal payload = new PsObjectMarshal(clixml);

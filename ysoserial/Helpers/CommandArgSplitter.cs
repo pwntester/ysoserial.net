@@ -33,28 +33,28 @@ namespace ysoserial.Helpers
             else if (cmdType == CommandType.XML)
             {
                 // escape for XML
-                result[0] = XmlStringEscape(result[0]);
+                result[0] = XmlStringHTMLEscape(result[0]);
                 if (hasArgs)
                 {
-                    result[1] = XmlStringEscape(result[1]);
+                    result[1] = XmlStringHTMLEscape(result[1]);
                 }
             }
             else if (cmdType == CommandType.XMLinJSON)
             {
                 // escape for XML
-                result[0] = JsonStringEscape(XmlStringEscape(result[0]));
+                result[0] = JsonStringEscape(XmlStringHTMLEscape(result[0]));
                 if (hasArgs)
                 {
-                    result[1] = JsonStringEscape(XmlStringEscape(result[1]));
+                    result[1] = JsonStringEscape(XmlStringHTMLEscape(result[1]));
                 }
             }
             else if (cmdType == CommandType.JSONinXML)
             {
                 // escape for XML
-                result[0] = XmlStringEscape(JsonStringEscape(result[0]));
+                result[0] = XmlStringHTMLEscape(JsonStringEscape(result[0]));
                 if (hasArgs)
                 {
-                    result[1] = XmlStringEscape(JsonStringEscape(result[1]));
+                    result[1] = XmlStringHTMLEscape(JsonStringEscape(result[1]));
                 }
             }
             else if (cmdType == CommandType.YamlDotNet)
@@ -81,12 +81,17 @@ namespace ysoserial.Helpers
             return result;
         }
 
-        public static string XmlStringEscape(string text)
+        public static string XmlStringHTMLEscape(string text)
         {
             XmlDocument _xmlDoc = new XmlDocument();
             var el = _xmlDoc.CreateElement("t");
             el.InnerText = text;
             return el.InnerXml;
+        }
+
+        public static string XmlStringAttributeEscape(string text)
+        {
+            return XmlStringHTMLEscape(text).Replace("\"","&#x22;");
         }
 
         public static string JsonStringEscape(string text)

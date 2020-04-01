@@ -309,6 +309,8 @@ namespace ysoserial.Helpers
 
                             // we need to remove <?xml at the beginning if there is any
                             result = Regex.Replace(dirtymarshal, @"\s*\<\?xml[^\>]+\?\>", "", RegexOptions.IgnoreCase);
+                            // removing spaces in front of the lines
+                            result = Regex.Replace(result, @"^\s+", "");
 
                             Regex regexMarshaledTagName = new Regex(@"^\s*<([^\s>]+)");
                             Match matchMarshaledTagName = regexMarshaledTagName.Match(result);
