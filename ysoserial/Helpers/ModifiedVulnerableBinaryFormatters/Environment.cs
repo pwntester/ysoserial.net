@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.IO;
 
-namespace ModifiedVulnerableBinaryFormatter
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
     public static class Environment
     {

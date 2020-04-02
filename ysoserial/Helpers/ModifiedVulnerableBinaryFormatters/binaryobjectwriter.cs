@@ -13,8 +13,8 @@
  **
  ===========================================================*/
 
-namespace ModifiedVulnerableBinaryFormatter
-{    
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
+{
     using System;
     using System.IO;
     using System.Reflection;
@@ -30,6 +30,7 @@ namespace ModifiedVulnerableBinaryFormatter
     using System.Globalization;
     using System.Diagnostics.Contracts;
     using System.Runtime.Serialization.Formatters;
+    using System.Linq;
 
     internal sealed  class ObjectWriter
     {
@@ -383,6 +384,31 @@ namespace ModifiedVulnerableBinaryFormatter
 
                     objectInfo.GetMemberInfo(out memberNames, out memberTypes, out memberData);
 
+                    // We don't need to write this for minifying - it was not in use before .NET v4 either
+                    // We need to make sure that we don't write the object name either
+                    if (typeNameInfo.NIFullName.Equals("System.Reflection.MemberInfoSerializationHolder"))
+                    {
+                        int sig2Index = Array.IndexOf(memberNames, "Signature2");
+                        if (sig2Index >= 0)
+                        {
+                            memberNames = memberNames.Where((source, index) => index != sig2Index).ToArray();
+                            memberTypes = memberTypes.Where((source, index) => index != sig2Index).ToArray();
+                            memberData = memberData.Where((source, index) => index != sig2Index).ToArray();
+                        }
+                    }
+
+                    // Removing NULL values to minify - bad idea? probably yes -> even the output can become larger but I don't know why (@irsdl)
+                    /*
+                    int[] nullIndex = memberData.Select((b, i) => b == null ? i : -1).Where(i => i != -1).ToArray();
+                    for(int i=0;i< nullIndex.Length; i++)
+                    {
+                        int currentIndex = nullIndex[i] - i;
+                        memberNames = memberNames.Where((source, index) => index != currentIndex).ToArray();
+                        memberTypes = memberTypes.Where((source, index) => index != currentIndex).ToArray();
+                        memberData = memberData.Where((source, index) => index != currentIndex).ToArray();
+                    }
+                    //*/
+
                     // Only Binary needs to transmit types for ISerializable because the binary formatter transmits the types in URT format.
                     // Soap transmits all types as strings, so it is up to the ISerializable object to convert the string back to its URT type
                     if (objectInfo.isSi || CheckTypeFormat(formatterEnums.FEtypeFormat, FormatterTypeStyle.TypesAlways))
@@ -575,6 +601,7 @@ namespace ModifiedVulnerableBinaryFormatter
                                   WriteObjectInfo memberObjectInfo
                                  )
         {
+            
             //SerTrace.Log( this, "WriteMembers Entry memberType: ",memberTypeNameInfo.NIname," memberName: ",memberNameInfo.NIname," data: ",memberData," objectId: ",objectInfo.objectId, " Container object ",objectInfo.obj, " memberObjectinfo ",memberObjectInfo);
             /*
             if (memberTypeNameInfo.NIname.Equals("System.String"))
@@ -1365,14 +1392,14 @@ namespace ModifiedVulnerableBinaryFormatter
             long assemId = 0;
             bool isNew = false;
             String assemblyString = objectInfo.GetAssemblyString();
-            assemblyString = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(assemblyString);
+            assemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(assemblyString);
             String serializedAssemblyString = assemblyString;
             if (assemblyString.Length == 0)
             {
                 assemId = 0;
             }
             //else if (assemblyString.Equals(Converter.urtAssemblyString))
-            else if (assemblyString.Equals(ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(Converter.urtAssemblyString)))
+            else if (assemblyString.Equals(BinaryMinifier.AssemblyOrTypeNameMinifier(Converter.urtAssemblyString)))
             {
                 // Urt type is an assemId of 0. No assemblyString needs
                 // to be sent 

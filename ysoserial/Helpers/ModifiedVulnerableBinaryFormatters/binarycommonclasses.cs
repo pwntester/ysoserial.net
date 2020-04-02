@@ -14,7 +14,7 @@
  ===========================================================*/
 
 
-namespace ModifiedVulnerableBinaryFormatter{
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
     using System;
     using System.IO;
@@ -70,20 +70,20 @@ namespace ModifiedVulnerableBinaryFormatter{
                             //assembly = type.Assembly.FullName;
                             //typeInformation = type.FullName;
 
-                            typeInformation = ysoserial.Helpers.BinaryMinifier.FullTypeNameMinifier(type.FullName, type.Assembly.FullName);
-                            assembly = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(type.Assembly.FullName);
+                            typeInformation = BinaryMinifier.FullTypeNameMinifier(type.FullName, type.Assembly.FullName);
+                            assembly = BinaryMinifier.AssemblyOrTypeNameMinifier(type.Assembly.FullName);
                         }
                         else
                         {
                             //assembly = objectInfo.GetAssemblyString();
                             //typeInformation = objectInfo.GetTypeFullName();
 
-                            typeInformation = ysoserial.Helpers.BinaryMinifier.FullTypeNameMinifier(objectInfo.GetTypeFullName(), objectInfo.GetAssemblyString());
-                            assembly = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(objectInfo.GetAssemblyString());
+                            typeInformation = BinaryMinifier.FullTypeNameMinifier(objectInfo.GetTypeFullName(), objectInfo.GetAssemblyString());
+                            assembly = BinaryMinifier.AssemblyOrTypeNameMinifier(objectInfo.GetAssemblyString());
                         }
 
                         //if (assembly.Equals(Converter.urtAssemblyString))
-                        if (assembly.Equals(ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(Converter.urtAssemblyString)))
+                        if (assembly.Equals(BinaryMinifier.AssemblyOrTypeNameMinifier(Converter.urtAssemblyString)))
                         {
                             binaryTypeEnum = BinaryTypeEnum.ObjectUrt;
                             assemId = 0;

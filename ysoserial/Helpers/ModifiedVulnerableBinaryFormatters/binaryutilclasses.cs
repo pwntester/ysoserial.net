@@ -18,7 +18,7 @@
 // They are public so that the XMLFormatter can address them. Eventually they will
 // be signed so that they can't be used by external applications.
 
-namespace ModifiedVulnerableBinaryFormatter
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
     using System;
     using System.Collections;

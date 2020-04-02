@@ -15,7 +15,7 @@ using System.Diagnostics.Contracts;
  ===========================================================*/
 
 
-namespace ModifiedVulnerableBinaryFormatter {
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
     using System;
     using System.IO;

@@ -14,7 +14,7 @@
  ===========================================================*/
 
 
-namespace ModifiedVulnerableBinaryFormatter {
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
     using System.Threading;
     using System.Runtime.Remoting;

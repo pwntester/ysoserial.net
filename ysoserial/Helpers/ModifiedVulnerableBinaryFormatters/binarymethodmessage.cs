@@ -4,7 +4,7 @@
 // 
 // ==--==
 #if FEATURE_REMOTING
-namespace ModifiedVulnerableBinaryFormatter
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
     using System;
     using System.Collections;

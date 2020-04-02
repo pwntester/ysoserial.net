@@ -13,7 +13,7 @@
  **
  ===========================================================*/
 
-namespace ModifiedVulnerableBinaryFormatter
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
     using System.Runtime.Serialization.Formatters;
     using System.Runtime.Remoting;

