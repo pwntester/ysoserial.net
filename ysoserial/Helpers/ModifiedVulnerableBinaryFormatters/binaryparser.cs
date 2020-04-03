@@ -111,7 +111,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 ReadSerializationHeaderRecord();
                 while (isLoop)
                 {
-                    //SerTrace.Log( this, "Run loop ",((Enum)expectedType).ToString());
+                    SerTrace.Log( this, "Run loop ",((Enum)expectedType).ToString());
                     BinaryHeaderEnum binaryHeaderEnum = BinaryHeaderEnum.Object;
                     switch (expectedType)
                     {
@@ -203,25 +203,25 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                             if (op == null)
                             {
                                 // No more object on stack, then the next record is a top level object
-                                //SerTrace.Log( this, "Run loop op null, top level object");                      
+                                SerTrace.Log( this, "Run loop op null, top level object");                      
                                 expectedType = BinaryTypeEnum.ObjectUrt;
                                 expectedTypeInformation = null;
                                 isData = true;
                             }
                             else
                             {
-                                //SerTrace.Log( this, "Run loop op not null, continue object");
+                                SerTrace.Log( this, "Run loop op not null, continue object");
                                 // Find out what record is expected next
                                 isData = op.GetNext(out op.expectedType, out op.expectedTypeInformation);
                                 expectedType = op.expectedType;
                                 expectedTypeInformation = op.expectedTypeInformation;
-                                //SerTrace.Log( this, "Run loop opName ",op.name,", expectedType ",((Enum)expectedType).ToString()," expectedTypeInformation, ",expectedTypeInformation);
+                                SerTrace.Log( this, "Run loop opName ",op.name,", expectedType ",((Enum)expectedType).ToString()," expectedTypeInformation, ",expectedTypeInformation);
 
-                                //SerTrace.Log( this, "Run ",isData);     
+                                SerTrace.Log( this, "Run ",isData);     
                                 if (!isData)
                                 {
                                     // No record is expected next, this is the end of an object or array
-                                    //SerTrace.Log( this, "Run End of Object ");
+                                    SerTrace.Log( this, "Run End of Object ");
                                     stack.Dump();
 
                                     prs.Init();
@@ -253,7 +253,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             {
 
                 // EOF should never be thrown since there is a MessageEnd record to stop parsing
-                //BCLDebug.Trace("BINARY", "\n*****EOF*************************\n");
+                BCLDebug.Trace("BINARY", "\n*****EOF*************************\n");
                 throw new SerializationException(Environment.GetResourceString("Serialization_StreamEnd"));             
             }
         }
@@ -261,12 +261,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal void ReadBegin()
         {
-            //BCLDebug.Trace("BINARY", "\n%%%%%BinaryReaderBegin%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+            BCLDebug.Trace("BINARY", "\n%%%%%BinaryReaderBegin%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
         }
 
         internal void ReadEnd()
         {
-            //BCLDebug.Trace("BINARY","\n%%%%%BinaryReaderEnd%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+            BCLDebug.Trace("BINARY","\n%%%%%BinaryReaderEnd%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
         }
 
         /*
@@ -383,7 +383,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         internal void ReadSerializationHeaderRecord()
         {
-            //SerTrace.Log( this, "ReadSerializationHeaderRecord");
+            SerTrace.Log( this, "ReadSerializationHeaderRecord");
             SerializationHeaderRecord record = new SerializationHeaderRecord();
                 record.Read(this);
                 record.Dump();
@@ -394,7 +394,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]
         internal void ReadAssembly(BinaryHeaderEnum binaryHeaderEnum)
         {
-            //SerTrace.Log( this, "ReadAssembly");
+            SerTrace.Log( this, "ReadAssembly");
             BinaryAssembly record = new BinaryAssembly();
             if (binaryHeaderEnum == BinaryHeaderEnum.CrossAppDomainAssembly)
             {
@@ -416,11 +416,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             AssemIdToAssemblyTable[record.assemId] = new BinaryAssemblyInfo(record.assemblyString);
         }
 
-#if FEATURE_REMOTING
+//#if FEATURE_REMOTING
         [System.Security.SecurityCritical]  // auto-generated
         internal void ReadMethodObject(BinaryHeaderEnum binaryHeaderEnum)
         {
-            //SerTrace.Log( this, "ReadMethodObject");
+            SerTrace.Log( this, "ReadMethodObject");
             if (binaryHeaderEnum == BinaryHeaderEnum.MethodCall)
             {
                 BinaryMethodCall record = new BinaryMethodCall();
@@ -436,14 +436,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 objectReader.SetMethodReturn(record);
             }
         }
-#endif
+//#endif
 
         private BinaryObject binaryObject;
 
         [System.Security.SecurityCritical]  // auto-generated
         private void ReadObject()
         {
-            //SerTrace.Log( this, "ReadObject");
+            SerTrace.Log( this, "ReadObject");
 
             if (binaryObject == null)
                 binaryObject = new BinaryObject();
@@ -468,7 +468,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             if ((objectOp == null) || (objectOp.isInitial))
             {
                 // Non-Nested Object
-                //SerTrace.Log( this, "ReadObject non-nested ");              
+                SerTrace.Log( this, "ReadObject non-nested ");              
                 op.name = objectMap.objectName;
                 pr.PRparseTypeEnum = InternalParseTypeE.Object;
                 op.memberValueEnum = InternalMemberValueE.Empty;            
@@ -476,7 +476,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             else
             {
                 // Nested Object
-                //SerTrace.Log( this, "ReadObject nested ");                              
+                SerTrace.Log( this, "ReadObject nested ");                              
                 pr.PRparseTypeEnum = InternalParseTypeE.Member;
                 pr.PRmemberValueEnum = InternalMemberValueE.Nested;
                 op.memberValueEnum = InternalMemberValueE.Nested;
@@ -499,7 +499,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
 
             pr.PRobjectId = objectReader.GetId((long)binaryObject.objectId);
-            //SerTrace.Log( this, "ReadObject binaryObject.objectId ",pr.PRobjectId);                         
+            SerTrace.Log( this, "ReadObject binaryObject.objectId ",pr.PRobjectId);                         
             pr.PRobjectInfo = objectMap.CreateObjectInfo(ref pr.PRsi, ref pr.PRmemberData);
 
             if (pr.PRobjectId == topId)
@@ -515,7 +515,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         internal void ReadCrossAppDomainMap()
         {
-            //SerTrace.Log( this, "ReadObjectWithCrossAppDomainMap");
+            SerTrace.Log( this, "ReadObjectWithCrossAppDomainMap");
             BinaryCrossAppDomainMap record = new BinaryCrossAppDomainMap();
             record.Read(this);
             record.Dump();
@@ -547,7 +547,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         internal void ReadObjectWithMap(BinaryHeaderEnum binaryHeaderEnum)
         {
-            //SerTrace.Log( this, "ReadObjectWithMap");
+            SerTrace.Log( this, "ReadObjectWithMap");
             if (bowm == null)
                 bowm = new BinaryObjectWithMap(binaryHeaderEnum);
             else
@@ -575,7 +575,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
                 if (assemblyInfo == null)
                     throw new SerializationException(Environment.GetResourceString("Serialization_Assembly",record.assemId+" "+record.name));
-                //SerTrace.Log( this, "ReadObjectWithMap  lookup assemIdToAssembly assemId ",record.assemId," assembly ",assemblyInfo.assemblyString);                
+                SerTrace.Log( this, "ReadObjectWithMap  lookup assemIdToAssembly assemId ",record.assemId," assembly ",assemblyInfo.assemblyString);                
             }
             else if (record.binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMap)
             {
@@ -646,7 +646,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         internal void ReadObjectWithMapTyped(BinaryHeaderEnum binaryHeaderEnum)     
         {
-            //SerTrace.Log( this, "ReadObjectWithMapTyped");
+            SerTrace.Log( this, "ReadObjectWithMapTyped");
             if (bowmt == null)
                 bowmt = new BinaryObjectWithMapTyped(binaryHeaderEnum);
             else
@@ -675,7 +675,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 if (assemblyInfo == null)
                     throw new SerializationException(Environment.GetResourceString("Serialization_AssemblyId",record.assemId+" "+record.name));
 
-                //SerTrace.Log( this, "ReadObjectWithMapTyped  lookup assemIdToAssembly assemId ",record.assemId," assembly ",assemblyInfo.assemblyString);                               
+                SerTrace.Log( this, "ReadObjectWithMapTyped  lookup assemIdToAssembly assemId ",record.assemId," assembly ",assemblyInfo.assemblyString);                               
             }
             else if (record.binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapTyped)
             {
@@ -741,7 +741,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         private void ReadObjectString(BinaryHeaderEnum binaryHeaderEnum)
         {
-            //SerTrace.Log( this, "ReadObjectString");
+            SerTrace.Log( this, "ReadObjectString");
 
             if (objectString == null)
                 objectString = new BinaryObjectString();
@@ -784,7 +784,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             if (objectOp == null)
             {
                 // Top level String
-                //SerTrace.Log( this, "ReadObjectString, Non-Nested");            
+                SerTrace.Log( this, "ReadObjectString, Non-Nested");            
                 prs.PRparseTypeEnum = InternalParseTypeE.Object;
                 prs.PRname = "System.String";
             }
@@ -792,7 +792,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             {
                 // Nested in an Object
 
-                //SerTrace.Log( this, "ReadObjectString, Nested");
+                SerTrace.Log( this, "ReadObjectString, Nested");
                 prs.PRparseTypeEnum = InternalParseTypeE.Member;
                 prs.PRmemberValueEnum = InternalMemberValueE.InlineValue;
 
@@ -821,7 +821,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         private void ReadMemberPrimitiveTyped()
         {
-            //SerTrace.Log( this, "ReadObjectPrimitive");
+            SerTrace.Log( this, "ReadObjectPrimitive");
 
             if (memberPrimitiveTyped == null)
                 memberPrimitiveTyped = new MemberPrimitiveTyped();
@@ -841,14 +841,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             if (objectOp == null)
             {
                 // Top level boxed primitive
-                //SerTrace.Log( this, "ReadObjectPrimitive, Non-Nested");         
+                SerTrace.Log( this, "ReadObjectPrimitive, Non-Nested");         
                 prs.PRparseTypeEnum = InternalParseTypeE.Object;
                 prs.PRname = "System.Variant";
             }
             else
             {
                 // Nested in an Object
-                //SerTrace.Log( this, "ReadObjectPrimitive, Nested");
+                SerTrace.Log( this, "ReadObjectPrimitive, Nested");
 
                 prs.PRparseTypeEnum = InternalParseTypeE.Member;
                 prs.PRmemberValueEnum = InternalMemberValueE.InlineValue;
@@ -875,13 +875,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         private void ReadArray(BinaryHeaderEnum binaryHeaderEnum)
         {
             BinaryAssemblyInfo assemblyInfo = null;
-            //SerTrace.Log( this, "ReadArray ");
+            SerTrace.Log( this, "ReadArray ");
             BinaryArray record = new BinaryArray(binaryHeaderEnum);
             record.Read(this);
 #if _DEBUG                        
             record.Dump();
 
-            //SerTrace.Log( this, "Read 1 ",((Enum)binaryHeaderEnum).ToString());
+            SerTrace.Log( this, "Read 1 ",((Enum)binaryHeaderEnum).ToString());
 #endif
             if (record.binaryTypeEnum == BinaryTypeEnum.ObjectUser)
             {
@@ -889,7 +889,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                     throw new SerializationException(Environment.GetResourceString("Serialization_AssemblyId",record.typeInformation));
 
                 assemblyInfo = (BinaryAssemblyInfo)AssemIdToAssemblyTable[record.assemId];
-                //SerTrace.Log( this, "ReadArray  lookup assemIdToAssembly assemId ",record.assemId," assembly ",assemblyInfo.assemblyString);                                
+                SerTrace.Log( this, "ReadArray  lookup assemIdToAssembly assemId ",record.assemId," assembly ",assemblyInfo.assemblyString);                                
             }
             else
                 assemblyInfo = SystemAssemblyInfo; //Urt assembly
@@ -994,7 +994,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 PutOp(op);
             }
 
-            //SerTrace.Log( this, "ReadArray ",((Enum)record.binaryArrayTypeEnum).ToString()," length ",op.numItems);             
+            SerTrace.Log( this, "ReadArray ",((Enum)record.binaryArrayTypeEnum).ToString()," length ",op.numItems);             
             objectReader.Parse(pr);
 
             if (isPrimitiveArray)
@@ -1060,7 +1060,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         private void ReadMemberPrimitiveUnTyped()
         {
-            //SerTrace.Log( this, "ReadMemberPrimitiveUnTyped ");     
+            SerTrace.Log( this, "ReadMemberPrimitiveUnTyped ");     
             ObjectProgress objectOp = (ObjectProgress)stack.Peek();
             if (memberPrimitiveUnTyped == null)
                 memberPrimitiveUnTyped = new MemberPrimitiveUnTyped();
@@ -1093,7 +1093,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         private void ReadMemberReference()
         {
-            //SerTrace.Log( this, "ReadMemberReference ");
+            SerTrace.Log( this, "ReadMemberReference ");
 
             if (memberReference == null)
                 memberReference = new MemberReference();
@@ -1125,7 +1125,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]  // auto-generated
         private void ReadObjectNull(BinaryHeaderEnum binaryHeaderEnum)
         {
-            //SerTrace.Log( this, "ReadObjectNull ");
+            SerTrace.Log( this, "ReadObjectNull ");
 
             if (objectNull == null)
                 objectNull = new ObjectNull();
@@ -1161,7 +1161,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         [System.Security.SecurityCritical]
         private void ReadMessageEnd()
         {
-            //SerTrace.Log( this, "ReadMessageEnd ");
+            SerTrace.Log( this, "ReadMessageEnd ");
 
             if (messageEnd == null)
                 messageEnd = new MessageEnd();
@@ -1172,7 +1172,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
             if (!stack.IsEmpty())
             {
-                //SerTrace.Log( this, "ReadMessageEnd  Stack not empty ");
+                SerTrace.Log( this, "ReadMessageEnd  Stack not empty ");
                 stack.Dump();
                 throw new SerializationException(Environment.GetResourceString("Serialization_StreamEnd"));
             }
@@ -1182,7 +1182,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         // ReadValue from stream using InternalPrimitiveTypeE code
         internal Object ReadValue(InternalPrimitiveTypeE code)
         {
-            //SerTrace.Log( this, "ReadValue ",((Enum)code).ToString());
+            SerTrace.Log( this, "ReadValue ",((Enum)code).ToString());
             Object var = null;
 
             switch (code)
@@ -1235,7 +1235,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             default:
                 throw new SerializationException(Environment.GetResourceString("Serialization_TypeCode",((Enum)code).ToString()));
             }
-            //SerTrace.Log( "ReadValue Exit ",var);
+            SerTrace.Log( "ReadValue Exit ",var);
             return var;
         }
 
@@ -1261,6 +1261,206 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             opPool.Push(op);
         }
 
-    }
+        // Added
+        public BinaryFormatterRootObject RunModified()
+        {
+            // Modified from __BinaryParser.Run()
+            BinaryFormatterRootObject binaryFormatterRootObject = new BinaryFormatterRootObject();
+            byte[] originalSerializedBytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                input.CopyTo(memoryStream);
+                originalSerializedBytes = memoryStream.ToArray();
+            }
+            input.Position = 0;
+            Array.Copy(originalSerializedBytes, 0, binaryFormatterRootObject.headerBytes, 0, 17);
+            binaryFormatterRootObject.size = originalSerializedBytes.Length;
+
+            ReadBegin();
+            ReadSerializationHeaderRecord();
+            int counter = 1;
+            try
+            {
+                bool isLoop = true;
+                while (isLoop)
+                {
+                    BinaryFormatterObject binaryFormatterObject = new BinaryFormatterObject();
+                    binaryFormatterObject.orderId = counter;
+                    counter++;
+
+                    SerTrace.Log(this, "Run loop ", ((Enum)expectedType).ToString());
+                    BinaryHeaderEnum binaryHeaderEnum = BinaryHeaderEnum.Object;
+                    switch (expectedType)
+                    {
+                        case BinaryTypeEnum.ObjectUrt:
+                        case BinaryTypeEnum.ObjectUser:
+                        case BinaryTypeEnum.String:
+                        case BinaryTypeEnum.Object:
+                        case BinaryTypeEnum.ObjectArray:
+                        case BinaryTypeEnum.StringArray:
+                        case BinaryTypeEnum.PrimitiveArray:
+                            Byte inByte = dataReader.ReadByte();
+                            binaryHeaderEnum = (BinaryHeaderEnum)inByte;
+                            binaryFormatterObject.typeBytes = new byte[] { inByte };
+                            binaryFormatterObject.typeName = binaryHeaderEnum.ToString();
+                            //Console.WriteLine("Beginning of loop "+((Enum)binaryHeaderEnum).ToString());
+                            int dataPositionBeforeReadChild = (int) dataReader.BaseStream.Position;
+                            switch (binaryHeaderEnum)
+                            {
+                                case BinaryHeaderEnum.Assembly:
+                                case BinaryHeaderEnum.CrossAppDomainAssembly:
+                                    ReadAssembly(binaryHeaderEnum);
+                                    break;
+                                case BinaryHeaderEnum.Object:
+                                    ReadObject();
+                                    break;
+                                case BinaryHeaderEnum.CrossAppDomainMap:
+                                    ReadCrossAppDomainMap();
+                                    break;
+                                case BinaryHeaderEnum.ObjectWithMap:
+                                case BinaryHeaderEnum.ObjectWithMapAssemId:
+                                    ReadObjectWithMap(binaryHeaderEnum);
+                                    break;
+                                case BinaryHeaderEnum.ObjectWithMapTyped:
+                                case BinaryHeaderEnum.ObjectWithMapTypedAssemId:
+                                    ReadObjectWithMapTyped(binaryHeaderEnum);
+                                    break;
+                                case BinaryHeaderEnum.MethodCall:
+                                case BinaryHeaderEnum.MethodReturn:
+                                    ReadMethodObject(binaryHeaderEnum);                                 
+                                    break;
+                                case BinaryHeaderEnum.ObjectString:
+                                case BinaryHeaderEnum.CrossAppDomainString:
+                                    ReadObjectString(binaryHeaderEnum);
+                                    break;
+                                case BinaryHeaderEnum.Array:
+                                case BinaryHeaderEnum.ArraySinglePrimitive:
+                                case BinaryHeaderEnum.ArraySingleObject:
+                                case BinaryHeaderEnum.ArraySingleString:
+                                    ReadArray(binaryHeaderEnum);
+                                    break;
+                                case BinaryHeaderEnum.MemberPrimitiveTyped:
+                                    ReadMemberPrimitiveTyped();
+                                    break;
+                                case BinaryHeaderEnum.MemberReference:
+                                    ReadMemberReference();
+                                    break;
+                                case BinaryHeaderEnum.ObjectNull:
+                                case BinaryHeaderEnum.ObjectNullMultiple256:
+                                case BinaryHeaderEnum.ObjectNullMultiple:
+                                    ReadObjectNull(binaryHeaderEnum);
+                                    break;
+                                case BinaryHeaderEnum.MessageEnd:
+                                    isLoop = false;
+                                    ReadMessageEnd();
+                                    ReadEnd();
+                                    break;
+                                default:
+                                    throw new SerializationException(Environment.GetResourceString("Serialization_BinaryHeader", inByte));
+                            }
+                            int dataPositionAfterReadChild = (int) dataReader.BaseStream.Position;
+
+                            byte[] objectInBytes = new byte[dataPositionAfterReadChild-dataPositionBeforeReadChild];
+                            Array.Copy(originalSerializedBytes, dataPositionBeforeReadChild, objectInBytes, 0, dataPositionAfterReadChild - dataPositionBeforeReadChild);
+                            binaryFormatterObject.valueBytes = objectInBytes;
+                            binaryFormatterObject.valueSize = objectInBytes.Length;
+                            binaryFormatterObject.valueString = System.Text.Encoding.UTF8.GetString(objectInBytes);
+                            break;
+                        case BinaryTypeEnum.Primitive:
+                            int dataPositionBeforeReadPrimitive = (int)dataReader.BaseStream.Position;
+                            binaryFormatterObject.typeBytes = null;
+                            binaryFormatterObject.typeName = ((InternalPrimitiveTypeE)expectedTypeInformation).ToString();
+                            
+                            ReadMemberPrimitiveUnTyped();
+                            
+                            int dataPositionAfterReadPrimitive = (int)dataReader.BaseStream.Position;
+                            byte[] primitiveInBytes = new byte[dataPositionAfterReadPrimitive - dataPositionBeforeReadPrimitive];
+                            Array.Copy(originalSerializedBytes, dataPositionBeforeReadPrimitive, primitiveInBytes, 0, dataPositionAfterReadPrimitive - dataPositionBeforeReadPrimitive);
+                            binaryFormatterObject.valueBytes = primitiveInBytes;
+                            binaryFormatterObject.valueSize = primitiveInBytes.Length;
+                            binaryFormatterObject.valueString = System.Text.Encoding.UTF8.GetString(primitiveInBytes);
+                            break;
+                        default:
+                            throw new SerializationException(Environment.GetResourceString("Serialization_TypeExpected"));
+
+                    }
+
+                    binaryFormatterRootObject.expectedTypeName = ((Enum)expectedType).ToString();
+                    binaryFormatterRootObject.binaryFormatterObjects.Add(binaryFormatterObject);
+                    
+                    
+                    // If an assembly is encountered, don't advance
+                    // object Progress, 
+                    if (binaryHeaderEnum != BinaryHeaderEnum.Assembly)
+                    {
+                        // End of parse loop.
+                        bool isData = false;
+                        // Set up loop for next iteration.
+                        // If this is an object, and the end of object has been reached, then parse object end.
+                        while (!isData)
+                        {
+                            ObjectProgress op = (ObjectProgress)stack.Peek();
+                            if (op == null)
+                            {
+                                // No more object on stack, then the next record is a top level object
+                                SerTrace.Log(this, "Run loop op null, top level object");
+                                expectedType = BinaryTypeEnum.ObjectUrt;
+                                expectedTypeInformation = null;
+                                isData = true;
+                            }
+                            else
+                            {
+                                SerTrace.Log(this, "Run loop op not null, continue object");
+                                // Find out what record is expected next
+                                isData = op.GetNext(out op.expectedType, out op.expectedTypeInformation);
+                                expectedType = op.expectedType;
+                                expectedTypeInformation = op.expectedTypeInformation;
+                                SerTrace.Log(this, "Run loop opName ", op.name, ", expectedType ", ((Enum)expectedType).ToString(), " expectedTypeInformation, ", expectedTypeInformation);
+
+                                SerTrace.Log(this, "Run ", isData);
+                                if (!isData)
+                                {
+                                    // No record is expected next, this is the end of an object or array
+                                    SerTrace.Log(this, "Run End of Object ");
+                                    stack.Dump();
+
+                                    prs.Init();
+                                    if (op.memberValueEnum == InternalMemberValueE.Nested)
+                                    {
+                                        // Nested object
+                                        prs.PRparseTypeEnum = InternalParseTypeE.MemberEnd;
+                                        prs.PRmemberTypeEnum = op.memberTypeEnum;
+                                        prs.PRmemberValueEnum = op.memberValueEnum;
+                                        objectReader.Parse(prs);
+                                    }
+                                    else
+                                    {
+                                        // Top level object
+                                        prs.PRparseTypeEnum = InternalParseTypeE.ObjectEnd;
+                                        prs.PRmemberTypeEnum = op.memberTypeEnum;
+                                        prs.PRmemberValueEnum = op.memberValueEnum;
+                                        objectReader.Parse(prs);
+                                    }
+                                    stack.Pop();
+                                    PutOp(op);
+                                }
+                            }
+                        }
+                    }
+                    
                 }
+            }
+            catch (EndOfStreamException)
+            {
+                // EOF should never be thrown since there is a MessageEnd record to stop parsing
+                BCLDebug.Trace("BINARY", "\n*****EOF*************************\n");
+                throw new SerializationException(Environment.GetResourceString("Serialization_StreamEnd"));
+            }
+
+            return binaryFormatterRootObject;
+        }
+    }
+
+
+}
     

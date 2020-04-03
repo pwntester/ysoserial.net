@@ -128,7 +128,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             if (serializationStream.CanSeek && (serializationStream.Length == 0))
                 throw new SerializationException(Environment.GetResourceString("Serialization_Stream"));
 
-            //SerTrace.Log(this, "Deserialize Entry");
+            SerTrace.Log(this, "Deserialize Entry");
             InternalFE formatterEnums = new InternalFE();
             formatterEnums.FEtypeFormat = m_typeFormat;
             formatterEnums.FEserializerTypeEnum = InternalSerializerTypeE.Binary;
@@ -187,7 +187,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             if (serializationStream.CanSeek && (serializationStream.Length == 0))
                 throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Stream"));
 
-            //SerTrace.Log(this, "Deserialize Entry");
+            SerTrace.Log(this, "Deserialize Entry");
             InternalFE formatterEnums = new InternalFE();
             formatterEnums.FEtypeFormat = m_typeFormat;
             formatterEnums.FEserializerTypeEnum = InternalSerializerTypeE.Binary;
@@ -223,7 +223,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 throw new ArgumentNullException("serializationStream", Environment.GetResourceString("ArgumentNull_WithParamName", serializationStream));
             }
             Contract.EndContractBlock();
-            //SerTrace.Log(this, "Serialize Entry");
+            SerTrace.Log(this, "Serialize Entry");
 
             InternalFE formatterEnums = new InternalFE();
             formatterEnums.FEtypeFormat = m_typeFormat;

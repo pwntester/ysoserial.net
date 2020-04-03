@@ -38,7 +38,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal static BinaryTypeEnum GetBinaryTypeInfo(Type type, WriteObjectInfo objectInfo, String typeName, ObjectWriter objectWriter, out Object typeInformation, out int assemId)
         {
-            //SerTrace.Log("BinaryConverter", "GetBinaryTypeInfo Entry type ",type,", typeName ",typeName," objectInfo "+objectInfo);     
+            SerTrace.Log("BinaryConverter", "GetBinaryTypeInfo Entry type ",type,", typeName ",typeName," objectInfo "+objectInfo);     
             BinaryTypeEnum binaryTypeEnum;
 
             assemId = 0;
@@ -104,7 +104,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 }
             }
 
-            //SerTrace.Log( "BinaryConverter", "GetBinaryTypeInfo Exit ",((Enum)binaryTypeEnum).ToString(),", typeInformation ",typeInformation," assemId ",assemId);             
+            SerTrace.Log( "BinaryConverter", "GetBinaryTypeInfo Exit ",((Enum)binaryTypeEnum).ToString(),", typeInformation ",typeInformation," assemId ",assemId);             
             return binaryTypeEnum;
         }
 
@@ -112,7 +112,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         // Used for non Si types when Parsing
         internal static BinaryTypeEnum GetParserBinaryTypeInfo(Type type, out Object typeInformation)
         {
-            //SerTrace.Log("BinaryConverter", "GetParserBinaryTypeInfo Entry type ",type);        
+            SerTrace.Log("BinaryConverter", "GetParserBinaryTypeInfo Entry type ",type);        
             BinaryTypeEnum binaryTypeEnum;
             typeInformation = null;
 
@@ -146,14 +146,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 }
             }
 
-            //SerTrace.Log( "BinaryConverter", "GetParserBinaryTypeInfo Exit ",((Enum)binaryTypeEnum).ToString(),", typeInformation ",typeInformation);               
+            SerTrace.Log( "BinaryConverter", "GetParserBinaryTypeInfo Exit ",((Enum)binaryTypeEnum).ToString(),", typeInformation ",typeInformation);               
             return binaryTypeEnum;
         }
 
         // Writes the type information on the wire
         internal static void WriteTypeInfo(BinaryTypeEnum binaryTypeEnum, Object typeInformation, int assemId, __BinaryWriter sout)
         {
-            //SerTrace.Log( "BinaryConverter", "WriteTypeInfo Entry  ",((Enum)binaryTypeEnum).ToString()," ",typeInformation," assemId ",assemId);
+            SerTrace.Log( "BinaryConverter", "WriteTypeInfo Entry  ",((Enum)binaryTypeEnum).ToString()," ",typeInformation," assemId ",assemId);
 
             switch (binaryTypeEnum)
             {
@@ -179,13 +179,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 default:
                     throw new SerializationException(Environment.GetResourceString("Serialization_TypeWrite",((Enum)binaryTypeEnum).ToString()));
             }
-            //SerTrace.Log( "BinaryConverter", "WriteTypeInfo Exit");
+            SerTrace.Log( "BinaryConverter", "WriteTypeInfo Exit");
         }
 
         // Reads the type information from the wire
         internal static Object ReadTypeInfo(BinaryTypeEnum binaryTypeEnum, __BinaryParser input, out int assemId)
         {
-            //SerTrace.Log( "BinaryConverter", "ReadTypeInfo Entry  ",((Enum)binaryTypeEnum).ToString());
+            SerTrace.Log( "BinaryConverter", "ReadTypeInfo Entry  ",((Enum)binaryTypeEnum).ToString());
             Object var = null;
             int readAssemId = 0;
 
@@ -210,7 +210,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 default:
                     throw new SerializationException(Environment.GetResourceString("Serialization_TypeRead",((Enum)binaryTypeEnum).ToString()));                 
             }
-            //SerTrace.Log( "BinaryConverter", "ReadTypeInfo Exit  ",var," assemId ",readAssemId);
+            SerTrace.Log( "BinaryConverter", "ReadTypeInfo Exit  ",var," assemId ",readAssemId);
             assemId = readAssemId;
             return var;
         }
@@ -226,7 +226,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                                           out Type type,
                                           out bool isVariant)
         {
-            //SerTrace.Log( "BinaryConverter", "TypeFromInfo Entry  ",((Enum)binaryTypeEnum).ToString());
+            SerTrace.Log( "BinaryConverter", "TypeFromInfo Entry  ",((Enum)binaryTypeEnum).ToString());
 
             isVariant = false;
             primitiveTypeEnum = InternalPrimitiveTypeE.Invalid;
@@ -277,7 +277,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             }
 
 #if _DEBUG
-                //SerTrace.Log( "BinaryConverter", "TypeFromInfo Exit  "
+                SerTrace.Log( "BinaryConverter", "TypeFromInfo Exit  "
                           ,((Enum)primitiveTypeEnum).ToString(),",typeString ",Util.PString(typeString)
                           ,", type ",Util.PString(type),", isVariant ",isVariant);      
 #endif
@@ -365,7 +365,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         public static void NVTraceI(String name, String value)
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
-                //BCLDebug.Trace("BINARY", "  ",name, " = ", value);
+                BCLDebug.Trace("BINARY", "  ",name, " = ", value);
         }
 
         // Traces an name value pair
@@ -373,7 +373,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         public static void NVTraceI(String name, Object value)
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
-                //BCLDebug.Trace("BINARY", "  ",name, " = ", value);
+                BCLDebug.Trace("BINARY", "  ",name, " = ", value);
         }
 
     }
@@ -496,13 +496,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY", "*****SerializationHeaderRecord*****");
+                BCLDebug.Trace("BINARY", "*****SerializationHeaderRecord*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)binaryHeaderEnum).ToString());
                 BinaryUtil.NVTraceI("topId (Int32)", topId);
                 BinaryUtil.NVTraceI("headerId (Int32)", headerId);
                 BinaryUtil.NVTraceI("majorVersion (Int32)", majorVersion);
                 BinaryUtil.NVTraceI("minorVersion (Int32)", minorVersion);
-                //BCLDebug.Trace("BINARY","***********************************");
+                BCLDebug.Trace("BINARY","***********************************");
             }
         }
     }
@@ -520,7 +520,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal void Set(Int32 assemId, String assemblyString)
         {
-            //SerTrace.Log( this, "BinaryAssembly Set ",assemId," ",assemblyString);      
+            SerTrace.Log( this, "BinaryAssembly Set ",assemId," ",assemblyString);      
             this.assemId = assemId;
             this.assemblyString = assemblyString;
         }
@@ -550,11 +550,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryAssembly*****");
+                BCLDebug.Trace("BINARY","*****BinaryAssembly*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "Assembly");
                 BinaryUtil.NVTraceI("assemId (Int32)", assemId);        
                 BinaryUtil.NVTraceI("Assembly (UTF)", assemblyString);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -592,11 +592,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryCrossAppDomainAssembly*****");
+                BCLDebug.Trace("BINARY","*****BinaryCrossAppDomainAssembly*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "CrossAppDomainAssembly");
                 BinaryUtil.NVTraceI("assemId (Int32)", assemId);        
                 BinaryUtil.NVTraceI("assemblyIndex (Int32)", assemblyIndex);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -613,7 +613,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal  void Set(Int32 objectId, Int32 mapId)
         {
-            //SerTrace.Log( this, "BinaryObject Set ",objectId," ",mapId);        
+            SerTrace.Log( this, "BinaryObject Set ",objectId," ",mapId);        
             this.objectId = objectId;
             this.mapId = mapId;
         }
@@ -643,11 +643,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryObject*****");
+                BCLDebug.Trace("BINARY","*****BinaryObject*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "Object");
                 BinaryUtil.NVTraceI("objectId (Int32)", objectId);      
                 BinaryUtil.NVTraceI("mapId (Int32)", mapId);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -883,7 +883,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryMethodCall*****");
+                BCLDebug.Trace("BINARY","*****BinaryMethodCall*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "MethodCall");
                 BinaryUtil.NVTraceI("messageEnum (Int32)", ((Enum)messageEnum).ToString());
                 //BinaryUtil.NVTraceI("uri",uri);
@@ -906,7 +906,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     }
                 }
 
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -939,7 +939,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         // if not the args are written out as a separate array
         internal Object[] WriteArray(Object returnValue, Object[] args, Exception exception, Object callContext, Object[] properties)
         {
-            //SerTrace.Log(this, "WriteArray returnValue ",returnValue, "exception ", exception, " callContext ",callContext," properties ", properties);
+            SerTrace.Log(this, "WriteArray returnValue ",returnValue, "exception ", exception, " callContext ",callContext," properties ", properties);
 
             this.returnValue = returnValue;
             this.args = args;
@@ -1163,7 +1163,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryMethodReturn*****");
+                BCLDebug.Trace("BINARY","*****BinaryMethodReturn*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "MethodReturn");
                 BinaryUtil.NVTraceI("messageEnum (Int32)", ((Enum)messageEnum).ToString());
 
@@ -1187,7 +1187,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     }
                 }
 
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -1205,7 +1205,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal  void Set(Int32 objectId, String value)
         {
-            //SerTrace.Log(this, "BinaryObjectString set ",objectId," ",value);
+            SerTrace.Log(this, "BinaryObjectString set ",objectId," ",value);
             this.objectId = objectId;
             this.value = value;
         }   
@@ -1235,11 +1235,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryObjectString*****");
+                BCLDebug.Trace("BINARY","*****BinaryObjectString*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "ObjectString");
                 BinaryUtil.NVTraceI("objectId (Int32)", objectId);              
                 BinaryUtil.NVTraceI("value (UTF)", value);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -1277,11 +1277,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryCrossAppDomainString*****");
+                BCLDebug.Trace("BINARY","*****BinaryCrossAppDomainString*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "CrossAppDomainString");
                 BinaryUtil.NVTraceI("objectId (Int32)", objectId);              
                 BinaryUtil.NVTraceI("value (Int32)", value);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -1316,10 +1316,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryCrossAppDomainMap*****");
+                BCLDebug.Trace("BINARY","*****BinaryCrossAppDomainMap*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "CrossAppDomainMap");
                 BinaryUtil.NVTraceI("crossAppDomainArrayIndex (Int32)", crossAppDomainArrayIndex);              
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -1336,7 +1336,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal void Set(InternalPrimitiveTypeE primitiveTypeEnum, Object value)
         {
-            //SerTrace.Log(this, "MemberPrimitiveTyped Set ",((Enum)primitiveTypeEnum).ToString()," ",value);
+            SerTrace.Log(this, "MemberPrimitiveTyped Set ",((Enum)primitiveTypeEnum).ToString()," ",value);
             this.primitiveTypeEnum = primitiveTypeEnum;
             this.value = value;
         }   
@@ -1366,11 +1366,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****MemberPrimitiveTyped*****");
+                BCLDebug.Trace("BINARY","*****MemberPrimitiveTyped*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "MemberPrimitiveTyped");
                 BinaryUtil.NVTraceI("primitiveTypeEnum (Byte)", ((Enum)primitiveTypeEnum).ToString());
                 BinaryUtil.NVTraceI("value ("+ Converter.ToComType(primitiveTypeEnum)+")", value);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -1397,7 +1397,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         internal  void Set(Int32 objectId, String name, Int32 numMembers, String[] memberNames, Int32 assemId)
         {
 #if _DEBUG            
-            //SerTrace.Log(this, "BinaryObjectWithMap Set ",objectId," assemId ",assemId," ",Util.PString(name)," numMembers ",numMembers);
+            SerTrace.Log(this, "BinaryObjectWithMap Set ",objectId," assemId ",assemId," ",Util.PString(name)," numMembers ",numMembers);
 #endif
             this.objectId = objectId;
             this.name = name;
@@ -1435,7 +1435,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             for (int i=0; i<numMembers; i++)
             {
                 memberNames[i] = input.ReadString();
-                //SerTrace.Log(this, "BinaryObjectWithMap Read ",i," ",memberNames[i]);
+                SerTrace.Log(this, "BinaryObjectWithMap Read ",i," ",memberNames[i]);
             }
 
             if (binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapAssemId)
@@ -1455,7 +1455,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryObjectWithMap*****");
+                BCLDebug.Trace("BINARY","*****BinaryObjectWithMap*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)binaryHeaderEnum).ToString());
                 BinaryUtil.NVTraceI("objectId (Int32)", objectId);
                 BinaryUtil.NVTraceI("name (UTF)", name);
@@ -1464,7 +1464,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     BinaryUtil.NVTraceI("memberNames (UTF)", memberNames[i]);
                 if (binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapAssemId)
                 BinaryUtil.NVTraceI("assemId (Int32)", assemId);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -1513,7 +1513,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal  void Set(Int32 objectId, String name, Int32 numMembers, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, Int32[] memberAssemIds, Int32 assemId)
         {
-            //SerTrace.Log(this, "BinaryObjectWithMapTyped Set ",objectId," assemId ",assemId," ",name," numMembers ",numMembers);
+            SerTrace.Log(this, "BinaryObjectWithMapTyped Set ",objectId," assemId ",assemId," ",name," numMembers ",numMembers);
             this.objectId = objectId;
             this.assemId = assemId;         
             this.name = name;
@@ -1588,7 +1588,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****BinaryObjectWithMapTyped*****");
+                BCLDebug.Trace("BINARY","*****BinaryObjectWithMapTyped*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)binaryHeaderEnum).ToString());
                 BinaryUtil.NVTraceI("objectId (Int32)", objectId);          
                 BinaryUtil.NVTraceI("name (UTF)", name);
@@ -1617,7 +1617,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             */
                 if (binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapTypedAssemId)
                     BinaryUtil.NVTraceI("assemId (Int32)", assemId);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
 #endif
@@ -1639,20 +1639,20 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal BinaryArray()
         {
-            //SerTrace.Log( this, "BinaryArray Constructor 1 ");
+            SerTrace.Log( this, "BinaryArray Constructor 1 ");
         }
 
         // Read constructor
         internal BinaryArray(BinaryHeaderEnum binaryHeaderEnum)
         {
-            //SerTrace.Log( this, "BinaryArray Constructor 2 ",   ((Enum)binaryHeaderEnum).ToString());
+            SerTrace.Log( this, "BinaryArray Constructor 2 ",   ((Enum)binaryHeaderEnum).ToString());
             this.binaryHeaderEnum = binaryHeaderEnum;
         }
 
 
         internal void Set(Int32 objectId, Int32 rank, Int32[] lengthA, Int32[] lowerBoundA, BinaryTypeEnum binaryTypeEnum, Object typeInformation, BinaryArrayTypeEnum binaryArrayTypeEnum, int assemId)
         {
-            //SerTrace.Log( this, "BinaryArray Set objectId ",objectId," rank ",rank," ",((Enum)binaryTypeEnum).ToString(),", assemId ",assemId);
+            SerTrace.Log( this, "BinaryArray Set objectId ",objectId," rank ",rank," ",((Enum)binaryTypeEnum).ToString(),", assemId ",assemId);
             this.objectId = objectId;
             this.binaryArrayTypeEnum = binaryArrayTypeEnum;
             this.rank = rank;
@@ -1672,13 +1672,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 else if (binaryTypeEnum == BinaryTypeEnum.Object)
                     binaryHeaderEnum = BinaryHeaderEnum.ArraySingleObject;
             }
-            //SerTrace.Log( this, "BinaryArray Set Exit ",((Enum)binaryHeaderEnum).ToString());
+            SerTrace.Log( this, "BinaryArray Set Exit ",((Enum)binaryHeaderEnum).ToString());
         }
 
 
         public  void Write(__BinaryWriter sout)
         {
-            //SerTrace.Log( this, "Write");
+            SerTrace.Log( this, "Write");
             switch (binaryHeaderEnum)
             {
                 case BinaryHeaderEnum.ArraySinglePrimitive:
@@ -1788,29 +1788,29 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 switch (binaryHeaderEnum)
                 {
                     case BinaryHeaderEnum.ArraySinglePrimitive:
-                        //BCLDebug.Trace("BINARY","*****ArraySinglePrimitive*****");
+                        BCLDebug.Trace("BINARY","*****ArraySinglePrimitive*****");
                         BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)binaryHeaderEnum).ToString());
                         BinaryUtil.NVTraceI("objectId (Int32)", objectId);                              
                         BinaryUtil.NVTraceI("length (Int32)", lengthA[0]);
                         BinaryUtil.NVTraceI("InternalPrimitiveTypeE (Byte)", ((Enum)typeInformation).ToString());
-                        //BCLDebug.Trace("BINARY","****************************");
+                        BCLDebug.Trace("BINARY","****************************");
                         break;
                     case BinaryHeaderEnum.ArraySingleString:
-                        //BCLDebug.Trace("BINARY","*****ArraySingleString*****");
+                        BCLDebug.Trace("BINARY","*****ArraySingleString*****");
                         BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)binaryHeaderEnum).ToString());
                         BinaryUtil.NVTraceI("objectId (Int32)", objectId);
                         BinaryUtil.NVTraceI("length (Int32)", lengthA[0]);
-                        //BCLDebug.Trace("BINARY","****************************");
+                        BCLDebug.Trace("BINARY","****************************");
                         break;
                     case BinaryHeaderEnum.ArraySingleObject:
-                        //BCLDebug.Trace("BINARY","*****ArraySingleObject*****");
+                        BCLDebug.Trace("BINARY","*****ArraySingleObject*****");
                         BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)binaryHeaderEnum).ToString());
                         BinaryUtil.NVTraceI("objectId (Int32)", objectId);
                         BinaryUtil.NVTraceI("length (Int32)", lengthA[0]);
-                        //BCLDebug.Trace("BINARY","****************************");
+                        BCLDebug.Trace("BINARY","****************************");
                         break;
                     default:
-                        //BCLDebug.Trace("BINARY","*****BinaryArray*****");
+                        BCLDebug.Trace("BINARY","*****BinaryArray*****");
                         BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)binaryHeaderEnum).ToString());
                         BinaryUtil.NVTraceI("objectId (Int32)", objectId);                              
                         BinaryUtil.NVTraceI("binaryArrayTypeEnum (Byte)", ((Enum)binaryArrayTypeEnum).ToString());              
@@ -1832,7 +1832,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                             BinaryUtil.NVTraceI("typeInformation "+BinaryConverter.TypeInfoTraceString(typeInformation), typeInformation);
                         if (binaryTypeEnum == BinaryTypeEnum.ObjectUser)
                             BinaryUtil.NVTraceI("assemId (Int32)", assemId);
-                        //BCLDebug.Trace("BINARY","****************************");
+                        BCLDebug.Trace("BINARY","****************************");
                         break;
                 }
             }
@@ -1853,14 +1853,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal  void Set(InternalPrimitiveTypeE typeInformation, Object value)
         {
-            //SerTrace.Log( this, "MemberPrimitiveUnTyped Set typeInformation ",typeInformation," value ",value);
+            SerTrace.Log( this, "MemberPrimitiveUnTyped Set typeInformation ",typeInformation," value ",value);
             this.typeInformation = typeInformation;
             this.value = value;
         }
 
         internal  void Set(InternalPrimitiveTypeE typeInformation)
         {
-            //SerTrace.Log(this, "MemberPrimitiveUnTyped  Set ",typeInformation);
+            SerTrace.Log(this, "MemberPrimitiveUnTyped  Set ",typeInformation);
             this.typeInformation = typeInformation;
         }
 
@@ -1889,9 +1889,9 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
                 String typeString = Converter.ToComType(typeInformation);
-                //BCLDebug.Trace("BINARY","*****MemberPrimitiveUnTyped*****");
+                BCLDebug.Trace("BINARY","*****MemberPrimitiveUnTyped*****");
                 BinaryUtil.NVTraceI("value ("+typeString+")", value);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -1907,7 +1907,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         internal  void Set(Int32 idRef)
         {
-            //SerTrace.Log( this, "MemberReference Set ",idRef);
+            SerTrace.Log( this, "MemberReference Set ",idRef);
             this.idRef = idRef;
         }
 
@@ -1934,10 +1934,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****MemberReference*****");       
+                BCLDebug.Trace("BINARY","*****MemberReference*****");       
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", ((Enum)BinaryHeaderEnum.MemberReference).ToString());        
                 BinaryUtil.NVTraceI("idRef (Int32)", idRef);
-                //BCLDebug.Trace("BINARY","****************************");
+                BCLDebug.Trace("BINARY","****************************");
             }
         }
     }
@@ -2011,7 +2011,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****ObjectNull*****");
+                BCLDebug.Trace("BINARY","*****ObjectNull*****");
                 if (nullCount == 1)
                 {
                     BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "ObjectNull");
@@ -2027,7 +2027,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     BinaryUtil.NVTraceI("nullCount (Int32)", nullCount);
                 }
 
-                //BCLDebug.Trace("BINARY","********************");
+                BCLDebug.Trace("BINARY","********************");
             }
         }
     }
@@ -2065,7 +2065,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             //if (BCLDebug.CheckEnabled("BINARY"))
             {
-                //BCLDebug.Trace("BINARY","*****MessageEnd*****");
+                BCLDebug.Trace("BINARY","*****MessageEnd*****");
                 BinaryUtil.NVTraceI("binaryHeaderEnum (Byte)", "MessageEnd");
                 long length = -1;
                 if (sout != null && sout.CanSeek)
@@ -2073,7 +2073,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     length = sout.Length;
                     BinaryUtil.NVTraceI("Total Message Length in Bytes ", length);
                 }
-                //BCLDebug.Trace("BINARY","********************");
+                BCLDebug.Trace("BINARY","********************");
             }
         }
     }
@@ -2099,7 +2099,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         [System.Security.SecurityCritical]  // auto-generated
         internal ObjectMap(String objectName, Type objectType, String[] memberNames, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo)
         {
-            //SerTrace.Log( this, "Constructor 1 objectName ",objectName, ", objectType ",objectType);                            
+            SerTrace.Log( this, "Constructor 1 objectName ",objectName, ", objectType ",objectType);                            
             this.objectName = objectName;
             this.objectType = objectType;
             this.memberNames = memberNames;
@@ -2125,7 +2125,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         [System.Security.SecurityCritical]  // auto-generated
         internal ObjectMap(String objectName, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, int[] memberAssemIds, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo, SizedArray assemIdToAssemblyTable)
         {
-            //SerTrace.Log( this, "Constructor 2 objectName ",objectName);
+            SerTrace.Log( this, "Constructor 2 objectName ",objectName);
             this.objectName = objectName;
             this.memberNames = memberNames;
             this.binaryTypeEnumA = binaryTypeEnumA;
@@ -2294,13 +2294,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             outTypeInformation = null;
 
 #if _DEBUG
-            //SerTrace.Log( this, "GetNext Entry");
+            SerTrace.Log( this, "GetNext Entry");
             Dump();
 #endif
 
             if (objectTypeEnum == InternalObjectTypeE.Array)
             {
-                //SerTrace.Log( this, "GetNext Array");                   
+                SerTrace.Log( this, "GetNext Array");                   
                 // Array
                 if (count == numItems)
                     return false;
@@ -2311,14 +2311,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     if (count == 0)
                         isInitial = false;
                     count++;
-                    //SerTrace.Log( this, "GetNext Array Exit ",((Enum)outBinaryTypeEnum).ToString()," ",outTypeInformation);                                 
+                    SerTrace.Log( this, "GetNext Array Exit ",((Enum)outBinaryTypeEnum).ToString()," ",outTypeInformation);                                 
                     return true;
                 }
             }
             else
             {
                 // Member
-                //SerTrace.Log( this, "GetNext Member");                              
+                SerTrace.Log( this, "GetNext Member");                              
                 if ((count == memberLength) && (!isInitial))
                     return false;
                 else
@@ -2330,11 +2330,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     name = memberNames[count];
                     if (memberTypes == null)
                     {
-                        //SerTrace.Log( this, "GetNext memberTypes = null");
+                        SerTrace.Log( this, "GetNext memberTypes = null");
                     }
                     dtType = memberTypes[count];
                     count++;
-                    //SerTrace.Log( this, "GetNext Member Exit ",((Enum)outBinaryTypeEnum).ToString()," ",outTypeInformation," memberName ",name);                    
+                    SerTrace.Log( this, "GetNext Member Exit ",((Enum)outBinaryTypeEnum).ToString()," ",outTypeInformation," memberName ",name);                    
                     return true;
                 }
             }
@@ -2354,24 +2354,24 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             try
             {
-                //SerTrace.Log("ObjectProgress Dump ");
+                SerTrace.Log("ObjectProgress Dump ");
                 Util.NVTrace("opRecordId", opRecordId);
                 Util.NVTrace("isInitial", isInitial);
                 Util.NVTrace("count", count);
                 Util.NVTrace("expectedType", ((Enum)expectedType).ToString());
                 Util.NVTrace("expectedTypeInformation", expectedTypeInformation);
-                //SerTrace.Log("ParseRecord Information");
+                SerTrace.Log("ParseRecord Information");
                 Util.NVTrace("name", name);
                 Util.NVTrace("objectTypeEnum",((Enum)objectTypeEnum).ToString());
                 Util.NVTrace("memberTypeEnum",((Enum)memberTypeEnum).ToString());
                 Util.NVTrace("memberValueEnum",((Enum)memberValueEnum).ToString());
                 if (dtType != null)
                     Util.NVTrace("dtType", dtType.ToString());
-                //SerTrace.Log("Array Information");
+                SerTrace.Log("Array Information");
                 Util.NVTrace("numItems", numItems);
                 Util.NVTrace("binaryTypeEnum",((Enum)binaryTypeEnum).ToString());
                 Util.NVTrace("typeInformation", typeInformation);
-                //SerTrace.Log("Member Information");
+                SerTrace.Log("Member Information");
                 Util.NVTrace("memberLength", memberLength);
                 if (binaryTypeEnumA != null)
                 {
@@ -2396,8 +2396,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             }
             catch (Exception e)
             {
-                //BCLDebug.Log("[ObjectProgress.Dump]Unable to Dump Object Progress.");
-                //BCLDebug.Log("[ObjectProgress.Dump]Error: "+e);
+                BCLDebug.Log("[ObjectProgress.Dump]Unable to Dump Object Progress.");
+                BCLDebug.Log("[ObjectProgress.Dump]Error: "+e);
             }
         }
 #endif 

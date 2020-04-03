@@ -44,7 +44,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         // Constructor
         internal __BinaryWriter(Stream sout, ObjectWriter objectWriter, FormatterTypeStyle formatterTypeStyle)
         {
-            //SerTrace.Log( this, "BinaryWriter ");
+            SerTrace.Log( this, "BinaryWriter ");
             this.sout = sout;
             this.formatterTypeStyle = formatterTypeStyle;
             this.objectWriter = objectWriter;
@@ -54,12 +54,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal void WriteBegin()
         {
-            //BCLDebug.Trace("BINARY", "\n%%%%%BinaryWriterBegin%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+            BCLDebug.Trace("BINARY", "\n%%%%%BinaryWriterBegin%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
         }
 
         internal void WriteEnd()
         {
-            //BCLDebug.Trace("BINARY", "\n%%%%%BinaryWriterEnd%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+            BCLDebug.Trace("BINARY", "\n%%%%%BinaryWriterEnd%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
             dataWriter.Flush();
         }
 
@@ -236,7 +236,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
             if (objectId > 0)
             {
-                //BCLDebug.Trace("BINARY", "-----Top Level Object-----");
+                BCLDebug.Trace("BINARY", "-----Top Level Object-----");
             }
 
             String objectName = null;
@@ -250,7 +250,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 // Non-Nested
                 objectName = nameInfo.NIname;
             }
-            //SerTrace.Log( this, "WriteObject objectName ",objectName);
+            SerTrace.Log( this, "WriteObject objectName ",objectName);
 
             if (objectMapTable == null)
             {
@@ -372,7 +372,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
             if (arrayNameInfo.NIobjectId >0)
             {
-                //BCLDebug.Trace("BINARY", "-----Top Level Object-----");
+                BCLDebug.Trace("BINARY", "-----Top Level Object-----");
             }
 #if _DEBUG                        
             binaryArray.Dump();
@@ -465,7 +465,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
             if (arrayNameInfo.NIobjectId >0)
             {
-                //BCLDebug.Trace("BINARY", "-----Top Level Object-----");
+                BCLDebug.Trace("BINARY", "-----Top Level Object-----");
             }
 #if _DEBUG                        
             binaryArray.Dump();
@@ -503,7 +503,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
             if (arrayNameInfo.NIobjectId >0)
             {
-                //BCLDebug.Trace("BINARY", "-----Top Level Object-----");
+                BCLDebug.Trace("BINARY", "-----Top Level Object-----");
             }
 #if _DEBUG                        
             binaryArray.Dump();
@@ -529,7 +529,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         internal void WriteMember(NameInfo memberNameInfo, NameInfo typeNameInfo, Object value)
         {
 #if _DEBUG                        
-            //SerTrace.Log("BinaryWriter", "Write Member memberName ",memberNameInfo.NIname,", value ",value);
+            SerTrace.Log("BinaryWriter", "Write Member memberName ",memberNameInfo.NIname,", value ",value);
             memberNameInfo.Dump("WriteMember memberNameInfo");
             typeNameInfo.Dump("WriteMember typeNameInfo");
 #endif      
@@ -546,11 +546,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
                 if (memberNameInfo.NIisArrayItem)
                 {
-                    //BCLDebug.Trace("BINARY",  "-----item-----");
+                    BCLDebug.Trace("BINARY",  "-----item-----");
                 }
                 else
                 {
-                    //BCLDebug.Trace("BINARY","-----",memberNameInfo.NIname,"-----");
+                    BCLDebug.Trace("BINARY","-----",memberNameInfo.NIname,"-----");
                 }
                 memberPrimitiveTyped.Dump();
 
@@ -564,11 +564,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
                 if (memberNameInfo.NIisArrayItem)
                 {
-                    //BCLDebug.Trace("BINARY", "-----item-----");
+                    BCLDebug.Trace("BINARY", "-----item-----");
                 }
                 else
                 {
-                    //BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
+                    BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
                 }
                 memberPrimitiveUnTyped.Dump();
 
@@ -591,12 +591,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
             if (memberNameInfo.NIisArrayItem)
             {
-                //BCLDebug.Trace("BINARY",  "-----item-----");
+                BCLDebug.Trace("BINARY",  "-----item-----");
             }
             else
             {
                 objectNull.SetNullCount(1);
-                //BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
+                BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
                 objectNull.Dump();
                 objectNull.Write(this);
                 nullCount = 0;
@@ -614,11 +614,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
             if (memberNameInfo.NIisArrayItem)
             {
-                //BCLDebug.Trace("BINARY", "-----item-----");
+                BCLDebug.Trace("BINARY", "-----item-----");
             }
             else
             {
-                //BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
+                BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
             }
             memberReference.Dump();
 
@@ -630,11 +630,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             InternalWriteItemNull();
             if (memberNameInfo.NIisArrayItem)
             {
-                //BCLDebug.Trace("BINARY", "-----item-----");
+                BCLDebug.Trace("BINARY", "-----item-----");
             }
             else
             {
-                //BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
+                BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
             }
         }
 
@@ -646,11 +646,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             InternalWriteItemNull();
             if (memberNameInfo.NIisArrayItem)
             {
-                //BCLDebug.Trace("BINARY", "-----item-----");
+                BCLDebug.Trace("BINARY", "-----item-----");
             }
             else
             {
-                //BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
+                BCLDebug.Trace("BINARY", "-----",memberNameInfo.NIname,"-----");
             }
             WriteObjectString((int)typeNameInfo.NIobjectId, value);
         }
@@ -684,7 +684,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 if (objectNull == null)
                     objectNull = new ObjectNull();
                 objectNull.SetNullCount(nullCount);
-                //BCLDebug.Trace("BINARY",  "-----item-----");
+                BCLDebug.Trace("BINARY",  "-----item-----");
                 objectNull.Dump();
                 objectNull.Write(this);
                 nullCount = 0;
@@ -703,7 +703,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal void WriteAssembly(Type type, String assemblyString, int assemId, bool isNew)
         {
-            //SerTrace.Log( this,"WriteAssembly type ",type,", id ",assemId,", name ", assemblyString,", isNew ",isNew);
+            SerTrace.Log( this,"WriteAssembly type ",type,", id ",assemId,", name ", assemblyString,", isNew ",isNew);
             //If the file being tested wasn't built as an assembly, then we're going to get null back
             //for the assembly name.  This is very unfortunate.
             InternalWriteItemNull();
@@ -725,7 +725,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         // Method to write a value onto a stream given its primitive type code
         internal void WriteValue(InternalPrimitiveTypeE code, Object value)
         {
-            //SerTrace.Log( this, "WriteValue Entry ",((Enum)code).ToString()," " , ((value==null)?"<null>":value.GetType().ToString()) , " ",value);
+            SerTrace.Log( this, "WriteValue Entry ",((Enum)code).ToString()," " , ((value==null)?"<null>":value.GetType().ToString()) , " ",value);
 
             switch (code)
             {
@@ -777,7 +777,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             default:
                 throw new SerializationException(Environment.GetResourceString("Serialization_TypeCode",((Enum)code).ToString()));
             }
-            //SerTrace.Log( this, "Write Exit ");
+            SerTrace.Log( this, "Write Exit ");
         }
     }
 

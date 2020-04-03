@@ -26,7 +26,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         public static byte[] PrepareWithSerialized(byte[] serializedBytes)
         {
-            byte[] inputSize7Bit = Calculate7BitEncodedInt(serializedBytes.Length);
+            byte[] inputSize7Bit = SimpleBinaryFormatterParser.Calculate7BitEncodedInt(serializedBytes.Length);
             byte[] newSerializedData = new byte[3 + inputSize7Bit.Length + serializedBytes.Length];
             serializedBytes.CopyTo(newSerializedData, 3 + inputSize7Bit.Length);
             newSerializedData[0] = 0xff; // header
@@ -38,30 +38,6 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return Encoding.UTF8.GetBytes(Convert.ToBase64String(newSerializedData));
         }
 
-        public static byte[] Calculate7BitEncodedInt(int value)
-        {
-            // it cannot be more than 5 bytes according to [MS-NRBF]
-            byte[] output = new byte[1];
-            // Similar to Write7BitEncodedInt from System.IO.BinaryWriter
-            uint v = (uint)value; 
-            int counter = 0;
-
-            while (v >= 0x80)
-            {
-                if (counter > 1)
-                    Array.Resize(ref output, counter+1);
-
-                output[counter] = ((byte)(v | 0x80));
-                v >>= 7;
-                counter++;
-            }
-
-            if (counter > 0)
-                Array.Resize(ref output, counter+1);
-
-            output[counter] = ((byte)v);
-
-            return output;
-        }
+        
     }
 }

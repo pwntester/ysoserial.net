@@ -75,13 +75,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         internal void ObjectEnd()
         {
-            //SerTrace.Log( this, objectInfoId," objectType ",objectType," ObjectEnd");
+            SerTrace.Log( this, objectInfoId," objectType ",objectType," ObjectEnd");
             PutObjectInfo(serObjectInfoInit, this);
         }
 
         private void InternalInit()
         {
-            //SerTrace.Log( this, objectInfoId," objectType ",objectType," InternalInit");
+            SerTrace.Log( this, objectInfoId," objectType ",objectType," InternalInit");
             obj = null;
             objectType = null;
             isSi = false;
@@ -115,7 +115,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [System.Security.SecurityCritical]  // auto-generated
         internal void InitSerialize(Object obj, ISurrogateSelector surrogateSelector, StreamingContext context, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, ObjectWriter objectWriter, SerializationBinder binder)
         {
-            //SerTrace.Log( this, objectInfoId," Constructor 1 ",obj);
+            SerTrace.Log( this, objectInfoId," Constructor 1 ",obj);
             this.context = context;
             this.obj = obj;
             this.serObjectInfoInit = serObjectInfoInit;
@@ -137,12 +137,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
             InvokeSerializationBinder(binder);
 
-            //SerTrace.Log( this, objectInfoId," Constructor 1 trace 2");
+            SerTrace.Log( this, objectInfoId," Constructor 1 trace 2");
 
             objectWriter.ObjectManager.RegisterObject(obj);
             if (surrogateSelector != null && (serializationSurrogate = surrogateSelector.GetSurrogate(objectType, context, out surrogateSelectorTemp)) != null)
             {
-                //SerTrace.Log( this, objectInfoId," Constructor 1 trace 3");
+                SerTrace.Log( this, objectInfoId," Constructor 1 trace 3");
                 si = new SerializationInfo(objectType, converter);
                 if (!objectType.IsPrimitive)
                     serializationSurrogate.GetObjectData(obj, si, context);
@@ -163,13 +163,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 //#if FEATURE_SERIALIZATION
                 ((ISerializable)obj).GetObjectData(si, context);
 //#endif
-                //SerTrace.Log( this, objectInfoId," Constructor 1 trace 4 ISerializable "+objectType);
+                SerTrace.Log( this, objectInfoId," Constructor 1 trace 4 ISerializable "+objectType);
                 InitSiWrite();
                 CheckTypeForwardedFrom(cache, objectType, binderAssemblyString);
             }
             else
             {
-                //SerTrace.Log(this, objectInfoId," Constructor 1 trace 5");
+                SerTrace.Log(this, objectInfoId," Constructor 1 trace 5");
                 InitMemberInfo();
                 CheckTypeForwardedFrom(cache, objectType, binderAssemblyString);
             }
@@ -180,7 +180,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         {
             for (int i=0; i<cache.memberInfos.Length; i++)
             {
-                //SerTrace.Log( this, objectInfoId," Constructor 1 memberInfos data ",cache.memberInfos[i].Name," ",memberData[i]);
+                SerTrace.Log( this, objectInfoId," Constructor 1 memberInfos data ",cache.memberInfos[i].Name," ",memberData[i]);
 
             }
         }
@@ -198,7 +198,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         internal void InitSerialize(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, SerializationBinder binder)
         {
 
-            //SerTrace.Log( this, objectInfoId," Constructor 2 ",objectType);
+            SerTrace.Log( this, objectInfoId," Constructor 2 ",objectType);
 
             this.objectType = objectType;
             this.context = context;
@@ -249,13 +249,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 CheckTypeForwardedFrom(cache, objectType, binderAssemblyString);
             }
 
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitSerialize Exit ",isSi);
+            SerTrace.Log( this,objectInfoId," ", objectType," InitSerialize Exit ",isSi);
         }
 
 
         private void InitSiWrite()
         {
-            //SerTrace.Log( this, objectInfoId," InitSiWrite Entry ");
+            SerTrace.Log( this, objectInfoId," InitSiWrite Entry ");
 
             SerializationInfoEnumerator siEnum = null;
             isSi = true;
@@ -317,13 +317,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 cache.memberNames[i] = siEnum.Name;
                 cache.memberTypes[i] = siEnum.ObjectType;
                 memberData[i] = siEnum.Value;
-                //SerTrace.Log( this,objectInfoId+" ",objectType," InitSiWrite ",cache.memberNames[i]," Type ",cache.memberTypes[i]," data ",memberData[i]);
+                SerTrace.Log( this,objectInfoId+" ",objectType," InitSiWrite ",cache.memberNames[i]," Type ",cache.memberTypes[i]," data ",memberData[i]);
             }
 
             isNamed = true;
             isTyped = false;
 
-            //SerTrace.Log(this, objectInfoId," InitSiWrite Exit ");
+            SerTrace.Log(this, objectInfoId," InitSiWrite Exit ");
         }
 
         private static void CheckTypeForwardedFrom(SerObjectInfoCache cache, Type objectType, string binderAssemblyString)
@@ -358,7 +358,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             cache = (SerObjectInfoCache)serObjectInfoInit.seenBeforeTable[objectType];
             if (cache == null)
             {
-                //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
+                SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
                 cache = new SerObjectInfoCache(objectType);
                 serObjectInfoInit.seenBeforeTable.Add(objectType, cache);
             }
@@ -367,13 +367,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [System.Security.SecurityCritical]  // auto-generated
         private void InitMemberInfo()
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Entry");
+            SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Entry");
 
 
             cache = (SerObjectInfoCache)serObjectInfoInit.seenBeforeTable[objectType];
             if (cache == null)
             {
-                //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
+                SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
                 cache = new SerObjectInfoCache(objectType);
 
                 cache.memberInfos = FormatterServices.GetSerializableMembers(objectType, context);
@@ -386,7 +386,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 {
                     cache.memberNames[i] = cache.memberInfos[i].Name;
                     cache.memberTypes[i] = GetMemberType(cache.memberInfos[i]);
-                    //SerTrace.Log( this, objectInfoId," InitMemberInfo name ",cache.memberNames[i],", type ",cache.memberTypes[i],", memberInfoType ",cache.memberInfos[i].GetType());
+                    SerTrace.Log( this, objectInfoId," InitMemberInfo name ",cache.memberNames[i],", type ",cache.memberTypes[i],", memberInfoType ",cache.memberInfos[i].GetType());
                 }
                 serObjectInfoInit.seenBeforeTable.Add(objectType, cache);
             }
@@ -399,7 +399,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
             isTyped = true;
             isNamed = true;
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Exit");
+            SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Exit");
         }
 
 
@@ -408,13 +408,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         internal  String GetTypeFullName()
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," GetTypeFullName isSi ",isSi, " "+cache.fullTypeName);
+            SerTrace.Log( this,objectInfoId," ", objectType," GetTypeFullName isSi ",isSi, " "+cache.fullTypeName);
             return binderTypeName ?? cache.fullTypeName;
         }
 
         internal  String GetAssemblyString()
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," GetAssemblyString Entry isSi ",isSi, " ",cache.assemblyString);
+            SerTrace.Log( this,objectInfoId," ", objectType," GetAssemblyString Entry isSi ",isSi, " ",cache.assemblyString);
             
             this.binderAssemblyString = BinaryMinifier.AssemblyOrTypeNameMinifier(binderAssemblyString);
             return binderAssemblyString ?? cache.assemblyString;
@@ -438,12 +438,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (objMember is FieldInfo)
             {
                 objectType = ((FieldInfo)objMember).FieldType;
-                //SerTrace.Log( this, objectInfoId," ", "GetMemberType FieldInfo ",objectType);
+                SerTrace.Log( this, objectInfoId," ", "GetMemberType FieldInfo ",objectType);
             }
             else if (objMember is PropertyInfo)
             {
                 objectType = ((PropertyInfo)objMember).PropertyType;
-                //SerTrace.Log( this,objectInfoId," ", "GetMemberType PropertyInfo ",objectType);
+                SerTrace.Log( this,objectInfoId," ", "GetMemberType PropertyInfo ",objectType);
             }
             else
             {
@@ -474,13 +474,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 objectInfo = (WriteObjectInfo)serObjectInfoInit.oiPool.Pop();
                 objectInfo.InternalInit();
-                ////SerTrace.Log( "GetObjectInfo",objectInfo.objectInfoId," GetObjectInfo from pool");
+                //SerTrace.Log( "GetObjectInfo",objectInfo.objectInfoId," GetObjectInfo from pool");
             }
             else
             {
                 objectInfo = new WriteObjectInfo();
                 objectInfo.objectInfoId = serObjectInfoInit.objectInfoIdCount++;
-                ////SerTrace.Log( "GetObjectInfo",objectInfo.objectInfoId," GetObjectInfo new not from pool");
+                //SerTrace.Log( "GetObjectInfo",objectInfo.objectInfoId," GetObjectInfo new not from pool");
             }
 
             return objectInfo;
@@ -489,7 +489,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         private static void PutObjectInfo(SerObjectInfoInit serObjectInfoInit, WriteObjectInfo objectInfo)
         {
             serObjectInfoInit.oiPool.Push(objectInfo);
-            ////SerTrace.Log( "PutObjectInfo",objectInfo.objectInfoId," PutObjectInfo to pool");
+            //SerTrace.Log( "PutObjectInfo",objectInfo.objectInfoId," PutObjectInfo to pool");
         }
     }
 
@@ -541,7 +541,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         internal void ObjectEnd()
         {
-            //SerTrace.Log( this, objectInfoId," objectType ",objectType," ObjectEnd");
+            SerTrace.Log( this, objectInfoId," objectType ",objectType," ObjectEnd");
         }
 
         internal void PrepareForReuse()
@@ -563,7 +563,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         internal void Init(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
 
-            //SerTrace.Log( this, objectInfoId," Constructor 3 ",objectType);
+            SerTrace.Log( this, objectInfoId," Constructor 3 ",objectType);
 
             this.objectType = objectType;
             this.objectManager = objectManager;
@@ -587,7 +587,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [System.Security.SecurityCritical]  // auto-generated
         internal void Init(Type objectType, String[] memberNames, Type[] memberTypes, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
-            //SerTrace.Log( this,objectInfoId, " Constructor 5 ",objectType);
+            SerTrace.Log( this,objectInfoId, " Constructor 5 ",objectType);
             this.objectType = objectType;
             this.objectManager = objectManager;
             this.wireMemberNames = memberNames;
@@ -608,7 +608,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [System.Security.SecurityCritical]  // auto-generated
         private void InitReadConstructor(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context)
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitReadConstructor Entry ",objectType);
+            SerTrace.Log( this,objectInfoId," ", objectType," InitReadConstructor Entry ",objectType);
 
             if (objectType.IsArray)
             {
@@ -639,7 +639,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 InitMemberInfo();
             }
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitReadConstructor Exit ",isSi);
+            SerTrace.Log( this,objectInfoId," ", objectType," InitReadConstructor Exit ",isSi);
         }
 
         private void InitSiRead()
@@ -652,16 +652,16 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         private void InitNoMembers()
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
+            SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
             cache = new SerObjectInfoCache(objectType);
         }
 
         [System.Security.SecurityCritical]  // auto-generated
         private void InitMemberInfo()
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Entry");
+            SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Entry");
 
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
+            SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo new cache");
             cache = new SerObjectInfoCache(objectType);
             cache.memberInfos = FormatterServices.GetSerializableMembers(objectType, context);
             count = cache.memberInfos.Length;
@@ -673,18 +673,18 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 cache.memberNames[i] = cache.memberInfos[i].Name;
                 cache.memberTypes[i] = GetMemberType(cache.memberInfos[i]);
-                //SerTrace.Log( this, objectInfoId," InitMemberInfo name ",cache.memberNames[i],", type ",cache.memberTypes[i],", memberInfoType ",cache.memberInfos[i].GetType());
+                SerTrace.Log( this, objectInfoId," InitMemberInfo name ",cache.memberNames[i],", type ",cache.memberTypes[i],", memberInfoType ",cache.memberInfos[i].GetType());
             }
 
             isTyped = true;
             isNamed = true;
-            //SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Exit");
+            SerTrace.Log( this,objectInfoId," ", objectType," InitMemberInfo Exit");
         }
 
         // Get the memberInfo for a memberName
         internal  MemberInfo GetMemberInfo(String name)
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," GetMemberInfo Entry ",name);
+            SerTrace.Log( this,objectInfoId," ", objectType," GetMemberInfo Entry ",name);
             if (cache == null)
                 return null;
             if (isSi)
@@ -701,7 +701,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // Get the ObjectType for a memberName
         internal  Type GetType(String name)
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," GetType Entry ",name);
+            SerTrace.Log( this,objectInfoId," ", objectType," GetType Entry ",name);
             Type type = null;
             int position = Position(name);
             if (position == -1)
@@ -715,7 +715,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if ((object)type == null)
                 throw new SerializationException(Environment.GetResourceString("Serialization_ISerializableTypes",objectType+" "+name));
 
-            //SerTrace.Log( this,objectInfoId," ", objectType," GetType Exit ",type);
+            SerTrace.Log( this,objectInfoId," ", objectType," GetType Exit ",type);
             return type;
         }
 
@@ -723,7 +723,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // Adds the value for a memberName
         internal  void AddValue(String name, Object value, ref SerializationInfo si, ref Object[] memberData)
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," AddValue ",name," ",value," isSi ",isSi);
+            SerTrace.Log( this,objectInfoId," ", objectType," AddValue ",name," ",value," isSi ",isSi);
             if (isSi)
             {
                 si.AddValue(name, value);
@@ -760,12 +760,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
             if (isSi)
             {
-                //SerTrace.Log( this,objectInfoId," ", objectType, " RecordFixup  RecordDelayedFixup objectId ",objectId," name ",name," idRef ",idRef," isSi ",isSi);
+                SerTrace.Log( this,objectInfoId," ", objectType, " RecordFixup  RecordDelayedFixup objectId ",objectId," name ",name," idRef ",idRef," isSi ",isSi);
                 objectManager.RecordDelayedFixup(objectId, name, idRef);
             }
             else
             {
-                //SerTrace.Log( this,objectInfoId," ", objectType," RecordFixup  objectId ",objectId," name ",name," idRef ",idRef," isSi ",isSi);                                            
+                SerTrace.Log( this,objectInfoId," ", objectType," RecordFixup  objectId ",objectId," name ",name," idRef ",idRef," isSi ",isSi);                                            
                 int position = Position(name);
                 if (position != -1)
                     objectManager.RecordFixup(objectId, cache.memberInfos[position], idRef);
@@ -776,7 +776,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [System.Security.SecurityCritical]  // auto-generated
         internal  void PopulateObjectMembers(Object obj, Object[] memberData)
         {
-            //SerTrace.Log( this,objectInfoId," ", objectType," PopulateObjectMembers  isSi ",isSi);
+            SerTrace.Log( this,objectInfoId," ", objectType," PopulateObjectMembers  isSi ",isSi);
             if (!isSi && memberData != null)
             {
                 DumpPopulate(cache.memberInfos, memberData);
@@ -790,7 +790,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         {
             for (int i=0; i<memberInfos.Length; i++)
             {
-                //SerTrace.Log( this,objectInfoId," ", objectType," PopulateObjectMembers ",memberInfos[i].Name," ",memberData[i]);
+                SerTrace.Log( this,objectInfoId," ", objectType," PopulateObjectMembers ",memberInfos[i].Name," ",memberData[i]);
 
             }
         }
@@ -798,11 +798,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [Conditional("SER_LOGGING")]
         private void DumpPopulateSi()
         {
-            ////SerTrace.Log( this,objectInfoId," ", objectType," PopulateObjectMembers SetObjectData, ISerializable obj ");
+            //SerTrace.Log( this,objectInfoId," ", objectType," PopulateObjectMembers SetObjectData, ISerializable obj ");
             //SerializationInfoEnumerator siEnum = si.GetEnumerator();
             //for (int i=0; siEnum.MoveNext(); i++)
             //{
-            //    //SerTrace.Log( this,objectInfoId," ",objectType," Populate Si ",siEnum.Name," ",siEnum.Value);
+            //    SerTrace.Log( this,objectInfoId," ",objectType," Populate Si ",siEnum.Name," ",siEnum.Value);
             //}
         }
 
@@ -810,7 +810,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         private int Position(String name)
         {
-            //SerTrace.Log( this, objectInfoId," Position ",lastPosition," ",name);
+            SerTrace.Log( this, objectInfoId," Position ",lastPosition," ",name);
             if (cache == null)
                 return -1;
             
@@ -825,7 +825,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             else
             {
                 // Search for name
-                //SerTrace.Log( this, objectInfoId," Position miss search for name "+name);
+                SerTrace.Log( this, objectInfoId," Position miss search for name "+name);
                 for (int i=0; i<cache.memberNames.Length; i++)
                 {
                     if (cache.memberNames[i].Equals(name))
@@ -880,7 +880,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                         if (cache.memberInfos[i].Name.Equals(inMemberNames[j]))
                         {
                             outMemberTypes[i] = cache.memberTypes[i];
-                            //SerTrace.Log( this,objectInfoId," ", objectType," GetMemberTypes memberName ",cache.memberTypes[i]," ",i," memberTypes ",outMemberTypes[j]," ",j);
+                            SerTrace.Log( this,objectInfoId," ", objectType," GetMemberTypes memberName ",cache.memberTypes[i]," ",i," memberTypes ",outMemberTypes[j]," ",j);
                             isFound = true;
                             break;
                         }
@@ -910,12 +910,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (objMember is FieldInfo)
             {
                 objectType = ((FieldInfo)objMember).FieldType;
-                //SerTrace.Log( this, objectInfoId," ", "GetMemberType FieldInfo ",objectType);
+                SerTrace.Log( this, objectInfoId," ", "GetMemberType FieldInfo ",objectType);
             }
             else if (objMember is PropertyInfo)
             {
                 objectType = ((PropertyInfo)objMember).PropertyType;
-                //SerTrace.Log( this,objectInfoId," ", "GetMemberType PropertyInfo ",objectType);
+                SerTrace.Log( this,objectInfoId," ", "GetMemberType PropertyInfo ",objectType);
             }
             else
             {

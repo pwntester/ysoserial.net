@@ -86,7 +86,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 throw new ArgumentNullException("serWriter", Environment.GetResourceString("ArgumentNull_WithParamName", "serWriter"));
             Contract.EndContractBlock();
 
-            //SerTrace.Log(this, "Serialize Entry 2 ", graph, ((headers == null) ? " no headers " : "headers "));
+            SerTrace.Log(this, "Serialize Entry 2 ", graph, ((headers == null) ? " no headers " : "headers "));
 
             if (fCheck)
             {
@@ -96,7 +96,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             this.serWriter = serWriter;
             this.headers = inHeaders;
 
-            //SerTrace.Log( this, "Serialize New SerializedTypeTable");
+            SerTrace.Log( this, "Serialize New SerializedTypeTable");
             serWriter.WriteBegin();
             long headerId = 0;
             Object obj;
@@ -161,7 +161,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 serWriter.WriteMethodReturn();
 
 
-            //SerTrace.Log( this, "Serialize Schedule 0");
+            SerTrace.Log( this, "Serialize Schedule 0");
             // Write out SerializedStream header
             if ((headers != null) && (headers.Length > 0))
                 m_objectQueue.Enqueue(headers);                 
@@ -170,14 +170,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 m_objectQueue.Enqueue(graph);
             while ((obj = GetNext(out objectId))!=null)
             {
-                //SerTrace.Log( this, "Serialize GetNext ",obj);
+                SerTrace.Log( this, "Serialize GetNext ",obj);
                 WriteObjectInfo objectInfo = null;
 
                 // GetNext will return either an object or a WriteObjectInfo. 
                 // A WriteObjectInfo is returned if this object was member of another object
                 if (obj is WriteObjectInfo)
                 {
-                    //SerTrace.Log( this, "Serialize GetNext recognizes WriteObjectInfo");
+                    SerTrace.Log( this, "Serialize GetNext recognizes WriteObjectInfo");
                     objectInfo = (WriteObjectInfo)obj;
                 }
                 else
@@ -200,7 +200,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             // Invoke OnSerialized Event
             m_objectManager.RaiseOnSerializedEvent();
             
-            //SerTrace.Log( this, "Serialize Exit ");
+            SerTrace.Log( this, "Serialize Exit ");
         }
 
 #if FEATURE_REMOTING
@@ -348,7 +348,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         private void Write(WriteObjectInfo objectInfo, NameInfo memberNameInfo, NameInfo typeNameInfo)
         {       
 #if _DEBUG                        
-            //SerTrace.Log( this, "Write 1 Entry objectInfo ",objectInfo,", memberNameInfo ",memberNameInfo,", typeNameInfo ",typeNameInfo);
+            SerTrace.Log( this, "Write 1 Entry objectInfo ",objectInfo,", memberNameInfo ",memberNameInfo,", typeNameInfo ",typeNameInfo);
             memberNameInfo.Dump("Write memberNameInfo");
             typeNameInfo.Dump("Write typeNameInfo");
 #endif            
@@ -356,12 +356,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (obj==null)
                 throw new ArgumentNullException("objectInfo.obj", Environment.GetResourceString("ArgumentNull_Obj"));
 
-            //SerTrace.Log( this, "Write 1 objectInfo obj ",objectInfo.obj," objectId ", objectInfo.objectId, " objectType ", objectInfo.objectType);
+            SerTrace.Log( this, "Write 1 objectInfo obj ",objectInfo.obj," objectId ", objectInfo.objectId, " objectType ", objectInfo.objectType);
             Type objType = objectInfo.objectType;
             long objectId = objectInfo.objectId;
 
 
-            //SerTrace.Log( this, "Write 1 ",obj," ObjectId ",objectId);
+            SerTrace.Log( this, "Write 1 ",obj," ObjectId ",objectId);
 
             if (Object.ReferenceEquals(objType, Converter.typeofString))
             {
@@ -413,7 +413,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                     // Soap transmits all types as strings, so it is up to the ISerializable object to convert the string back to its URT type
                     if (objectInfo.isSi || CheckTypeFormat(formatterEnums.FEtypeFormat, FormatterTypeStyle.TypesAlways))
                     {
-                        //SerTrace.Log( this, "Write 1 TransmitOnObject ");
+                        SerTrace.Log( this, "Write 1 TransmitOnObject ");
                         memberNameInfo.NItransmitTypeOnObject = true;
                         memberNameInfo.NIisParentTypeOnObject = true;
                         typeNameInfo.NItransmitTypeOnObject = true;
@@ -438,12 +438,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                         else
                             type = Converter.typeofObject;
 
-                        //SerTrace.Log( this, "Write 1 member type ",type);
+                        SerTrace.Log( this, "Write 1 member type ",type);
                         InternalPrimitiveTypeE code = ToCode(type);
                         if ((code == InternalPrimitiveTypeE.Invalid) &&
                             (!Object.ReferenceEquals(type, Converter.typeofString)))
                         {
-                            //SerTrace.Log( this, "Write 1 Create ObjectInfo ", memberTypes[i], " memberData ",memberData[i]);
+                            SerTrace.Log( this, "Write 1 Create ObjectInfo ", memberTypes[i], " memberData ",memberData[i]);
                             if (memberData[i] != null)
                             {
                                 memberObjectInfos[i] =
@@ -475,10 +475,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                         }
                     }           
                     Write(objectInfo, memberNameInfo, typeNameInfo, memberNames, memberTypes, memberData, memberObjectInfos);
-                    //SerTrace.Log( this, "Write 1 ",obj," type ",GetType(obj));     
+                    SerTrace.Log( this, "Write 1 ",obj," type ",GetType(obj));     
                 }
             }
-            //SerTrace.Log( this, "Write 1 Exit ",obj);       
+            SerTrace.Log( this, "Write 1 Exit ",obj);       
         }
 
         // Writes a given object to the stream.
@@ -491,20 +491,20 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                            Object[] memberData,              
                            WriteObjectInfo[] memberObjectInfos)
         {
-            //SerTrace.Log( this, "Write 2 Entry obj ",objectInfo.obj,". objectId ",objectInfo.objectId,", objType ",typeNameInfo.NIname,", memberName ",memberNameInfo.NIname,", memberType ",typeNameInfo.NIname);
+            SerTrace.Log( this, "Write 2 Entry obj ",objectInfo.obj,". objectId ",objectInfo.objectId,", objType ",typeNameInfo.NIname,", memberName ",memberNameInfo.NIname,", memberType ",typeNameInfo.NIname);
 
             int numItems = memberNames.Length;
             NameInfo topNameInfo = null;
 
             if (memberNameInfo != null)
             {
-                //SerTrace.Log( this, "Write 2 ObjectBegin, memberName ",memberNameInfo.NIname);
+                SerTrace.Log( this, "Write 2 ObjectBegin, memberName ",memberNameInfo.NIname);
                 memberNameInfo.NIobjectId = objectInfo.objectId;
                 serWriter.WriteObject(memberNameInfo, typeNameInfo, numItems, memberNames, memberTypes, memberObjectInfos);
             }
             else if ((objectInfo.objectId == topId) && (topName != null))
             {
-                //SerTrace.Log( this, "Write 2 ObjectBegin, topId method name ",topName);
+                SerTrace.Log( this, "Write 2 ObjectBegin, topId method name ",topName);
                 topNameInfo = MemberToNameInfo(topName);
                 topNameInfo.NIobjectId = objectInfo.objectId;
                 serWriter.WriteObject(topNameInfo, typeNameInfo, numItems, memberNames, memberTypes, memberObjectInfos);
@@ -513,7 +513,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 if (!Object.ReferenceEquals(objectInfo.objectType, Converter.typeofString))
                 {
-                    //SerTrace.Log( this, "Write 2 ObjectBegin, default ", typeNameInfo.NIname);
+                    SerTrace.Log( this, "Write 2 ObjectBegin, default ", typeNameInfo.NIname);
                     typeNameInfo.NIobjectId = objectInfo.objectId;
                     serWriter.WriteObject(typeNameInfo, null, numItems, memberNames, memberTypes, memberObjectInfos);
                 }
@@ -552,7 +552,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 }
             }
 
-            //SerTrace.Log( this, "Write 2 Exit");
+            SerTrace.Log( this, "Write 2 Exit");
         }
 
         [System.Security.SecurityCritical]  // auto-generated
@@ -602,7 +602,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                                  )
         {
             
-            //SerTrace.Log( this, "WriteMembers Entry memberType: ",memberTypeNameInfo.NIname," memberName: ",memberNameInfo.NIname," data: ",memberData," objectId: ",objectInfo.objectId, " Container object ",objectInfo.obj, " memberObjectinfo ",memberObjectInfo);
+            SerTrace.Log( this, "WriteMembers Entry memberType: ",memberTypeNameInfo.NIname," memberName: ",memberNameInfo.NIname," data: ",memberData," objectId: ",objectInfo.objectId, " Container object ",objectInfo.obj, " memberObjectinfo ",memberObjectInfo);
             /*
             if (memberTypeNameInfo.NIname.Equals("System.String"))
             {
@@ -662,13 +662,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                     TypeToNameInfo(memberType, memberTypeNameInfo);
                 else
                     TypeToNameInfo(memberObjectInfo, memberTypeNameInfo);                   
-                //SerTrace.Log( this, "WriteMembers memberType Object, actual memberType ",memberType);                                                                               
+                SerTrace.Log( this, "WriteMembers memberType Object, actual memberType ",memberType);                                                                               
             }
 
             if (memberObjectInfo != null && memberObjectInfo.isArray)
             {
                 // Array
-                //SerTrace.Log( this, "WriteMembers IsArray");
+                SerTrace.Log( this, "WriteMembers IsArray");
 
                 long arrayId = 0;
                 if ((object)outType == null)
@@ -678,7 +678,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 if (arrayId > 0)
                 {
                     // Array as object
-                    //SerTrace.Log( this, "WriteMembers Schedule 3");
+                    SerTrace.Log( this, "WriteMembers Schedule 3");
                     memberNameInfo.NIobjectId = arrayId;
                     WriteObjectRef(memberNameInfo, arrayId); 
                 }
@@ -693,13 +693,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                     objectInfo.ObjectEnd();
 
                 }
-                //SerTrace.Log( this, "WriteMembers Array Exit ");
+                SerTrace.Log( this, "WriteMembers Array Exit ");
                 return;
             }
 
             if (!WriteKnownValueClass(memberNameInfo, memberTypeNameInfo, memberData))
             {
-                //SerTrace.Log( this, "WriteMembers Object ",memberData);
+                SerTrace.Log( this, "WriteMembers Object ",memberData);
 
 #if false
                 // Value or NO_ID, need to explicitly check for IsValue because a top level
@@ -707,7 +707,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 /*
                 if (memberType.IsValueType)
                 {
-                    //SerTrace.Log( this, "WriteMembers Value Type or NO_ID parameter");
+                    SerTrace.Log( this, "WriteMembers Value Type or NO_ID parameter");
 
                     bool isNew;
                     memberObjectInfo.objectId = InternalGetId(outObj, assignUniqueIdToValueType, memberType, out isNew) ;
@@ -721,14 +721,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 */
 #endif
                 {
-                    //SerTrace.Log( this, "WriteMembers Schedule 4 ", outType, " memberInfo ",memberObjectInfo);
+                    SerTrace.Log( this, "WriteMembers Schedule 4 ", outType, " memberInfo ",memberObjectInfo);
                     if ((object)outType == null)
                         outType = GetType(outObj);
                     long memberObjectId = Schedule(outObj, assignUniqueIdToValueType, outType, memberObjectInfo);
                     if (memberObjectId < 0)
                     {
                         // Nested object
-                        //SerTrace.Log( this, "WriteMembers Nesting");
+                        SerTrace.Log( this, "WriteMembers Nesting");
 
                         memberObjectInfo.objectId = memberObjectId;
                         NameInfo newTypeNameInfo = TypeToNameInfo(memberObjectInfo);
@@ -746,14 +746,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 }
             }
 
-            //SerTrace.Log( this, "WriteMembers Exit ");
+            SerTrace.Log( this, "WriteMembers Exit ");
         }
 
         // Writes out an array
         [System.Security.SecurityCritical]  // auto-generated
         private void WriteArray(WriteObjectInfo objectInfo, NameInfo memberNameInfo, WriteObjectInfo memberObjectInfo)          
         {
-            //SerTrace.Log( this, "WriteArray Entry ",objectInfo.obj," ",objectInfo.objectId);
+            SerTrace.Log( this, "WriteArray Entry ",objectInfo.obj," ",objectInfo.objectId);
 
             bool isAllocatedMemberNameInfo = false;
             if (memberNameInfo == null)
@@ -825,7 +825,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
             arrayElemTypeNameInfo.NIarrayEnum = arrayEnum;
 
-            //SerTrace.Log( this, "WriteArray ArrayInfo type ",arrayType," rank ",rank);
+            SerTrace.Log( this, "WriteArray ArrayInfo type ",arrayType," rank ",rank);
 
 
             // Byte array
@@ -850,7 +850,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (arrayEnum == InternalArrayTypeE.Single)
             {
                 // Single Dimensional array
-                //SerTrace.Log( this, "WriteArray ARRAY_SINGLE ");
+                SerTrace.Log( this, "WriteArray ARRAY_SINGLE ");
 
                 // BinaryFormatter array of primitive types is written out in the WriteSingleArray statement
                 // as a byte buffer
@@ -879,7 +879,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             else if (arrayEnum == InternalArrayTypeE.Jagged)
             {
                 // Jagged Array
-                //SerTrace.Log( this, "WriteArray ARRAY_JAGGED");
+                SerTrace.Log( this, "WriteArray ARRAY_JAGGED");
 
                 arrayNameInfo.NIobjectId = objectId;
 
@@ -896,7 +896,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 // Rectangle Array
                 // Get the length for all the ranks
-                //SerTrace.Log( this, "WriteArray ARRAY_RECTANGLE");                      
+                SerTrace.Log( this, "WriteArray ARRAY_RECTANGLE");                      
 
                 arrayNameInfo.NIobjectId = objectId;
                 serWriter.WriteRectangleArray(memberNameInfo, arrayNameInfo, arrayElemObjectInfo, arrayElemTypeNameInfo, rank, lengthA, lowerBoundA);
@@ -925,14 +925,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (isAllocatedMemberNameInfo)
                 PutNameInfo(memberNameInfo);
 
-            //SerTrace.Log( this, "WriteArray Exit ");
+            SerTrace.Log( this, "WriteArray Exit ");
         }
 
         // Writes out an array element
         [System.Security.SecurityCritical]  // auto-generated
         private void WriteArrayMember(WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, Object data)
         {
-            //SerTrace.Log( this, "WriteArrayMember ",data," baseArrayName ",arrayElemTypeNameInfo.NIname);
+            SerTrace.Log( this, "WriteArrayMember ",data," baseArrayName ",arrayElemTypeNameInfo.NIname);
 
             arrayElemTypeNameInfo.NIisArrayItem = true;
 
@@ -990,7 +990,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                             newObjectInfo.assemId = actualTypeInfo.NIassemId; 
                         else
                             newObjectInfo.assemId = GetAssemblyId(newObjectInfo);
-                        //SerTrace.Log( this, "WriteArrayMembers nested");
+                        SerTrace.Log( this, "WriteArrayMembers nested");
                         NameInfo typeNameInfo = TypeToNameInfo(newObjectInfo);
                         typeNameInfo.NIobjectId = arrayId;
                         newObjectInfo.objectId = arrayId;
@@ -1063,7 +1063,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
                 }
             }
-            //SerTrace.Log( this, "WriteRectangle  Exit ");
+            SerTrace.Log( this, "WriteRectangle  Exit ");
         }
 
         // Traces a message with an array of int
@@ -1081,7 +1081,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                     sb.Append(",");
             }
             sb.Append("]");             
-            //SerTrace.Log( this, message+" ", StringBuilderCache.GetStringAndRelease(sb));
+            SerTrace.Log( this, message+" ", sb);
         }
 
 
@@ -1091,14 +1091,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // and the Object itself is returned from the function.
         private Object GetNext(out long objID)
         {
-            //SerTrace.Log( this, "GetNext Entry ");      
+            SerTrace.Log( this, "GetNext Entry ");      
             bool isNew;
 
             //The Queue is empty here.  We'll throw if we try to dequeue the empty queue.
             if (m_objectQueue.Count==0)
             {
                 objID=0;
-                //SerTrace.Log( this, "GetNext Exit null");
+                SerTrace.Log( this, "GetNext Exit null");
                 return null;
             }
 
@@ -1106,10 +1106,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             Object realObj = null;
 
             // A WriteObjectInfo is queued if this object was a member of another object
-            //SerTrace.Log( this, "GetNext ",obj);
+            SerTrace.Log( this, "GetNext ",obj);
             if (obj is WriteObjectInfo)
             {
-                //SerTrace.Log( this, "GetNext recognizes WriteObjectInfo");
+                SerTrace.Log( this, "GetNext recognizes WriteObjectInfo");
                 realObj = ((WriteObjectInfo)obj).obj;
             }
             else
@@ -1117,11 +1117,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             objID = m_idGenerator.HasId(realObj, out isNew);
             if (isNew)
             {
-                //SerTrace.Log( this, "Object " , realObj , " has never been assigned an id.");
+                SerTrace.Log( this, "Object " , realObj , " has never been assigned an id.");
                 throw new SerializationException(Environment.GetResourceString("Serialization_ObjNoID",realObj));                                                    
             }
 
-            //SerTrace.Log( this, "GetNext Exit "+objID," ",realObj);            
+            SerTrace.Log( this, "GetNext Exit "+objID," ",realObj);            
             return obj;
         }
 
@@ -1171,14 +1171,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         private long Schedule(Object obj, bool assignUniqueIdToValueType, Type type, WriteObjectInfo objectInfo)
         {
-            //SerTrace.Log( this, "Schedule Entry obj ",obj," type ", type, " objectInfo ",objectInfo);
+            SerTrace.Log( this, "Schedule Entry obj ",obj," type ", type, " objectInfo ",objectInfo);
 
             bool isNew;
             long id;
 
             if (obj==null)
             {
-                //SerTrace.Log(this, "Schedule Obj Null, id = 0 ");
+                SerTrace.Log(this, "Schedule Obj Null, id = 0 ");
                 return 0;
             }
 
@@ -1192,7 +1192,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                     m_objectQueue.Enqueue(objectInfo);
 
             }
-            //SerTrace.Log( this, "Schedule Exit, id: ",id," isNew: ",isNew);     
+            SerTrace.Log( this, "Schedule Exit, id: ",id," isNew: ",isNew);     
             return id;
 
         }
@@ -1203,7 +1203,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         private bool WriteKnownValueClass(NameInfo memberNameInfo, NameInfo typeNameInfo, Object data) 
         {
 #if _DEBUG                        
-            //SerTrace.Log( this, "WriteKnownValueClass Entry ",typeNameInfo.NIname," ",data," ",memberNameInfo.NIname);
+            SerTrace.Log( this, "WriteKnownValueClass Entry ",typeNameInfo.NIname," ",data," ",memberNameInfo.NIname);
             memberNameInfo.Dump("WriteKnownValueClass memberNameInfo");         
             typeNameInfo.Dump("WriteKnownValueClass typeNameInfo");
 #endif            
@@ -1216,7 +1216,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 if (typeNameInfo.NIprimitiveTypeEnum == InternalPrimitiveTypeE.Invalid)
                 {
-                    //SerTrace.Log( this, "WriteKnownValueClass Exit false");                     
+                    SerTrace.Log( this, "WriteKnownValueClass Exit false");                     
                     return false;
                 }
                 else
@@ -1230,7 +1230,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 }
             }
 
-            //SerTrace.Log( this, "WriteKnownValueClass Exit true");
+            SerTrace.Log( this, "WriteKnownValueClass Exit true");
             return true;
         }
 
@@ -1238,10 +1238,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // Writes an object reference to the stream.
         private void WriteObjectRef(NameInfo nameInfo, long objectId)
         {
-            //SerTrace.Log( this, "WriteObjectRef Entry ",nameInfo.NIname," ",objectId);
+            SerTrace.Log( this, "WriteObjectRef Entry ",nameInfo.NIname," ",objectId);
             serWriter.WriteMemberObjectRef(nameInfo, (int)objectId);
 
-            //SerTrace.Log( this, "WriteObjectRef Exit ");
+            SerTrace.Log( this, "WriteObjectRef Exit ");
         }
 
 
@@ -1249,7 +1249,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // Writes a string into the XML stream
         private void WriteString(NameInfo memberNameInfo, NameInfo typeNameInfo, Object stringObject)
         {
-            //SerTrace.Log( this, "WriteString stringObject ",stringObject," memberName ",memberNameInfo.NIname);
+            SerTrace.Log( this, "WriteString stringObject ",stringObject," memberName ",memberNameInfo.NIname);
             bool isFirstTime = true;
 
             long stringId = -1;
@@ -1258,7 +1258,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 stringId= InternalGetId(stringObject, false, null, out isFirstTime);
 
             typeNameInfo.NIobjectId = stringId;
-            //SerTrace.Log( this, "WriteString stringId ",stringId," isFirstTime ",isFirstTime);
+            SerTrace.Log( this, "WriteString stringId ",stringId," isFirstTime ",isFirstTime);
 
             if ((isFirstTime) || (stringId < 0))
                 serWriter.WriteMemberString(memberNameInfo, typeNameInfo, (String)stringObject);
@@ -1270,7 +1270,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         private bool CheckForNull(WriteObjectInfo objectInfo, NameInfo memberNameInfo, NameInfo typeNameInfo, Object data)
         {
 #if _DEBUG            
-            //SerTrace.Log( this, "CheckForNull Entry data ",Util.PString(data),", memberType ",Util.PString(typeNameInfo.NItype));
+            SerTrace.Log( this, "CheckForNull Entry data ",Util.PString(data),", memberType ",Util.PString(typeNameInfo.NItype));
 #endif
             bool isNull = false;
 
@@ -1285,7 +1285,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                              objectInfo.isSi ||
                              (CheckTypeFormat(formatterEnums.FEtypeFormat, FormatterTypeStyle.TypesAlways))))
             {
-                //SerTrace.Log( this, "CheckForNull Write");
+                SerTrace.Log( this, "CheckForNull Write");
 
                 if (typeNameInfo.NIisArrayItem)
                 {
@@ -1298,7 +1298,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 else
                     serWriter.WriteNullMember(memberNameInfo, typeNameInfo);
             }
-            //SerTrace.Log( this, "CheckForNull Exit ",isNull);
+            SerTrace.Log( this, "CheckForNull Exit ",isNull);
             return isNull;
         }
 
@@ -1313,7 +1313,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // Transforms a type to the serialized string form. URT Primitive types are converted to XMLData Types
         private NameInfo TypeToNameInfo(Type type, WriteObjectInfo objectInfo, InternalPrimitiveTypeE code, NameInfo nameInfo)
         {
-            //SerTrace.Log( this, "TypeToNameInfo Entry type ",type,", objectInfo ",objectInfo,", code ", ((Enum)code).ToString());
+            SerTrace.Log( this, "TypeToNameInfo Entry type ",type,", objectInfo ",objectInfo,", code ", ((Enum)code).ToString());
             if (nameInfo == null)
                 nameInfo = GetNameInfo();
             else
@@ -1330,7 +1330,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             nameInfo.NIprimitiveTypeEnum = code; 
             nameInfo.NItype = type;
 
-            //SerTrace.Log( this, "TypeToNameInfo Exit ",type, " typeName "+nameInfo.NIname);
+            SerTrace.Log( this, "TypeToNameInfo Exit ",type, " typeName "+nameInfo.NIname);
             return nameInfo;            
         }
 
@@ -1385,7 +1385,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         private long GetAssemblyId(WriteObjectInfo objectInfo)
         {
             //use objectInfo to get assembly string with new criteria
-            //SerTrace.Log( this, "GetAssemblyId Entry ",objectInfo.objectType," isSi ",objectInfo.isSi);
+            SerTrace.Log( this, "GetAssemblyId Entry ",objectInfo.objectType," isSi ",objectInfo.isSi);
             if (assemblyToIdTable == null)
                 assemblyToIdTable = new Hashtable(5);
 
@@ -1403,7 +1403,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 // Urt type is an assemId of 0. No assemblyString needs
                 // to be sent 
-                //SerTrace.Log( this, "GetAssemblyId urt Assembly String ");
+                SerTrace.Log( this, "GetAssemblyId urt Assembly String ");
                 assemId = 0;
             }
             else
@@ -1426,7 +1426,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
                 serWriter.WriteAssembly(objectInfo.objectType, serializedAssemblyString, (int)assemId, isNew);
             }
-            //SerTrace.Log( this, "GetAssemblyId Exit id ",assemId," isNew ",isNew," assemblyString ",serializedAssemblyString);
+            SerTrace.Log( this, "GetAssemblyId Exit id ",assemId," isNew ",isNew," assemblyString ",serializedAssemblyString);
             return assemId;
         }
 

@@ -39,7 +39,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal static InternalPrimitiveTypeE ToCode(Type type)
         {
-            //SerTrace.Log("Converter", "ToCode Type Entry ",type);           
+            SerTrace.Log("Converter", "ToCode Type Entry ",type);           
             InternalPrimitiveTypeE code;
 
             if ((object)type != null && !type.IsPrimitive)
@@ -56,7 +56,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             else
                 code = ToPrimitiveTypeEnum(Type.GetTypeCode(type));
 
-            //SerTrace.Log("Converter", "ToCode Exit " , ((Enum)code).ToString());
+            SerTrace.Log("Converter", "ToCode Exit " , ((Enum)code).ToString());
             return code;
         }
 
@@ -136,7 +136,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal static InternalNameSpaceE GetNameSpaceEnum(InternalPrimitiveTypeE code, Type type, WriteObjectInfo objectInfo, out String typeName)
         {
-            //SerTrace.Log("Converter", "GetNameSpaceEnum Entry ",((Enum)code).ToString()," type ",type);                 
+            SerTrace.Log("Converter", "GetNameSpaceEnum Entry ",((Enum)code).ToString()," type ",type);                 
             InternalNameSpaceE nameSpaceEnum = InternalNameSpaceE.None;
             typeName = null;
 
@@ -194,7 +194,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
                 }
             }
 
-            //SerTrace.Log("Converter", "GetNameSpaceEnum Exit ", ((Enum)nameSpaceEnum).ToString()," typeName ",typeName);                                
+            SerTrace.Log("Converter", "GetNameSpaceEnum Exit ", ((Enum)nameSpaceEnum).ToString()," typeName ",typeName);                                
             return nameSpaceEnum;
         }
 
@@ -202,10 +202,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal static Type ToArrayType(InternalPrimitiveTypeE code)
         {
-            //SerTrace.Log("Converter", "ToType Entry ", ((Enum)code).ToString());
+            SerTrace.Log("Converter", "ToType Entry ", ((Enum)code).ToString());
             if (arrayTypeA == null)
                 InitArrayTypeA();
-            //SerTrace.Log("Converter", "ToType Exit ", (((object)arrayTypeA[(int)code] == null)?"null ":arrayTypeA[(int)code].Name));                
+            SerTrace.Log("Converter", "ToType Exit ", (((object)arrayTypeA[(int)code] == null)?"null ":arrayTypeA[(int)code].Name));                
             return arrayTypeA[(int)code];
         }
 
@@ -264,10 +264,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal static Type ToType(InternalPrimitiveTypeE code)
         {
-            //SerTrace.Log("Converter", "ToType Entry ", ((Enum)code).ToString());
+            SerTrace.Log("Converter", "ToType Entry ", ((Enum)code).ToString());
             if (typeA == null)
                 InitTypeA();
-            //SerTrace.Log("Converter", "ToType Exit ", (((object)typeA[(int)code] == null)?"null ":typeA[(int)code].Name));              
+            SerTrace.Log("Converter", "ToType Exit ", (((object)typeA[(int)code] == null)?"null ":typeA[(int)code].Name));              
             return typeA[(int)code];
         }
 
@@ -391,12 +391,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
 
         internal static String ToComType(InternalPrimitiveTypeE code)
         {
-            //SerTrace.Log("Converter", "ToComType Entry ", ((Enum)code).ToString());
+            SerTrace.Log("Converter", "ToComType Entry ", ((Enum)code).ToString());
 
             if (valueA == null)
                 InitValueA();
 
-            //SerTrace.Log("Converter", "ToComType Exit ",((valueA[(int)code] == null)?"null":valueA[(int)code]));                
+            SerTrace.Log("Converter", "ToComType Exit ",((valueA[(int)code] == null)?"null":valueA[(int)code]));                
 
             return valueA[(int)code];
         }
@@ -475,14 +475,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         internal static Object FromString(String value, InternalPrimitiveTypeE code)
         {
             Object var;
-            //SerTrace.Log( "Converter", "FromString Entry ",value," " , ((Enum)code).ToString());                
+            SerTrace.Log( "Converter", "FromString Entry ",value," " , ((Enum)code).ToString());                
             // InternalPrimitiveTypeE needs to be a primitive type
             Contract.Assert((code != InternalPrimitiveTypeE.Invalid), "[Converter.FromString]!InternalPrimitiveTypeE.Invalid ");
             if (code != InternalPrimitiveTypeE.Invalid)
                 var = Convert.ChangeType(value, ToTypeCode(code), CultureInfo.InvariantCulture);
             else
                 var = value;
-            //SerTrace.Log( "Converter", "FromString Exit "+((var == null)?"null":var+" var type "+((var==null)?"<null>":var.GetType().ToString())));
+            SerTrace.Log( "Converter", "FromString Exit "+((var == null)?"null":var+" var type "+((var==null)?"<null>":var.GetType().ToString())));
             return var;
         }
 

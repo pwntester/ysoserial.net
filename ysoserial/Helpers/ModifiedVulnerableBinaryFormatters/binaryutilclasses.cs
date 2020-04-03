@@ -216,15 +216,15 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [Conditional("SER_LOGGING")]
         internal void Dump()
         {
-            //SerTrace.Log("ParseRecord Dump ",PRparseRecordId);
-            //SerTrace.Log("Enums");
+            SerTrace.Log("ParseRecord Dump ",PRparseRecordId);
+            SerTrace.Log("Enums");
             Util.NVTrace("ParseType",((Enum)PRparseTypeEnum).ToString());
             Util.NVTrace("ObjectType",((Enum)PRobjectTypeEnum).ToString());
             Util.NVTrace("ArrayType",((Enum)PRarrayTypeEnum).ToString());
             Util.NVTrace("MemberType",((Enum)PRmemberTypeEnum).ToString());
             Util.NVTrace("MemberValue",((Enum)PRmemberValueEnum).ToString());
             Util.NVTrace("ObjectPosition",((Enum)PRobjectPositionEnum).ToString());
-            //SerTrace.Log("Basics");
+            SerTrace.Log("Basics");
             Util.NVTrace("Name",PRname);
             Util.NVTrace("Value ",PRvalue);
             Util.NVTrace("varValue ",PRvarValue);
@@ -237,7 +237,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             Util.NVTrace("objectID",PRobjectId);
             Util.NVTrace("idRef",PRidRef);
             Util.NVTrace("isEnum",PRisEnum);
-            //SerTrace.Log("Array ");
+            SerTrace.Log("Array ");
             Util.NVTrace("arrayElementTypeString",PRarrayElementTypeString);
             Util.NVTrace("arrayElementType",PRarrayElementType);
             Util.NVTrace("arrayElementTypeCode",((Enum)PRarrayElementTypeCode).ToString());
@@ -247,10 +247,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             Util.NVTrace("position", Util.PArray(PRpositionA));
             Util.NVTrace("lowerBoundA", Util.PArray(PRlowerBoundA));
             Util.NVTrace("upperBoundA", Util.PArray(PRupperBoundA));
-            //SerTrace.Log("Header ");
+            SerTrace.Log("Header ");
             Util.NVTrace("nullCount", PRnullCount);
 
-            //SerTrace.Log("New Object");
+            SerTrace.Log("New Object");
             if (PRnewObj != null)
                 Util.NVTrace("newObj", PRnewObj);
         }
@@ -287,7 +287,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // Push the object onto the stack
         internal void Push(Object obj) {
 #if _DEBUG        
-            //SerTrace.Log(this, "Push ",stackId," ",((obj is ITrace)?((ITrace)obj).Trace():""));
+            SerTrace.Log(this, "Push ",stackId," ",((obj is ITrace)?((ITrace)obj).Trace():""));
 #endif
             if (top == (objects.Length -1))
             {
@@ -304,7 +304,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             Object obj = objects[top];
             objects[top--] = null;
 #if _DEBUG        
-            //SerTrace.Log(this, "Pop ",stackId," ",((obj is ITrace)?((ITrace)obj).Trace():""));
+            SerTrace.Log(this, "Pop ",stackId," ",((obj is ITrace)?((ITrace)obj).Trace():""));
 #endif
             return obj;
         }
@@ -321,7 +321,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (top < 0)
                 return null;
 #if _DEBUG        
-            //SerTrace.Log(this, "Peek ",stackId," ",((objects[top] is ITrace)?((ITrace)objects[top]).Trace():""));
+            SerTrace.Log(this, "Peek ",stackId," ",((objects[top] is ITrace)?((ITrace)objects[top]).Trace():""));
 #endif
             return objects[top];
         }
@@ -331,7 +331,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (top < 1)
                 return null;
 #if _DEBUG            
-            //SerTrace.Log(this, "PeekPeek ",stackId," ",((objects[top - 1] is ITrace)?((ITrace)objects[top - 1]).Trace():""));
+            SerTrace.Log(this, "PeekPeek ",stackId," ",((objects[top - 1] is ITrace)?((ITrace)objects[top - 1]).Trace():""));
 #endif
             return objects[top - 1];
         }
@@ -356,7 +356,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             {
                 Object obj = objects[i];
 #if _DEBUG                
-                //SerTrace.Log(this, "Stack Dump ",stackId," "+((obj is ITrace)?((ITrace)obj).Trace():""));
+                SerTrace.Log(this, "Stack Dump ",stackId," "+((obj is ITrace)?((ITrace)obj).Trace():""));
 #endif
             }
         }
@@ -622,14 +622,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [Conditional("SER_LOGGING")]
         internal static void NVTrace(String name, String value)
         {
-            //SerTrace.Log("  "+name+((value == null)?" = null":" = "+value));
+            SerTrace.Log("  "+name+((value == null)?" = null":" = "+value));
         }
 
         // Traces an name value pair
         [Conditional("SER_LOGGING")]
         internal static void NVTrace(String name, Object value)
         {
-            //SerTrace.Log("  "+name+((value == null)?" = null":" = "+value.ToString()));
+            SerTrace.Log("  "+name+((value == null)?" = null":" = "+value.ToString()));
         }
 
         // Traces an name value pair
@@ -637,14 +637,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [Conditional("_LOGGING")]
         internal static void NVTraceI(String name, String value)
         {
-            //BCLDebug.Trace("Binary", "  "+name+((value == null)?" = null":" = "+value));
+            BCLDebug.Trace("Binary", "  "+name+((value == null)?" = null":" = "+value));
         }
 
         // Traces an name value pair
         [Conditional("_LOGGING")]
         internal static void NVTraceI(String name, Object value)
         {
-            //BCLDebug.Trace("Binary", "  "+name+((value == null)?" = null":" = "+value.ToString()));
+            BCLDebug.Trace("Binary", "  "+name+((value == null)?" = null":" = "+value.ToString()));
         }
     }
 #endif
@@ -665,7 +665,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         internal ValueFixup(Array arrayObj, int[] indexMap)
         {
 #if _DEBUG
-            //SerTrace.Log(this, "Array Constructor ",arrayObj);
+            SerTrace.Log(this, "Array Constructor ",arrayObj);
 #endif
             valueFixupEnum = ValueFixupEnum.Array;
             this.arrayObj = arrayObj;
@@ -675,7 +675,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         internal ValueFixup(Object memberObject, String memberName, ReadObjectInfo objectInfo)
         {
 #if _DEBUG
-            //SerTrace.Log(this, "Member Constructor ",memberObject);
+            SerTrace.Log(this, "Member Constructor ",memberObject);
 #endif
             valueFixupEnum = ValueFixupEnum.Member;
             this.memberObject = memberObject;
@@ -687,7 +687,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         internal void Fixup(ParseRecord record, ParseRecord parent) {
             Object obj = record.PRnewObj;
 #if _DEBUG
-            //SerTrace.Log(this, "Fixup ",obj," ",((Enum)valueFixupEnum).ToString());
+            SerTrace.Log(this, "Fixup ",obj," ",((Enum)valueFixupEnum).ToString());
 #endif
             switch (valueFixupEnum)
             {
@@ -712,7 +712,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                     //FormatterServices.SerializationSetValue(valueInfo, header, obj);
                 break;
             case ValueFixupEnum.Member:
-                //SerTrace.Log(this, "Fixup Member new object value ",obj," memberObject ",memberObject);
+                SerTrace.Log(this, "Fixup Member new object value ",obj," memberObject ",memberObject);
 
                 if (objectInfo.isSi)
                 {
