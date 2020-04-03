@@ -28,33 +28,33 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 
 == GADGETS ==
 	(*) ActivitySurrogateDisableTypeCheck [Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored]
-		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class] (supports extra options: use the '--fullhelp' argument to view)
-		Formatters: BinaryFormatter (2) , LosFormatter , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
 	(*) ActivitySurrogateSelectorFromFile [Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'] (supports extra options: use the '--fullhelp' argument to view)
-		Formatters: BinaryFormatter (2) , LosFormatter , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
 	(*) AxHostState
-		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) DataSet
-		Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) ObjectDataProvider (supports extra options: use the '--fullhelp' argument to view)
-		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , Xaml (3) , XmlSerializer , YamlDotNet < 5.0.0
+		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , Xaml (4) , XmlSerializer , YamlDotNet < 5.0.0
 	(*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
-		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
-	(*) ResourceSet [WARNING: your command will be executed at least once during payload generation]
-		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
+	(*) ResourceSet (supports extra options: use the '--fullhelp' argument to view)
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
 	(*) RolePrincipal
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
 	(*) SessionSecurityToken
-		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) SessionViewStateHistoryItem
-		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) TextFormattingRunProperties [This normally generates the shortest payload] (supports extra options: use the '--fullhelp' argument to view)
-		Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) TypeConfuseDelegate
-		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
 	(*) TypeConfuseDelegateMono [Tweaked TypeConfuseDelegate gadget to work with Mono]
-		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , ObjectStateFormatter
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
 	(*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)] (supports extra options: use the '--fullhelp' argument to view)
 		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , ObjectStateFormatter (3) , SoapFormatter (2)
 	(*) WindowsIdentity
@@ -72,6 +72,8 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
 	(*) ViewState (Generates a ViewState using known MachineKey parameters)
 
+Note: Machine authentication code (MAC) key modifier is not being used for LosFormatter in ysoserial.net. Therefore, LosFormatter (base64 encoded) can be used to create ObjectStateFormatter payloads.
+
 Usage: ysoserial.exe [options]
 Options:
   -p, --plugin=VALUE         The plugin to be used.
@@ -88,13 +90,21 @@ Options:
       --minify               Whether to minify the payloads where applicable. 
                                Default: false
       --ust, --usesimpletype This is to remove additional info only when 
-                               minifying and FormatterAssemblyStyle=Simple. 
-                               Default: true
+                               minifying and FormatterAssemblyStyle=Simple 
+                               (always `true` with `--minify` for binary 
+                               formatters). Default: true
+      --raf, --runallformatters
+                             Whether to run all the gadgets with the provided 
+                               formatter (ignores gagdet name, output format, 
+                               and the test flag). This will search in 
+                               formatters and also show the displayed payload 
+                               length. Default: false
       --sf, --searchformatter=VALUE
                              Search in all formatters to show relevant 
                                gadgets and their formatters (other parameters 
                                will be ignored).
-      --debugmode            Enable debugging to show exception errors
+      --debugmode            Enable debugging to show exception errors and 
+                               output length
   -h, --help                 Shows this message and exit.
       --fullhelp             Shows this message + extra options for gadgets 
                                and plugins and exit.
@@ -207,9 +217,9 @@ Credits for available gadgets:
 	DataSet
 		[Finders: James Forshaw] [Contributors: Soroush Dalili]
 	ObjectDataProvider
-		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili]
+		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili]
 	PSObject
-		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Alvaro Munoz]
+		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz]
 	ResourceSet
 		[Finders: Soroush Dalili]
 	RolePrincipal
