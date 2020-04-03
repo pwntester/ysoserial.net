@@ -1,19 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
-using System.Globalization;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters;
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Messaging;
-
 using System.Runtime.Serialization;
-using System.Security.Permissions;
-using System.Diagnostics.Contracts;
-using System.Collections.Concurrent;
 using System.Text;
-using System.Web.Script.Serialization;
 
 namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
