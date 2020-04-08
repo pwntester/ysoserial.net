@@ -7,9 +7,10 @@ using System.Text;
 
 namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
+    // Always use AdvancedBinaryFormatterParser wherever possible as this one is not as readable and is only a quick fix for when we desperately need to create a serialized object very fast!
     public class SimpleBinaryFormatterParser
     {
-        public static BinaryFormatterRootObject Parse(Stream serializationStream)
+        public static SimpleBinaryFormatterRootObject Parse(Stream serializationStream)
         {
             if (serializationStream.CanRead)
                 serializationStream.Position = 0;
@@ -32,14 +33,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return serParser.RunModified();
         }
 
-        public static MemoryStream ReconstructFromBinaryFormatterObject(BinaryFormatterRootObject inBinaryFormatterRootObject)
+        public static MemoryStream ReconstructFromBinaryFormatterObject(SimpleBinaryFormatterRootObject inBinaryFormatterRootObject)
         {
             int fullsize = CalculateSizeOfbfObject(inBinaryFormatterRootObject);
 
             MemoryStream ms = new MemoryStream(fullsize);
 
             ms.Write(inBinaryFormatterRootObject.headerBytes, 0, inBinaryFormatterRootObject.headerBytes.Length);
-            foreach (BinaryFormatterObject bfObj in inBinaryFormatterRootObject.binaryFormatterObjects)
+            foreach (SimpleBinaryFormatterObject bfObj in inBinaryFormatterRootObject.binaryFormatterObjects)
             {
                 if (bfObj.typeBytes != null)
                     ms.Write(bfObj.typeBytes, 0, bfObj.typeBytes.Length);
@@ -52,20 +53,20 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         public static MemoryStream ReconstructFromJsonNetSerializedBinaryFormatterObject(String jsonNet_str)
         {
-            BinaryFormatterRootObject deserialized_obj = (BinaryFormatterRootObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonNet_str, typeof(BinaryFormatterRootObject));
+            SimpleBinaryFormatterRootObject deserialized_obj = (SimpleBinaryFormatterRootObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonNet_str, typeof(SimpleBinaryFormatterRootObject));
             return ReconstructFromBinaryFormatterObject(deserialized_obj);
         }
 
-        public static String JsonNetBinaryFormatterObjectSerializer(BinaryFormatterRootObject inBinaryFormatterRootObject)
+        public static String JsonNetBinaryFormatterObjectSerializer(SimpleBinaryFormatterRootObject inBinaryFormatterRootObject)
         {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(inBinaryFormatterRootObject, typeof(Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatterRootObject), null);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(inBinaryFormatterRootObject, typeof(Helpers.ModifiedVulnerableBinaryFormatters.SimpleBinaryFormatterRootObject), null);
         }
 
-        public static int CalculateSizeOfbfObject(BinaryFormatterRootObject inBinaryFormatterRootObject)
+        public static int CalculateSizeOfbfObject(SimpleBinaryFormatterRootObject inBinaryFormatterRootObject)
         {
             int size = 17; // fized header size
 
-            foreach (BinaryFormatterObject bfObj in inBinaryFormatterRootObject.binaryFormatterObjects)
+            foreach (SimpleBinaryFormatterObject bfObj in inBinaryFormatterRootObject.binaryFormatterObjects)
             {
                 if (bfObj.typeBytes != null)
                     size += bfObj.typeBytes.Length;
@@ -118,35 +119,32 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return result;
         }
     }
+
     [Serializable]
-    public class BinaryFormatterRootObject
+    public class SimpleBinaryFormatterRootObject
     {
-        public BinaryFormatterRootObject() { }
+        public SimpleBinaryFormatterRootObject() { }
 
         // Needed in reconstruction although should be always fixed
         public byte[] headerBytes = new byte[17];
 
-        // This is for information especially when debugging
+        // This is for information when debugging
         [NonSerialized]
         public int size = -1;
 
         // Needed in reconstruction
-        public List<BinaryFormatterObject> binaryFormatterObjects = new List<BinaryFormatterObject>();
-
-        // This is for information especially when debugging
-        [NonSerialized]
-        public String expectedTypeName;
+        public List<SimpleBinaryFormatterObject> binaryFormatterObjects = new List<SimpleBinaryFormatterObject>();
     }
 
     [Serializable]
-    public class BinaryFormatterObject
+    public class SimpleBinaryFormatterObject
     {
-        public BinaryFormatterObject() { }
+        public SimpleBinaryFormatterObject() { }
 
         // We keep this in serialization so we can easily point to an item - not needed in reconstruction
         public int orderId = -1;
 
-        // This is for information especially when debugging
+        // This is for information when debugging
         [NonSerialized]
         public int valueSize = -1;
 
@@ -156,13 +154,25 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // Needed in reconstruction
         public byte[] valueBytes;
 
-        // This is for information especially when debugging
+        // This is for information when debugging
         [NonSerialized]
         public string valueString;
 
-        // This is for information especially when debugging
+        // This is for information when debugging
         [NonSerialized]
         public String typeName;
+
+        // This is for information when debugging
+        [NonSerialized]
+        public String expectedTypeName;
+
+        // This is for information when debugging
+        [NonSerialized]
+        public int origStreamStartPosition;
+
+        // This is for information when debugging
+        [NonSerialized]
+        public int origStreamEndPosition;
     }
 
 }

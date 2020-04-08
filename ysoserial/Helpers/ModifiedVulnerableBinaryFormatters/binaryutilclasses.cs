@@ -34,7 +34,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // The ParseRecord class holds the parsed XML information. There is a
     // ParsedRecord for each XML Element
-    internal sealed class ParseRecord 
+    public sealed class ParseRecord 
 #if _DEBUG
                                         : ITrace
 #endif                                        
@@ -128,7 +128,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         internal int PRnullCount; // Count of consecutive nulls within an array
 
 
-        internal ParseRecord()
+        public ParseRecord()
         {
         }
 
@@ -366,7 +366,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     // Implements a Growable array
 
     [Serializable]
-    internal sealed class SizedArray : ICloneable
+    public sealed class SizedArray : ICloneable
     {
         internal Object[] objects = null;
         internal Object[] negObjects = null;

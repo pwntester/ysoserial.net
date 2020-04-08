@@ -27,7 +27,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
     using System.Runtime.Remoting;
     using System.Runtime.Serialization;
 
-    internal sealed class __BinaryWriter
+    public sealed class __BinaryWriter
     {
         internal Stream sout;
         internal FormatterTypeStyle formatterTypeStyle;

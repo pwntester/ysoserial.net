@@ -43,7 +43,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         LookForThread = 3
     }
 
-    internal sealed class ObjectReader
+    public sealed class ObjectReader
     {
 
         // System.Serializer information
@@ -1577,7 +1577,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         internal Type GetType(BinaryAssemblyInfo assemblyInfo, String name)
         {
             Type objectType = null;
-
+            if (assemblyInfo == null)
+                return null;
             if (((previousName != null) && (previousName.Length == name.Length) && (previousName.Equals(name))) &&
                 ((previousAssemblyString != null) && (previousAssemblyString.Length == assemblyInfo.assemblyString.Length) && (previousAssemblyString.Equals(assemblyInfo.assemblyString))))
             {

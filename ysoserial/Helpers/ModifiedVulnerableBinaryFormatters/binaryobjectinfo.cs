@@ -35,7 +35,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     //
     // The methods in this class are for the internal use of the Formatters.
     // There use will be restricted when signing is supported for assemblies
-    internal sealed class WriteObjectInfo
+    public sealed class WriteObjectInfo
     {
         internal int objectInfoId;
 
@@ -493,7 +493,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         }
     }
 
-    internal sealed class ReadObjectInfo
+    public sealed class ReadObjectInfo
     {
         internal int objectInfoId;
         internal static int readObjectInfoCounter;

@@ -13,6 +13,8 @@
  **
  ===========================================================*/
 
+ // internal -> public
+
 namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
     using System.Runtime.Serialization.Formatters;
@@ -22,7 +24,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     // BinaryHeaderEnum is the first byte on binary records
     // (except for primitive types which do not have a header)
     [Serializable]
-    enum BinaryHeaderEnum
+    //internal enum BinaryHeaderEnum
+    public enum BinaryHeaderEnum // so we can access it elsewhere without copying it
     {
         SerializedStreamHeader = 0,
         Object = 1,
@@ -52,7 +55,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     // BinaryTypeEnum is used specify the type on the wire.
     // Additional information is transmitted with Primitive and Object types
     [Serializable]
-    enum BinaryTypeEnum
+    public enum BinaryTypeEnum
     {
         Primitive = 0,
         String = 1,
@@ -65,7 +68,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     }
 
     [Serializable]
-    internal enum BinaryArrayTypeEnum
+    public enum BinaryArrayTypeEnum
     {
         Single = 0,
         Jagged = 1,
@@ -80,7 +83,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // Formatter Enums
     [Serializable]
-    internal enum InternalSerializerTypeE
+    public enum InternalSerializerTypeE
     {
         Soap = 1,
         Binary = 2,
@@ -88,7 +91,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // Writer Enums
     [Serializable]
-    internal enum InternalElementTypeE
+    public enum InternalElementTypeE
     {
         ObjectBegin = 0,
         ObjectEnd = 1,
@@ -97,7 +100,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // ParseRecord Enums
     [Serializable]
-    internal enum InternalParseTypeE
+    public enum InternalParseTypeE
     {
         Empty = 0,
         SerializedStreamHeader = 1,
@@ -116,7 +119,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
 
     [Serializable]
-    internal enum InternalObjectTypeE
+    public enum InternalObjectTypeE
     {
         Empty = 0,
         Object = 1,
@@ -125,7 +128,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
 
     [Serializable]
-    internal enum InternalObjectPositionE
+    public enum InternalObjectPositionE
     {
         Empty = 0,
         Top = 1,
@@ -134,7 +137,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     }
 
     [Serializable]
-    internal enum InternalArrayTypeE
+    public enum InternalArrayTypeE
     {
         Empty = 0,
         Single = 1,
@@ -144,7 +147,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     }
 
     [Serializable]
-    internal enum InternalMemberTypeE
+    public enum InternalMemberTypeE
     {
         Empty = 0,
         Header = 1,
@@ -153,7 +156,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     }
 
     [Serializable]
-    internal enum InternalMemberValueE
+    public enum InternalMemberValueE
     {
         Empty = 0,
         InlineValue = 1,
@@ -164,7 +167,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // XML Parse Enum
     [Serializable]
-    internal enum InternalParseStateE
+    public enum InternalParseStateE
     {
         Initial = 0,
         Object = 1,
@@ -174,7 +177,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // Data Type Enums
     [Serializable]
-    internal enum InternalPrimitiveTypeE
+    //internal enum InternalPrimitiveTypeE
+    public enum InternalPrimitiveTypeE // so we can access it elsewhere without copying it
     {
         Invalid = 0,
         Boolean = 1,
@@ -201,7 +205,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
 [Serializable]
 [Flags]
-    internal enum MessageEnum
+    public enum MessageEnum
     {
         NoArgs = 0x1,
         ArgsInline = 0x2,
@@ -223,7 +227,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // ValueType Fixup Enum
     [Serializable]
-    enum ValueFixupEnum
+    public enum ValueFixupEnum
     {
         Empty = 0,
         Array = 1,
@@ -233,7 +237,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
     // name space
     [Serializable]
-    internal enum InternalNameSpaceE
+    public enum InternalNameSpaceE
     {
         None = 0,
         Soap = 1,
@@ -248,7 +252,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     }
 
     [Serializable]
-    internal enum SoapAttributeType
+    public enum SoapAttributeType
     {
         None = 0x0,
         SchemaType = 0x1,

@@ -120,6 +120,7 @@
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
     <Compile Include="Generators\RolePrincipalGenerator.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\AdvancedBinaryFormatterParser.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarycommonclasses.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryconverter.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryenums.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Helpers\Debugging.cs" />
     <Compile Include="Helpers\FormatterType.cs" />
     <Compile Include="Helpers\InputArgs.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\ObjectExtensions.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\SerTrace.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\SimpleBinaryFormatterParser.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\SimpleObjectLosFormatter.cs" />

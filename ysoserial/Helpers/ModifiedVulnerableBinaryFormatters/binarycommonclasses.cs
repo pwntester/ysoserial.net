@@ -31,12 +31,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
     using System.Runtime.Serialization;
 
     // Routines to convert between the runtime type and the type as it appears on the wire
-    internal static class BinaryConverter
+    // modified internal -> public
+    public static class BinaryConverter
     {
 
         // From the type create the BinaryTypeEnum and typeInformation which describes the type on the wire
 
-        internal static BinaryTypeEnum GetBinaryTypeInfo(Type type, WriteObjectInfo objectInfo, String typeName, ObjectWriter objectWriter, out Object typeInformation, out int assemId)
+        public static BinaryTypeEnum GetBinaryTypeInfo(Type type, WriteObjectInfo objectInfo, String typeName, ObjectWriter objectWriter, out Object typeInformation, out int assemId)
         {
             SerTrace.Log("BinaryConverter", "GetBinaryTypeInfo Entry type ",type,", typeName ",typeName," objectInfo "+objectInfo);     
             BinaryTypeEnum binaryTypeEnum;
@@ -110,7 +111,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
 
         // Used for non Si types when Parsing
-        internal static BinaryTypeEnum GetParserBinaryTypeInfo(Type type, out Object typeInformation)
+        public static BinaryTypeEnum GetParserBinaryTypeInfo(Type type, out Object typeInformation)
         {
             SerTrace.Log("BinaryConverter", "GetParserBinaryTypeInfo Entry type ",type);        
             BinaryTypeEnum binaryTypeEnum;
@@ -151,10 +152,10 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
 
         // Writes the type information on the wire
-        internal static void WriteTypeInfo(BinaryTypeEnum binaryTypeEnum, Object typeInformation, int assemId, __BinaryWriter sout)
+        public static void WriteTypeInfo(BinaryTypeEnum binaryTypeEnum, Object typeInformation, int assemId, __BinaryWriter sout)
         {
             SerTrace.Log( "BinaryConverter", "WriteTypeInfo Entry  ",((Enum)binaryTypeEnum).ToString()," ",typeInformation," assemId ",assemId);
-
+            
             switch (binaryTypeEnum)
             {
                 case BinaryTypeEnum.Primitive:
@@ -183,7 +184,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
 
         // Reads the type information from the wire
-        internal static Object ReadTypeInfo(BinaryTypeEnum binaryTypeEnum, __BinaryParser input, out int assemId)
+        public static Object ReadTypeInfo(BinaryTypeEnum binaryTypeEnum, __BinaryParser input, out int assemId)
         {
             SerTrace.Log( "BinaryConverter", "ReadTypeInfo Entry  ",((Enum)binaryTypeEnum).ToString());
             Object var = null;
@@ -217,7 +218,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         // Given the wire type information, returns the actual type and additional information
         [System.Security.SecurityCritical]  // auto-generated
-        internal static void TypeFromInfo(BinaryTypeEnum binaryTypeEnum,
+        public static void TypeFromInfo(BinaryTypeEnum binaryTypeEnum,
                                           Object typeInformation,
                                           ObjectReader objectReader,
                                           BinaryAssemblyInfo assemblyInfo,
@@ -286,7 +287,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
 #if _DEBUG                        
          // Used to write type type on the record dump
-        internal static String TypeInfoTraceString(Object typeInformation)
+        public static String TypeInfoTraceString(Object typeInformation)
         {
             String traceString = null;
             if (typeInformation == null)
@@ -301,9 +302,9 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
     }
 
-    internal static class IOUtil
+    public static class IOUtil
     {
-        internal static bool FlagTest(MessageEnum flag, MessageEnum target)
+        public static bool FlagTest(MessageEnum flag, MessageEnum target)
         {
             if ((flag & target) == target)
                 return true;
@@ -311,7 +312,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 return false;
         }
 
-        internal static void WriteStringWithCode(String value, __BinaryWriter sout)
+        public static void WriteStringWithCode(String value, __BinaryWriter sout)
         {
             if (value == null)
                 sout.WriteByte((Byte)InternalPrimitiveTypeE.Null);
@@ -322,7 +323,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             }
         }
 
-        internal static void WriteWithCode(Type type, Object value, __BinaryWriter sout)
+        public static void WriteWithCode(Type type, Object value, __BinaryWriter sout)
         {
             if ((object)type == null)
                 sout.WriteByte((Byte)InternalPrimitiveTypeE.Null);
@@ -336,7 +337,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             }
         }
 
-        internal static Object ReadWithCode(__BinaryParser input)
+        public static Object ReadWithCode(__BinaryParser input)
         {
              InternalPrimitiveTypeE code = (InternalPrimitiveTypeE)input.ReadByte();
              if (code == InternalPrimitiveTypeE.Null)
@@ -347,7 +348,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                  return input.ReadValue(code);
         }
 
-        internal static Object[] ReadArgs(__BinaryParser input)
+        public static Object[] ReadArgs(__BinaryParser input)
         {
             int length = input.ReadInt32();
             Object[] args = new Object[length];
@@ -359,7 +360,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
     }
 
 
-    internal static class BinaryUtil
+    public static class BinaryUtil
     {
         [Conditional("_LOGGING")]                               
         public static void NVTraceI(String name, String value)
@@ -380,7 +381,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
 
     // Interface for Binary Records.
-    internal interface IStreamable
+    public interface IStreamable
     {
         [System.Security.SecurityCritical]
         void Read(__BinaryParser input);
@@ -390,24 +391,25 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 #endif
     }
 
-    internal sealed class BinaryAssemblyInfo
+    [Serializable]
+    public sealed class BinaryAssemblyInfo
     {
-        internal String assemblyString;
-        private Assembly assembly;
+        public String assemblyString;
+        public Assembly assembly;
 
 
-        internal BinaryAssemblyInfo(String assemblyString)
+        public BinaryAssemblyInfo(String assemblyString)
         {
             this.assemblyString = assemblyString;
         }
 
-        internal BinaryAssemblyInfo(String assemblyString, Assembly assembly)
+        public BinaryAssemblyInfo(String assemblyString, Assembly assembly)
         {
             this.assemblyString = assemblyString;
             this.assembly = assembly;
         }
 
-        internal Assembly GetAssembly()
+        public Assembly GetAssembly()
         {
             if (assembly == null)
             {
@@ -426,21 +428,22 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
     }
 
     // The Following classes read and write the binary records
-    internal sealed class SerializationHeaderRecord : IStreamable
+    [Serializable]
+    public sealed class SerializationHeaderRecord : IStreamable
     {
-        internal Int32 binaryFormatterMajorVersion = 1;
-        internal Int32 binaryFormatterMinorVersion = 0;
-        internal BinaryHeaderEnum binaryHeaderEnum;
-        internal Int32 topId;
-        internal Int32 headerId;
-        internal Int32 majorVersion;
-        internal Int32 minorVersion;
+        public Int32 binaryFormatterMajorVersion = 1;
+        public Int32 binaryFormatterMinorVersion = 0;
+        public BinaryHeaderEnum binaryHeaderEnum;
+        public Int32 topId;
+        public Int32 headerId;
+        public Int32 majorVersion;
+        public Int32 minorVersion;
 
-        internal SerializationHeaderRecord()
+        public SerializationHeaderRecord()
         {
         }
 
-        internal SerializationHeaderRecord(BinaryHeaderEnum binaryHeaderEnum, Int32 topId, Int32 headerId, Int32 majorVersion, Int32 minorVersion)
+        public SerializationHeaderRecord(BinaryHeaderEnum binaryHeaderEnum, Int32 topId, Int32 headerId, Int32 majorVersion, Int32 minorVersion)
         {
             this.binaryHeaderEnum = binaryHeaderEnum;
             this.topId = topId;
@@ -507,18 +510,18 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-
-    internal sealed class BinaryAssembly : IStreamable
+    [Serializable]
+    public sealed class BinaryAssembly : IStreamable
     {
-        internal Int32 assemId;
-        internal String assemblyString;
+        public Int32 assemId;
+        public String assemblyString;
 
-        internal BinaryAssembly()
+        public BinaryAssembly()
         {
         }
 
 
-        internal void Set(Int32 assemId, String assemblyString)
+        public void Set(Int32 assemId, String assemblyString)
         {
             SerTrace.Log( this, "BinaryAssembly Set ",assemId," ",assemblyString);      
             this.assemId = assemId;
@@ -559,12 +562,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-    internal sealed class BinaryCrossAppDomainAssembly : IStreamable
+    [Serializable]
+    public sealed class BinaryCrossAppDomainAssembly : IStreamable
     {
-        internal Int32 assemId;
-        internal Int32 assemblyIndex;
+        public Int32 assemId;
+        public Int32 assemblyIndex;
 
-        internal BinaryCrossAppDomainAssembly()
+        public BinaryCrossAppDomainAssembly()
         {
         }
 
@@ -601,17 +605,17 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-
-    internal sealed class BinaryObject : IStreamable
+    [Serializable]
+    public sealed class BinaryObject : IStreamable
     {
-        internal Int32 objectId;
-        internal Int32 mapId;
+        public Int32 objectId;
+        public Int32 mapId;
 
-        internal BinaryObject()
+        public BinaryObject()
         {
         }
 
-        internal  void Set(Int32 objectId, Int32 mapId)
+        public  void Set(Int32 objectId, Int32 mapId)
         {
             SerTrace.Log( this, "BinaryObject Set ",objectId," ",mapId);        
             this.objectId = objectId;
@@ -652,25 +656,26 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-    internal sealed class BinaryMethodCall
+    [Serializable]
+    public sealed class BinaryMethodCall
     {
-        String uri;
-        String methodName;
-        String typeName;
-        Type[] instArgs;
-        Object[] args;
-        Object methodSignature;
-        Object callContext;
-        String scallContext;
-        Object properties;
-        Type[] argTypes;
-        bool bArgsPrimitive = true;
-        MessageEnum messageEnum;
-        Object[] callA;
+        public String uri;
+        public String methodName;
+        public String typeName;
+        public Type[] instArgs;
+        public Object[] args;
+        public Object methodSignature;
+        public Object callContext;
+        public String scallContext;
+        public Object properties;
+        public Type[] argTypes;
+        public bool bArgsPrimitive = true;
+        public MessageEnum messageEnum;
+        public Object[] callA;
 
         // If the argument list contains only primitive or strings it is written out as part of the header
         // if not the args are written out as a separate array
-        internal Object[] WriteArray(String uri, String methodName, String typeName, Type[] instArgs, Object[] args, Object methodSignature, Object callContext, Object[] properties)
+        public Object[] WriteArray(String uri, String methodName, String typeName, Type[] instArgs, Object[] args, Object methodSignature, Object callContext, Object[] properties)
         {
             this.uri = uri;
             this.methodName = methodName;
@@ -775,7 +780,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 return null;
         }
 
-        internal void Write(__BinaryWriter sout)
+        public void Write(__BinaryWriter sout)
         {
             sout.WriteByte((Byte)BinaryHeaderEnum.MethodCall);
             sout.WriteInt32((Int32)messageEnum);
@@ -797,7 +802,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
 
         [System.Security.SecurityCritical]  // auto-generated
-        internal void Read(__BinaryParser input)
+        public void Read(__BinaryParser input)
         {
              messageEnum = (MessageEnum)input.ReadInt32();
              //uri = (String)IOUtil.ReadWithCode(input);
@@ -819,7 +824,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
 #if FEATURE_REMOTING
         [System.Security.SecurityCritical]  // auto-generated
-        internal IMethodCallMessage ReadArray(Object[] callA, Object handlerObject)
+        public IMethodCallMessage ReadArray(Object[] callA, Object handlerObject)
         {
             /*
             if (callA.Length != 7)
@@ -873,7 +878,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             return new MethodCall(handlerObject, new BinaryMethodCallMessage(uri, methodName, typeName, instArgs, args, methodSignature, (LogicalCallContext)callContext, (Object[])properties));
         }
 #endif // FEATURE_REMOTING
-        internal void Dump()
+        public void Dump()
         {
             DumpInternal();
         }
@@ -911,33 +916,34 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-    internal sealed class BinaryMethodReturn : IStreamable
+    [Serializable]
+    public sealed class BinaryMethodReturn : IStreamable
     {
-        Object returnValue;
-        Object[] args;
-        Exception exception;
-        Object callContext;
-        String scallContext;
-        Object properties;
-        Type[] argTypes;
-        bool bArgsPrimitive = true;
-        MessageEnum messageEnum;
-        Object[] callA;
-        Type returnType;
-        static Object instanceOfVoid = FormatterServices.GetUninitializedObject(Converter.typeofSystemVoid);
+        public Object returnValue;
+        public Object[] args;
+        public Exception exception;
+        public Object callContext;
+        public String scallContext;
+        public Object properties;
+        public Type[] argTypes;
+        public bool bArgsPrimitive = true;
+        public MessageEnum messageEnum;
+        public Object[] callA;
+        public Type returnType;
+        public static Object instanceOfVoid = FormatterServices.GetUninitializedObject(Converter.typeofSystemVoid);
 
         [System.Security.SecuritySafeCritical] // static constructors should be safe to call
         static BinaryMethodReturn()
         {
         }
 
-        internal BinaryMethodReturn()
+        public BinaryMethodReturn()
         {
         }
 
         // If the argument list contains only primitive or strings it is written out as part of the header
         // if not the args are written out as a separate array
-        internal Object[] WriteArray(Object returnValue, Object[] args, Exception exception, Object callContext, Object[] properties)
+        public Object[] WriteArray(Object returnValue, Object[] args, Exception exception, Object callContext, Object[] properties)
         {
             SerTrace.Log(this, "WriteArray returnValue ",returnValue, "exception ", exception, " callContext ",callContext," properties ", properties);
 
@@ -1105,7 +1111,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
 #if FEATURE_REMOTING
         [System.Security.SecurityCritical]  // auto-generated
-        internal IMethodReturnMessage ReadArray(Object[] returnA, IMethodCallMessage methodCallMessage, Object handlerObject)
+        public IMethodReturnMessage ReadArray(Object[] returnA, IMethodCallMessage methodCallMessage, Object handlerObject)
         {
             if (IOUtil.FlagTest(messageEnum, MessageEnum.ArgsIsArray))
             {
@@ -1192,18 +1198,17 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-
-
-    internal sealed class BinaryObjectString : IStreamable
+    [Serializable]
+    public sealed class BinaryObjectString : IStreamable
     {
-        internal Int32 objectId;
-        internal String value;
+        public Int32 objectId;
+        public String value;
 
-        internal BinaryObjectString()
+        public BinaryObjectString()
         {
         }
 
-        internal  void Set(Int32 objectId, String value)
+        public  void Set(Int32 objectId, String value)
         {
             SerTrace.Log(this, "BinaryObjectString set ",objectId," ",value);
             this.objectId = objectId;
@@ -1244,12 +1249,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-    internal sealed class BinaryCrossAppDomainString : IStreamable
+    [Serializable]
+    public sealed class BinaryCrossAppDomainString : IStreamable
     {
-        internal Int32 objectId;
-        internal Int32 value;
+        public Int32 objectId;
+        public Int32 value;
 
-        internal BinaryCrossAppDomainString()
+        public BinaryCrossAppDomainString()
         {
         }
 
@@ -1286,11 +1292,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-    internal sealed class BinaryCrossAppDomainMap : IStreamable
+    [Serializable]
+    public sealed class BinaryCrossAppDomainMap : IStreamable
     {
-        internal Int32 crossAppDomainArrayIndex;
+        public Int32 crossAppDomainArrayIndex;
 
-        internal BinaryCrossAppDomainMap()
+        public BinaryCrossAppDomainMap()
         {
         }
 
@@ -1324,17 +1331,17 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-
-    internal sealed class MemberPrimitiveTyped : IStreamable
+    [Serializable]
+    public sealed class MemberPrimitiveTyped : IStreamable
     {
-        internal InternalPrimitiveTypeE primitiveTypeEnum;
-        internal Object value;
+        public InternalPrimitiveTypeE primitiveTypeEnum;
+        public Object value;
 
-        internal MemberPrimitiveTyped()
+        public MemberPrimitiveTyped()
         {
         }
 
-        internal void Set(InternalPrimitiveTypeE primitiveTypeEnum, Object value)
+        public void Set(InternalPrimitiveTypeE primitiveTypeEnum, Object value)
         {
             SerTrace.Log(this, "MemberPrimitiveTyped Set ",((Enum)primitiveTypeEnum).ToString()," ",value);
             this.primitiveTypeEnum = primitiveTypeEnum;
@@ -1375,26 +1382,26 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-
-    internal sealed class BinaryObjectWithMap : IStreamable
+    [Serializable]
+    public sealed class BinaryObjectWithMap : IStreamable
     {
-        internal BinaryHeaderEnum binaryHeaderEnum;
-        internal Int32 objectId;
-        internal String name;
-        internal Int32 numMembers;
-        internal String[] memberNames;
-        internal Int32 assemId;   
+        public BinaryHeaderEnum binaryHeaderEnum;
+        public Int32 objectId;
+        public String name;
+        public Int32 numMembers;
+        public String[] memberNames;
+        public Int32 assemId;   
 
-        internal BinaryObjectWithMap()
+        public BinaryObjectWithMap()
         {
         }
 
-        internal BinaryObjectWithMap(BinaryHeaderEnum binaryHeaderEnum)
+        public BinaryObjectWithMap(BinaryHeaderEnum binaryHeaderEnum)
         {
             this.binaryHeaderEnum = binaryHeaderEnum;
         }
 
-        internal  void Set(Int32 objectId, String name, Int32 numMembers, String[] memberNames, Int32 assemId)
+        public  void Set(Int32 objectId, String name, Int32 numMembers, String[] memberNames, Int32 assemId)
         {
 #if _DEBUG            
             SerTrace.Log(this, "BinaryObjectWithMap Set ",objectId," assemId ",assemId," ",Util.PString(name)," numMembers ",numMembers);
@@ -1469,30 +1476,31 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-
-    internal  sealed class BinaryObjectWithMapTyped : IStreamable
+    [Serializable]
+    public  sealed class BinaryObjectWithMapTyped : IStreamable
     {
-        internal BinaryHeaderEnum binaryHeaderEnum;     
-        internal Int32 objectId;
-        internal String name;
-        internal Int32 numMembers;
-        internal String[] memberNames;
-        internal BinaryTypeEnum[] binaryTypeEnumA;
-        internal Object[] typeInformationA;
-        internal Int32[] memberAssemIds;
-        internal Int32 assemId;     
+        public BinaryHeaderEnum binaryHeaderEnum;     
+        public Int32 objectId;
+        public String name;
+        public Int32 numMembers;
+        public String[] memberNames;
+        public BinaryTypeEnum[] binaryTypeEnumA;
+        public Object[] typeInformationA;
+        public Object[] typeInformationB; // This is a hack so we can cross over from deserialized to serialized again
+        public Int32[] memberAssemIds;
+        public Int32 assemId;
 
-        internal BinaryObjectWithMapTyped()
+        public BinaryObjectWithMapTyped()
         {
         }
 
-        internal BinaryObjectWithMapTyped(BinaryHeaderEnum binaryHeaderEnum)
+        public BinaryObjectWithMapTyped(BinaryHeaderEnum binaryHeaderEnum)
         {
             this.binaryHeaderEnum = binaryHeaderEnum;
         }
 
 #if false
-        internal BinaryObjectWithMapTyped Copy()
+        public BinaryObjectWithMapTyped Copy()
         {
         BinaryObjectWithMapTyped newBOWM = new BinaryObjectWithMapTyped(binaryHeaderEnum);
 
@@ -1511,7 +1519,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 #endif
 
 
-        internal  void Set(Int32 objectId, String name, Int32 numMembers, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, Int32[] memberAssemIds, Int32 assemId)
+        public  void Set(Int32 objectId, String name, Int32 numMembers, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, Int32[] memberAssemIds, Int32 assemId)
         {
             SerTrace.Log(this, "BinaryObjectWithMapTyped Set ",objectId," assemId ",assemId," ",name," numMembers ",numMembers);
             this.objectId = objectId;
@@ -1530,23 +1538,49 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 binaryHeaderEnum = BinaryHeaderEnum.ObjectWithMapTyped;             
         }
 
-
-        public  void Write(__BinaryWriter sout)
+        public void Int64ToInt32inObjectEnumArray(object[] objEnumArray)
         {
-            sout.WriteByte((Byte)binaryHeaderEnum);         
+            if (objEnumArray != null)
+            {
+                for (int i = 0; i < objEnumArray.Length; i++)
+                {
+                    if (objEnumArray[i] != null)
+                    {
+                        if (objEnumArray[i].GetType().Name == "Int64")
+                        {
+                            objEnumArray[i] = Convert.ToInt32(objEnumArray[i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void Write(__BinaryWriter sout)
+        {
+            Int64ToInt32inObjectEnumArray(typeInformationA);
+            Int64ToInt32inObjectEnumArray(typeInformationB);
+
+            sout.WriteByte((Byte)binaryHeaderEnum);
             sout.WriteInt32(objectId);
             sout.WriteString(name);
             sout.WriteInt32(numMembers);
-            for (int i=0; i<numMembers; i++)
+            for (int i = 0; i < numMembers; i++)
                 sout.WriteString(memberNames[i]);
-            for (int i=0; i<numMembers; i++)
+            for (int i = 0; i < numMembers; i++)
                 sout.WriteByte((Byte)binaryTypeEnumA[i]);
-            for (int i=0; i<numMembers; i++)
+            for (int i = 0; i < numMembers; i++)
+            {
                 //if (binaryTypeEnumA[i] != BinaryTypeEnum.ObjectUrt && binaryTypeEnumA[i] != BinaryTypeEnum.ObjectUser)
+                if (typeInformationB != null)
+                    BinaryConverter.WriteTypeInfo(binaryTypeEnumA[i], typeInformationB[i], memberAssemIds[i], sout);
+                else
                     BinaryConverter.WriteTypeInfo(binaryTypeEnumA[i], typeInformationA[i], memberAssemIds[i], sout);
+            }
 
             if (assemId > 0)
+            {
                 sout.WriteInt32(assemId);
+            }
 
         }
 
@@ -1560,20 +1594,22 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             memberNames = new String[numMembers];
             binaryTypeEnumA = new BinaryTypeEnum[numMembers];
             typeInformationA = new Object[numMembers];
+            typeInformationB = new Object[numMembers];
             memberAssemIds = new Int32[numMembers];
             for (int i=0; i<numMembers; i++)
                 memberNames[i] = input.ReadString();
             for (int i=0; i<numMembers; i++)
                 binaryTypeEnumA[i] = (BinaryTypeEnum)input.ReadByte();
-            for (int i=0; i<numMembers; i++)
+            for (int i = 0; i < numMembers; i++)
+            {
+                typeInformationB[i] = BinaryConverter.ReadTypeInfo(binaryTypeEnumA[i], input, out memberAssemIds[i]);
                 if (binaryTypeEnumA[i] != BinaryTypeEnum.ObjectUrt && binaryTypeEnumA[i] != BinaryTypeEnum.ObjectUser)
-                    typeInformationA[i] = BinaryConverter.ReadTypeInfo(binaryTypeEnumA[i], input, out memberAssemIds[i]);
-                else
-                    BinaryConverter.ReadTypeInfo(binaryTypeEnumA[i], input, out memberAssemIds[i]);
-            
+                    typeInformationA[i] = typeInformationB[i];
+            }
+
             if (binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapTypedAssemId)
             {
-                assemId = input.ReadInt32();                
+                assemId = input.ReadInt32();
             }
         }
 
@@ -1623,34 +1659,34 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 #endif
     }
 
-
-    internal  sealed class BinaryArray : IStreamable
+    [Serializable]
+    public  sealed class BinaryArray : IStreamable
     {
-        internal Int32 objectId;
-        internal Int32 rank;
-        internal Int32[] lengthA;
-        internal Int32[] lowerBoundA;
-        internal BinaryTypeEnum binaryTypeEnum;
-        internal Object typeInformation;
-        internal int assemId = 0;
+        public Int32 objectId;
+        public Int32 rank;
+        public Int32[] lengthA;
+        public Int32[] lowerBoundA;
+        public BinaryTypeEnum binaryTypeEnum;
+        public Object typeInformation;
+        public int assemId = 0;
 
-        private BinaryHeaderEnum binaryHeaderEnum;
-        internal BinaryArrayTypeEnum binaryArrayTypeEnum;
+        public BinaryHeaderEnum binaryHeaderEnum;
+        public BinaryArrayTypeEnum binaryArrayTypeEnum;
 
-        internal BinaryArray()
+        public BinaryArray()
         {
             SerTrace.Log( this, "BinaryArray Constructor 1 ");
         }
 
-        // Read constructor
-        internal BinaryArray(BinaryHeaderEnum binaryHeaderEnum)
+        // Read constructor 
+        public BinaryArray(BinaryHeaderEnum binaryHeaderEnum)
         {
             SerTrace.Log( this, "BinaryArray Constructor 2 ",   ((Enum)binaryHeaderEnum).ToString());
             this.binaryHeaderEnum = binaryHeaderEnum;
         }
 
 
-        internal void Set(Int32 objectId, Int32 rank, Int32[] lengthA, Int32[] lowerBoundA, BinaryTypeEnum binaryTypeEnum, Object typeInformation, BinaryArrayTypeEnum binaryArrayTypeEnum, int assemId)
+        public void Set(Int32 objectId, Int32 rank, Int32[] lengthA, Int32[] lowerBoundA, BinaryTypeEnum binaryTypeEnum, Object typeInformation, BinaryArrayTypeEnum binaryArrayTypeEnum, int assemId)
         {
             SerTrace.Log( this, "BinaryArray Set objectId ",objectId," rank ",rank," ",((Enum)binaryTypeEnum).ToString(),", assemId ",assemId);
             this.objectId = objectId;
@@ -1840,25 +1876,26 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 #endif        
     }
 
-    internal sealed class MemberPrimitiveUnTyped : IStreamable
+    [Serializable]
+    public sealed class MemberPrimitiveUnTyped : IStreamable
     {
         // Used for members with primitive values and types are needed
 
-        internal InternalPrimitiveTypeE typeInformation;
-        internal Object value;
+        public InternalPrimitiveTypeE typeInformation;
+        public Object value;
 
-        internal MemberPrimitiveUnTyped()
+        public MemberPrimitiveUnTyped()
         {
         }
 
-        internal  void Set(InternalPrimitiveTypeE typeInformation, Object value)
+        public  void Set(InternalPrimitiveTypeE typeInformation, Object value)
         {
             SerTrace.Log( this, "MemberPrimitiveUnTyped Set typeInformation ",typeInformation," value ",value);
             this.typeInformation = typeInformation;
             this.value = value;
         }
 
-        internal  void Set(InternalPrimitiveTypeE typeInformation)
+        public  void Set(InternalPrimitiveTypeE typeInformation)
         {
             SerTrace.Log(this, "MemberPrimitiveUnTyped  Set ",typeInformation);
             this.typeInformation = typeInformation;
@@ -1896,16 +1933,16 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-
-    internal  sealed class MemberReference : IStreamable
+    [Serializable]
+    public  sealed class MemberReference : IStreamable
     {
-        internal Int32 idRef;
+        public Int32 idRef;
 
-        internal MemberReference()
+        public MemberReference()
         {
         }
 
-        internal  void Set(Int32 idRef)
+        public  void Set(Int32 idRef)
         {
             SerTrace.Log( this, "MemberReference Set ",idRef);
             this.idRef = idRef;
@@ -1942,15 +1979,16 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-    internal  sealed class ObjectNull : IStreamable
+    [Serializable]
+    public  sealed class ObjectNull : IStreamable
     {
-        internal int nullCount;
+        public int nullCount;
 
-        internal ObjectNull()
+        public ObjectNull()
         {
         }
 
-        internal void SetNullCount(int nullCount)
+        public void SetNullCount(int nullCount)
         {
             this.nullCount = nullCount;
         }
@@ -2032,10 +2070,11 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
     }
 
-    internal sealed class MessageEnd : IStreamable
+    [Serializable]
+    public sealed class MessageEnd : IStreamable
     {
 
-        internal MessageEnd()
+        public MessageEnd()
         {
         }
 
@@ -2081,23 +2120,23 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
     // When an ObjectWithMap or an ObjectWithMapTyped is read off the stream, an ObjectMap class is created
     // to remember the type information. 
-    internal sealed class ObjectMap
+    public sealed class ObjectMap
     {
-        internal String objectName;
-        internal Type objectType;
+        public String objectName;
+        public Type objectType;
 
-        internal BinaryTypeEnum[] binaryTypeEnumA;
-        internal Object[] typeInformationA;
-        internal Type[] memberTypes;
-        internal String[] memberNames;
-        internal ReadObjectInfo objectInfo;
-        internal bool isInitObjectInfo = true;
-        internal ObjectReader objectReader = null;
-        internal Int32 objectId;
-        internal BinaryAssemblyInfo assemblyInfo;
+        public BinaryTypeEnum[] binaryTypeEnumA;
+        public Object[] typeInformationA;
+        public Type[] memberTypes;
+        public String[] memberNames;
+        public ReadObjectInfo objectInfo;
+        public bool isInitObjectInfo = true;
+        public ObjectReader objectReader = null;
+        public Int32 objectId;
+        public BinaryAssemblyInfo assemblyInfo;
 
         [System.Security.SecurityCritical]  // auto-generated
-        internal ObjectMap(String objectName, Type objectType, String[] memberNames, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo)
+        public ObjectMap(String objectName, Type objectType, String[] memberNames, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo)
         {
             SerTrace.Log( this, "Constructor 1 objectName ",objectName, ", objectType ",objectType);                            
             this.objectName = objectName;
@@ -2123,7 +2162,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         }
 
         [System.Security.SecurityCritical]  // auto-generated
-        internal ObjectMap(String objectName, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, int[] memberAssemIds, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo, SizedArray assemIdToAssemblyTable)
+        public ObjectMap(String objectName, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, int[] memberAssemIds, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo, SizedArray assemIdToAssemblyTable)
         {
             SerTrace.Log( this, "Constructor 2 objectName ",objectName);
             this.objectName = objectName;
@@ -2160,7 +2199,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 objectInfo.GetMemberTypes(memberNames, objectInfo.objectType);  // Check version match
         }
 
-        internal ReadObjectInfo CreateObjectInfo(ref SerializationInfo si, ref Object[] memberData)
+        public ReadObjectInfo CreateObjectInfo(ref SerializationInfo si, ref Object[] memberData)
         {
             if (isInitObjectInfo)
             {
@@ -2179,14 +2218,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         // No member type information
         [System.Security.SecurityCritical]  // auto-generated
-        internal static ObjectMap Create(String name, Type objectType, String[] memberNames, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo)
+        public static ObjectMap Create(String name, Type objectType, String[] memberNames, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo)
         {
             return new ObjectMap(name, objectType, memberNames, objectReader, objectId, assemblyInfo);
         }
 
         // Member type information 
         [System.Security.SecurityCritical]  // auto-generated
-        internal static ObjectMap Create(String name, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, int[] memberAssemIds, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo, SizedArray assemIdToAssemblyTable)
+        public static ObjectMap Create(String name, String[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, Object[] typeInformationA, int[] memberAssemIds, ObjectReader objectReader, Int32 objectId, BinaryAssemblyInfo assemblyInfo, SizedArray assemIdToAssemblyTable)
         {
             return new ObjectMap(name, memberNames, binaryTypeEnumA, typeInformationA, memberAssemIds, objectReader, objectId, assemblyInfo, assemIdToAssemblyTable);           
         }
@@ -2196,45 +2235,45 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
     // keeps track of the progress of the parsing. When an object is being parsed, it keeps track of
     // the object member being parsed. When an array is being parsed it keeps track of the position within the
     // array.
-    internal sealed class ObjectProgress
+    public sealed class ObjectProgress
     {
-        internal static int opRecordIdCount = 1;
-        internal int opRecordId;
+        public static int opRecordIdCount = 1;
+        public int opRecordId;
 
 
         // Control
-        internal bool isInitial;
-        internal int count; //Progress count
-        internal BinaryTypeEnum expectedType = BinaryTypeEnum.ObjectUrt;
-        internal Object expectedTypeInformation = null;
+        public bool isInitial;
+        public int count; //Progress count
+        public BinaryTypeEnum expectedType = BinaryTypeEnum.ObjectUrt;
+        public Object expectedTypeInformation = null;
 
-        internal String name;
-        internal InternalObjectTypeE objectTypeEnum = InternalObjectTypeE.Empty;
-        internal InternalMemberTypeE memberTypeEnum;
-        internal InternalMemberValueE memberValueEnum;
-        internal Type dtType;   
+        public String name;
+        public InternalObjectTypeE objectTypeEnum = InternalObjectTypeE.Empty;
+        public InternalMemberTypeE memberTypeEnum;
+        public InternalMemberValueE memberValueEnum;
+        public Type dtType;   
 
         // Array Information
-        internal int numItems;
-        internal BinaryTypeEnum binaryTypeEnum;
-        internal Object typeInformation;
+        public int numItems;
+        public BinaryTypeEnum binaryTypeEnum;
+        public Object typeInformation;
 // disable csharp compiler warning #0414: field assigned unused value
 #pragma warning disable 0414
-        internal int nullCount;
+        public int nullCount;
 #pragma warning restore 0414
 
         // Member Information
-        internal int memberLength;
-        internal BinaryTypeEnum[] binaryTypeEnumA;
-        internal Object[] typeInformationA;
-        internal String[] memberNames;
-        internal Type[] memberTypes;
+        public int memberLength;
+        public BinaryTypeEnum[] binaryTypeEnumA;
+        public Object[] typeInformationA;
+        public String[] memberNames;
+        public Type[] memberTypes;
 
         // ParseRecord
-        internal ParseRecord pr = new ParseRecord();
+        public ParseRecord pr = new ParseRecord();
 
 
-        internal ObjectProgress()
+        public ObjectProgress()
         {
             Counter();
         }
@@ -2249,7 +2288,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             }
         }
 
-        internal void Init()
+        public void Init()
         {
             isInitial = false;
             count = 0;
@@ -2280,13 +2319,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
 
         //Array item entry of nulls has a count of nulls represented by that item. The first null has been 
         // incremented by GetNext, the rest of the null counts are incremented here
-        internal void ArrayCountIncrement(int value)
+        public void ArrayCountIncrement(int value)
         {
             count += value;
         }
 
         // Specifies what is to parsed next from the wire.
-        internal bool GetNext(out BinaryTypeEnum outBinaryTypeEnum, out Object outTypeInformation)  
+        public bool GetNext(out BinaryTypeEnum outBinaryTypeEnum, out Object outTypeInformation)  
         {
             //Initialize the out params up here.
             //<
@@ -2350,7 +2389,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         // Dump contents of record
 
         [Conditional("SER_LOGGING")]                            
-        internal  void Dump()
+        public  void Dump()
         {
             try
             {

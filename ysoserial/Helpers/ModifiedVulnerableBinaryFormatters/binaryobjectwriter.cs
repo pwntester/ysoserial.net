@@ -32,7 +32,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     using System.Runtime.Serialization.Formatters;
     using System.Linq;
 
-    internal sealed  class ObjectWriter
+    public sealed  class ObjectWriter
     {
         private Queue m_objectQueue;
         private ObjectIDGenerator m_idGenerator;
@@ -1381,7 +1381,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             }
         }
 
-        private Hashtable assemblyToIdTable = null;
+        public Hashtable assemblyToIdTable = null;
         private long GetAssemblyId(WriteObjectInfo objectInfo)
         {
             //use objectInfo to get assembly string with new criteria
