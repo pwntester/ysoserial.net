@@ -243,8 +243,6 @@ namespace ysoserial.Generators
                             MemoryStream ms = new MemoryStream(bfSerializedObj);
                             ms.Position = 0;
                             System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                            BinaryFormatter mybf = new BinaryFormatter();
-                            mybf.Deserialize(ms);
                             bf.Deserialize(ms);
                         }
                         catch (Exception err)
