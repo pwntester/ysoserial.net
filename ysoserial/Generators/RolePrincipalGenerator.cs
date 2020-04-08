@@ -37,7 +37,6 @@ namespace ysoserial.Generators
             
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("SoapFormatter", StringComparison.OrdinalIgnoreCase))
             {
                 return Serialize(payloadClaimsPrincipalMarshal, formatter, inputArgs);

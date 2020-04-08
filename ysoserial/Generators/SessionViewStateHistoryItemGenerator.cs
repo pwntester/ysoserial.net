@@ -12,7 +12,7 @@ namespace ysoserial.Generators
     {
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "Json.Net" , "DataContractSerializer" };
+            return new List<string> { "BinaryFormatter", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "Json.Net" , "DataContractSerializer" };
         }
 
         public override string Name()
@@ -45,8 +45,7 @@ namespace ysoserial.Generators
             string losFormatterText = Encoding.UTF8.GetString((byte[])generator.GenerateWithNoTest("LosFormatter", inputArgs));
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new SessionViewStateHistoryItemMarshal(losFormatterText);
                 return Serialize(obj, formatter, inputArgs);

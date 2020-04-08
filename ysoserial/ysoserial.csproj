@@ -120,11 +120,28 @@
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
     <Compile Include="Generators\RolePrincipalGenerator.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\AdvancedBinaryFormatterParser.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarycommonclasses.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryconverter.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryenums.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryformatter.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryformatterwriter.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarymethodmessage.cs" />
     <Compile Include="Helpers\BFMinifier.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectinfo.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectreader.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectwriter.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryparser.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryutilclasses.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\Environment.cs" />
     <Compile Include="Helpers\CommandArgSplitter.cs" />
     <Compile Include="Helpers\Debugging.cs" />
     <Compile Include="Helpers\FormatterType.cs" />
     <Compile Include="Helpers\InputArgs.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\ObjectExtensions.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\SerTrace.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\SimpleBinaryFormatterParser.cs" />
+    <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\SimpleObjectLosFormatter.cs" />
     <Compile Include="Helpers\SerializersHelper.cs" />
     <Compile Include="Generators\ActivitySurrogateDisableTypeCheck.cs" />
     <Compile Include="Generators\ActivitySurrogateSelectorFromFileGenerator.cs" />
@@ -173,6 +190,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Helpers\ModifiedVulnerableBinaryFormatters\info.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

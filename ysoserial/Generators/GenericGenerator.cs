@@ -126,7 +126,18 @@ namespace ysoserial.Generators
             if (formatter.ToLower().Equals("binaryformatter"))
             {
                 BinaryFormatter fmt = new BinaryFormatter();
-                fmt.Serialize(stream, payloadObj);
+
+                if (inputArgs.Minify)
+                {
+                    ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter fmtLocal = new ysoserial.Helpers.ModifiedVulnerableBinaryFormatters.BinaryFormatter();
+                    fmtLocal.Serialize(stream, payloadObj);
+                }
+                else
+                {
+                    fmt.Serialize(stream, payloadObj);
+                }
+                
+                
                 if (inputArgs.Test)
                 {
                     try
@@ -140,6 +151,8 @@ namespace ysoserial.Generators
                 }
                 return stream.ToArray();
             }
+            /*
+             * We don't actually need to use ObjectStateFormatter in ysoserial.net because it is the same as LosFormatter without MAC/keys
             else if (formatter.ToLower().Equals("objectstateformatter"))
             {
                 ObjectStateFormatter osf = new ObjectStateFormatter();
@@ -158,6 +171,7 @@ namespace ysoserial.Generators
                 }
                 return stream.ToArray();
             }
+            */
             else if (formatter.ToLower().Equals("soapformatter"))
             {
                 SoapFormatter sf = new SoapFormatter();
@@ -225,7 +239,16 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("losformatter"))
             {
                 LosFormatter lf = new LosFormatter();
-                lf.Serialize(stream, payloadObj);
+
+                if (inputArgs.Minify)
+                {
+                    stream = Helpers.ModifiedVulnerableBinaryFormatters.SimpleMinifiedObjectLosFormatter.Serialize(payloadObj);
+                }
+                else
+                {
+                    lf.Serialize(stream, payloadObj);
+                }
+                
                 if (inputArgs.Test)
                 {
                     try

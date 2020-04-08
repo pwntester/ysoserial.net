@@ -35,7 +35,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "ObjectStateFormatter", "NetDataContractSerializer", "LosFormatter" };
+            return new List<string> { "BinaryFormatter", "NetDataContractSerializer", "LosFormatter" };
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)

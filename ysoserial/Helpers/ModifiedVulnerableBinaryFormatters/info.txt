@@ -1,0 +1,10 @@
+﻿These class files have been copied and modified from ASP.NET Framework source code - version 4.8
+Downloaded from: https://referencesource.microsoft.com/DotNet48ZDP2.zip
+January 2020
+
+These class files have been modified in order to separate them from .NET internal libraries
+
+Important Note: 
+This is insecure!
+
+As the main purpose of this was to add minification capability, some of the security mechanisms have been disabled for simplicity
