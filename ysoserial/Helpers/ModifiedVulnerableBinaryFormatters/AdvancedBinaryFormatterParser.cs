@@ -10,6 +10,16 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 {
     public class AdvancedBinaryFormatterParser
     {
+        public static String StreamToJson(Stream serializationStream)
+        {
+            return StreamToJson(serializationStream, false, false);
+        }
+
+        public static String StreamToJson(Stream serializationStream, bool ignoreErrors, bool enableIndent)
+        {
+            return JsonNetBinaryFormatterObjectSerializer(Parse(serializationStream, ignoreErrors), enableIndent);
+        }
+
         public static List<AdvancedBinaryFormatterObject> Parse(Stream serializationStream)
         {
             return Parse(serializationStream, false);
@@ -83,7 +93,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return resultMS;
         }
 
-        public static MemoryStream ReconstructFromJsonNetSerializedBinaryFormatterObject(String jsonNet_str)
+        public static MemoryStream JsonToStream(String jsonNet_str)
         {
 
             String currentNameSpace = typeof(AdvancedBinaryFormatterParser).Namespace;

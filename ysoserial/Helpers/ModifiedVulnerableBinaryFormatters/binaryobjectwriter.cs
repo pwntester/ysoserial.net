@@ -606,7 +606,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             /*
             if (memberTypeNameInfo.NIname.Equals("System.String"))
             {
-                memberData = (Object) ModifiedBinaryFormatter.binary.BinaryMinifier.AssemblyNameMinifier((String) memberData);
+                memberData = (Object) ModifiedVulnerableBinaryFormatters.binary.BinaryMinifier.AssemblyNameMinifier((String) memberData);
             }
             
             if(memberNameInfo.NIFullName.Equals("Signature") && memberTypeNameInfo.NIname.Equals("System.String"))

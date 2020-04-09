@@ -30,7 +30,7 @@ namespace ysoserial.Generators
 
         public override List<string> Labels()
         {
-            return new List<string> { GadgetTypes.BridgeAndDerived };
+            return new List<string> { GadgetTypes.Mask }; // It works because we have a hashtable that holds the actual gadget!
         }
 
         public override OptionSet Options()
@@ -231,7 +231,7 @@ namespace ysoserial.Generators
       '$type': 'MessageEnd'
 }}]";
 
-                    bfSerializedObj = AdvancedBinaryFormatterParser.ReconstructFromJsonNetSerializedBinaryFormatterObject(payload).ToArray();
+                    bfSerializedObj = AdvancedBinaryFormatterParser.JsonToStream(payload).ToArray();
                 }
 
                 if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))

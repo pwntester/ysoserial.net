@@ -180,12 +180,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         internal Object Deserialize(Stream serializationStream, HeaderHandler handler, bool fCheck, bool isCrossAppDomain, IMethodCallMessage methodCallMessage) {
             if (serializationStream==null)
             {
-                throw new ArgumentNullException("serializationStream", ModifiedBinaryFormatter.binary.Environment.GetResourceString("ArgumentNull_WithParamName",serializationStream));
+                throw new ArgumentNullException("serializationStream", ModifiedVulnerableBinaryFormatters.binary.Environment.GetResourceString("ArgumentNull_WithParamName",serializationStream));
             }
             Contract.EndContractBlock();
 
             if (serializationStream.CanSeek && (serializationStream.Length == 0))
-                throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Stream"));
+                throw new SerializationException(Environment.GetResourceString("Serialization_Stream"));
 
             SerTrace.Log(this, "Deserialize Entry");
             InternalFE formatterEnums = new InternalFE();

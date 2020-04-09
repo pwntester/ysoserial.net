@@ -5,6 +5,6 @@ January 2020
 These class files have been modified in order to separate them from .NET internal libraries
 
 Important Note: 
-This is insecure!
+This is insecure and slow! also does not support remoting at the moment!
 
 As the main purpose of this was to add minification capability, some of the security mechanisms have been disabled for simplicity
