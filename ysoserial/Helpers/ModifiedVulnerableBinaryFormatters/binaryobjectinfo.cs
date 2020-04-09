@@ -346,7 +346,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                         && !objectAssembly.IsFullyTrusted)
                     {
                         // if the object assembly is partially trusted, we will block the TypeForwardedFrom case
-                        throw new SecurityException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_RequireFullTrust", objectType));
+                        throw new SecurityException(ModifiedVulnerableBinaryFormatters.binary.Environment.GetResourceString("Serialization_RequireFullTrust", objectType));
                     }
                 }
             }
@@ -835,7 +835,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                     }
                 }
 
-                //throw new SerializationException(String.Format(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_MissingMember"),name,objectType));
+                //throw new SerializationException(String.Format(ModifiedVulnerableBinaryFormatters.binary.Environment.GetResourceString("Serialization_MissingMember"),name,objectType));
                 lastPosition = 0;
                 return -1;
             }

@@ -828,7 +828,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
         {
             /*
             if (callA.Length != 7)
-                throw new SerializationException(String.Format(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method")));
+                throw new SerializationException(String.Format(ModifiedVulnerableBinaryFormatters.binary.Environment.GetResourceString("Serialization_Method")));
                 */
 
             if (IOUtil.FlagTest(messageEnum, MessageEnum.ArgsIsArray))
@@ -842,35 +842,35 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.ArgsInArray))
                 {
                     if (callA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     args = (Object[])callA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.GenericMethod))
                 {
                     if (callA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     instArgs = (Type[])callA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.MethodSignatureInArray))
                 {
                     if (callA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     methodSignature = callA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.ContextInArray))
                 {
                     if (callA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     callContext = callA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.PropertyInArray))
                 {
                     if (callA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     properties = callA[arrayPosition++];
                 }
             }
@@ -1124,35 +1124,35 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.ArgsInArray))
                 {
                     if (returnA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     args = (Object[])returnA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.ReturnValueInArray))
                 {
                     if (returnA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     returnValue = returnA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.ExceptionInArray))
                 {
                     if (returnA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     exception = (Exception)returnA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.ContextInArray))
                 {
                    if (returnA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     callContext = returnA[arrayPosition++];
                 }
 
                 if (IOUtil.FlagTest(messageEnum, MessageEnum.PropertyInArray))
                 {
                     if (returnA.Length < arrayPosition)
-                        throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_Method"));
+                        throw new SerializationException(Environment.GetResourceString("Serialization_Method"));
                     properties = returnA[arrayPosition++];
                 }
             }
@@ -2190,7 +2190,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 BinaryConverter.TypeFromInfo(binaryTypeEnumA[i], typeInformationA[i], objectReader, (BinaryAssemblyInfo)assemIdToAssemblyTable[memberAssemIds[i]],
                                              out primitiveTypeEnum, out typeString, out type, out isVariant);
                 //if ((object)type == null)
-                //    throw new SerializationException(String.Format(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_TypeResolved"),objectName+" "+memberNames[i]+" "+typeInformationA[i]));
+                //    throw new SerializationException(String.Format(ModifiedVulnerableBinaryFormatters.binary.Environment.GetResourceString("Serialization_TypeResolved"),objectName+" "+memberNames[i]+" "+typeInformationA[i]));
                 memberTypes[i] = type;
             }
 

@@ -35,16 +35,16 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 		Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
 	(*) AxHostState
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
+	(*) ClaimsIdentity
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) DataSet
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) ObjectDataProvider (supports extra options: use the '--fullhelp' argument to view)
 		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , Xaml (4) , XmlSerializer , YamlDotNet < 5.0.0
 	(*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
-	(*) ResourceSet (supports extra options: use the '--fullhelp' argument to view)
-		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
 	(*) RolePrincipal
-		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) SessionSecurityToken
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) SessionViewStateHistoryItem
@@ -56,9 +56,9 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) TypeConfuseDelegateMono [Tweaked TypeConfuseDelegate gadget to work with Mono]
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
 	(*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)] (supports extra options: use the '--fullhelp' argument to view)
-		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , ObjectStateFormatter (3) , SoapFormatter (2)
+		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , SoapFormatter (2)
 	(*) WindowsIdentity
-		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , ObjectStateFormatter , SoapFormatter
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 
 == PLUGINS ==
 	(*) ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
@@ -213,6 +213,8 @@ Credits for available gadgets:
 	ActivitySurrogateSelectorFromFile
 		[Finders: James Forshaw] [Contributors: Alvaro Munoz, zcgonvh]
 	AxHostState
+		[Finders: Soroush Dalili]
+	ClaimsIdentity
 		[Finders: Soroush Dalili]
 	DataSet
 		[Finders: James Forshaw] [Contributors: Soroush Dalili]

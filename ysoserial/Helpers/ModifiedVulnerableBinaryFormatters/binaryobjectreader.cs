@@ -175,7 +175,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [System.Security.SecurityCritical]  // auto-generated
         internal Object Deserialize(HeaderHandler handler, __BinaryParser serParser, bool fCheck, bool isCrossAppDomain, IMethodCallMessage methodCallMessage) {
             if (serParser == null)
-                throw new ArgumentNullException("serParser", ModifiedBinaryFormatter.binary.Environment.GetResourceString("ArgumentNull_WithParamName", serParser));
+                throw new ArgumentNullException("serParser", ModifiedVulnerableBinaryFormatters.binary.Environment.GetResourceString("ArgumentNull_WithParamName", serParser));
             Contract.EndContractBlock();
 
 #if _DEBUG
@@ -216,7 +216,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 #endif                
             {
                 if (TopObject == null)
-                    throw new SerializationException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_TopObject"));
+                    throw new SerializationException(Environment.GetResourceString("Serialization_TopObject"));
 
                 //if TopObject has a surrogate then the actual object may be changed during special fixup
                 //So refresh it using topID.
@@ -510,7 +510,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if ((object)t != null){
                 if( IsRemoting){
                     if (typeof(MarshalByRefObject).IsAssignableFrom(t))
-                        throw new ArgumentException(ModifiedBinaryFormatter.binary.Environment.GetResourceString("Serialization_MBRAsMBV", t.FullName));
+                        throw new ArgumentException(ModifiedVulnerableBinaryFormatters.binary.Environment.GetResourceString("Serialization_MBRAsMBV", t.FullName));
                     FormatterServices.CheckTypeSecurity(t, formatterEnums.FEsecurityLevel);
                 }
             }
