@@ -34,8 +34,8 @@ namespace ysoserial.Generators
     public class PayloadClass : ISerializable
     {
         protected byte[] assemblyBytes;
-        private int variant_number = 1;
-        private InputArgs inputArgs = new InputArgs();
+        protected int variant_number = 1;
+        protected InputArgs inputArgs = new InputArgs();
         public PayloadClass() : this(1, new InputArgs()) { }
         public PayloadClass(int variant_number, InputArgs inputArgs)
         {

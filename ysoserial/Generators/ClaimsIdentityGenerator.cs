@@ -26,7 +26,7 @@ namespace ysoserial.Generators
 
         public override List<string> Labels()
         {
-            return new List<string> { GadgetTypes.BridgeAndDerived };
+            return new List<string> { GadgetTypes.BridgeAndDerived, "OnDeserialized" };
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)

