@@ -214,7 +214,7 @@ namespace ysoserial.Generators
                     stream.Position = 0;
                     if (inputArgs.UseSimpleType)
                     {
-                        stream = XMLMinifier.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
+                        stream = XMLMinifier.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, new string[] { @"\<Signature2[^\/]+<\/Signature2\>" }, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {

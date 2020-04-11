@@ -456,6 +456,11 @@ namespace ysoserial.Helpers
 
         private static String NetDataContractorIdMinifier(String xmlDocument)
         {
+            // the first tag can be shortened - we use the letter w here for no reason!
+            string rootTagPattern = @"^\<([^\>\s""']+)";
+            Regex rootTagRegEx = new Regex(rootTagPattern, RegexOptions.Compiled);
+            string rootTag = rootTagRegEx.Match(xmlDocument).Groups[1].Value.Replace(".",@"\.");
+            xmlDocument = Regex.Replace(xmlDocument, @"(\<\/?)" + rootTag + @"([\>\s""']+)", @"$1w$2");
 
             string refIdPattern = @"\:Id=""(\d+)""";
             Regex refIdRegEx = new Regex(refIdPattern, RegexOptions.Compiled);

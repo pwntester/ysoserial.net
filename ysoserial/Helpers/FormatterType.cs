@@ -11,5 +11,6 @@
         NetDataContractXML = 6,
         XMLSerializer = 7,
         JavascriptSerializer = 8,
+        DataContractJSON = 9,
     }
 }
