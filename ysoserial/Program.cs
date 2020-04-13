@@ -31,6 +31,7 @@ namespace ysoserial
         static bool show_fullhelp = false;
         static bool isDebugMode = false;
         static bool isSearchFormatterAndRunMode = false;
+        static bool runMyTest = false;
 
         static IEnumerable<string> generators;
         static IEnumerable<string> plugins;
@@ -53,6 +54,7 @@ namespace ysoserial
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
                 {"fullhelp", "Shows this message + extra options for gadgets and plugins and exit.", v => show_fullhelp = v != null },
                 {"credit", "Shows the credit/history of gadgets and plugins (other parameters will be ignored).", v => show_credit =  v != null },
+                {"runmytest", "Runs that `Start` method of `TestingArenaHome` - useful for testing and debugging.", v => runMyTest =  v != null }
             };
 
         static void Main(string[] args)
@@ -76,6 +78,13 @@ namespace ysoserial
                 Console.WriteLine(e.Message);
                 Console.WriteLine("Try 'ysoserial --help' for more information.");
                 System.Environment.Exit(-1);
+            }
+
+            if(runMyTest)
+            {
+                Helpers.TestingArena.TestingArenaHome runTest = new Helpers.TestingArena.TestingArenaHome();
+                runTest.Start(inputArgs);
+                Environment.Exit(0);
             }
 
             if (show_fullhelp)

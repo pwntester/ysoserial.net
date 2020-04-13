@@ -97,7 +97,7 @@ namespace ysoserial.Generators
                 else
                 {
                     // it is LosFormatter
-                    byte[] lfSerializedObj = SimpleMinifiedObjectLosFormatter.PrepareWithSerialized(ms.ToArray());
+                    byte[] lfSerializedObj = SimpleMinifiedObjectLosFormatter.BFStreamToLosFormatterStream(ms.ToArray());
 
                     MemoryStream ms2 = new MemoryStream(lfSerializedObj);
                     ms2.Position = 0;

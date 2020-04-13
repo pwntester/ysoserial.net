@@ -24,6 +24,7 @@ namespace ysoserial.Generators
             // This is when we have nothing more to add to keep the help section cleaner
             return "";
         }
+
         public virtual void Init(InputArgs inputArgs)
         {
             // Overridable to provide more flexibility for rare cases

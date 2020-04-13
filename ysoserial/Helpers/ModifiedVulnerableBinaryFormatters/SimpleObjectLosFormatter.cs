@@ -13,15 +13,15 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             MemoryStream ms = new MemoryStream();
             fmtLocal.Serialize(ms, inputObj);
 
-            return PrepareWithSerialized(ms);
+            return BFStreamToLosFormatterStream(ms);
         }
 
-        public static MemoryStream PrepareWithSerialized(MemoryStream serializedStream)
-        {   
-            return new MemoryStream(PrepareWithSerialized(serializedStream.ToArray()));
+        public static MemoryStream BFStreamToLosFormatterStream(MemoryStream serializedStream)
+        {
+            return new MemoryStream(BFStreamToLosFormatterStream(serializedStream.ToArray()));
         }
 
-        public static byte[] PrepareWithSerialized(byte[] serializedBytes)
+        public static byte[] BFStreamToLosFormatterStream(byte[] serializedBytes)
         {
             byte[] inputSize7Bit = SimpleBinaryFormatterParser.Calculate7BitEncodedInt(serializedBytes.Length);
             byte[] newSerializedData = new byte[3 + inputSize7Bit.Length + serializedBytes.Length];

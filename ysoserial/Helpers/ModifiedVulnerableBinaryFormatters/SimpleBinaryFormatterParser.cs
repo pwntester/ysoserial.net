@@ -10,7 +10,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
     // Always use AdvancedBinaryFormatterParser wherever possible as this one is not as readable and is only a quick fix for when we desperately need to create a serialized object very fast!
     public class SimpleBinaryFormatterParser
     {
-        public static SimpleBinaryFormatterRootObject Parse(Stream serializationStream)
+        public static SimpleBinaryFormatterRootObject StreamToSimpleBinaryFormatterRootObject(Stream serializationStream)
         {
             if (serializationStream.CanRead)
                 serializationStream.Position = 0;
@@ -33,7 +33,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return serParser.RunModified();
         }
 
-        public static MemoryStream ReconstructFromBinaryFormatterObject(SimpleBinaryFormatterRootObject inBinaryFormatterRootObject)
+        public static MemoryStream SimpleBinaryFormatterRootObjectToStream(SimpleBinaryFormatterRootObject inBinaryFormatterRootObject)
         {
             int fullsize = CalculateSizeOfbfObject(inBinaryFormatterRootObject);
 
@@ -51,13 +51,13 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return ms;
         }
 
-        public static MemoryStream ReconstructFromJsonNetSerializedBinaryFormatterObject(String jsonNet_str)
+        public static MemoryStream JsonToStream(String jsonNet_str)
         {
             SimpleBinaryFormatterRootObject deserialized_obj = (SimpleBinaryFormatterRootObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonNet_str, typeof(SimpleBinaryFormatterRootObject));
-            return ReconstructFromBinaryFormatterObject(deserialized_obj);
+            return SimpleBinaryFormatterRootObjectToStream(deserialized_obj);
         }
 
-        public static String JsonNetBinaryFormatterObjectSerializer(SimpleBinaryFormatterRootObject inBinaryFormatterRootObject)
+        public static String SimpleBinaryFormatterRootObjectToJson(SimpleBinaryFormatterRootObject inBinaryFormatterRootObject)
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(inBinaryFormatterRootObject, typeof(Helpers.ModifiedVulnerableBinaryFormatters.SimpleBinaryFormatterRootObject), null);
         }

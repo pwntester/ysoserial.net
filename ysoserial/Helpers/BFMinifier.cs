@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
+
 namespace ysoserial.Helpers
 {
     public class BinaryMinifier

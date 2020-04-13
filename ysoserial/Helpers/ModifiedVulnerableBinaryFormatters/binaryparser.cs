@@ -1179,7 +1179,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 pr.PRnewObj = Converter.CreatePrimitiveArray(pr.PRarrayElementTypeCode, pr.PRlengthA[0]);
 
                 //pr.PRnewObj = Array.CreateInstance(pr.PRarrayElementType, pr.PRlengthA[0]);
-                Contract.Assert((pr.PRnewObj != null), "[BinaryParser expected a Primitive Array]");
+                //Contract.Assert((pr.PRnewObj != null), "[BinaryParser expected a Primitive Array]");
 
                 Array array = (Array)pr.PRnewObj;
                 int arrayOffset = 0;
