@@ -68,8 +68,8 @@ namespace ysoserial.Generators
       'objectId': 1,
       'name': 'System.Collections.Generic.SortedSet`1[[System.String,mscorlib]]',
       'numMembers': 4,
-      'memberNames':['Count','Comparer','Version','Items'], /*Version can be replaced with an empty string but it causes error after code execution*/
-                'binaryTypeEnumA':[0,1,0,1],
+      'memberNames':['Count','Comparer','Version','Items'],
+      'binaryTypeEnumA':[0,1,0,1],
       'typeInformationA': null,
       'typeInformationB':[8,null,8,null],
       'memberAssemIds':[0,0,0,0],
@@ -161,16 +161,16 @@ namespace ysoserial.Generators
     'Data': {
       '$type': 'MemberReference',
       'idRef': 8
-}},{'Id': 15,
-    'TypeName': 'MemberReference',
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 1
-}},{'Id': 16,
-    'TypeName': 'MemberReference',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 1
+      '$type': 'ObjectNull',
+      'nullCount': 0
 }},{'Id': 17,
     'TypeName': 'ObjectWithMapTyped',
     'Data': {
@@ -239,33 +239,31 @@ namespace ysoserial.Generators
       'typeInformationB':[null,null,null,null,null,8,null],
       'memberAssemIds':[0,0,0,0,0,0,0],
       'assemId': 0
-}},{'Id': 26,
-    'TypeName': 'MemberReference',
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 1
-}},{'Id': 27,
-    'TypeName': 'MemberReference',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 1
-}},{'Id': 28,
-    'TypeName': 'MemberReference',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 1
-}},{'Id': 29,
-    'TypeName': 'ObjectString',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'BinaryObjectString',
-      'objectId': 20,
-      'value': ''
-}},{'Id': 30,
-    'TypeName': 'ObjectString',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'BinaryObjectString',
-      'objectId': 21,
-      'value': ''
+      '$type': 'ObjectNull',
+      'nullCount': 0
 }},{'Id': 31,
     'TypeName': 'Int32',
     'IsPrimitive': true,
@@ -285,29 +283,27 @@ namespace ysoserial.Generators
       '$type': 'BinaryObjectString',
       'objectId': 22,
       'value': 'Compare'
-}},{'Id': 35,
-    'TypeName': 'MemberReference',
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 1
+      '$type': 'ObjectNull',
+      'nullCount': 0
 }},{'Id': 36,
     'TypeName': 'ObjectString',
     'Data': {
       '$type': 'BinaryObjectString',
       'objectId': 24,
       'value': 'System.String'
-}},{'Id': 37,
-    'TypeName': 'ObjectString',
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'BinaryObjectString',
-      'objectId': 25,
-      'value': ''
-}},{'Id': 38,
-    'TypeName': 'ObjectString',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'BinaryObjectString',
-      'objectId': 26,
-      'value': ''
+      '$type': 'ObjectNull',
+      'nullCount': 0
 }},{'Id': 39,
     'TypeName': 'Int32',
     'IsPrimitive': true,

