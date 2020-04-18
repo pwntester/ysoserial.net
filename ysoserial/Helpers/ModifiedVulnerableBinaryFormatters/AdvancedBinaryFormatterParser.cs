@@ -87,7 +87,18 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 }
 
                 currentObjInfo.Write(binaryWriter);
-                
+                if(abfo.ArrayBytes != null)
+                {
+                    // this is for arrays when we have more data:
+                    /*
+                     BinaryHeaderEnum.Array:
+                     BinaryHeaderEnum.ArraySinglePrimitive:
+                     BinaryHeaderEnum.ArraySingleObject:
+                     BinaryHeaderEnum.ArraySingleString:
+                     */
+                    binaryWriter.WriteBytes(abfo.ArrayBytes);
+
+                }
             }
             return resultMS;
         }
@@ -237,7 +248,14 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         [NonSerialized]
         public String expectedTypeName;
 
-        // This is the only important one for deserialization really
+        // This is for information when debugging as well as being used during reading a binary formatted object
+        [NonSerialized]
+        public int ArrayBytesDataRecordLength;
+
+        // this and Data are the only important ones for deserialization really
+        public byte[] ArrayBytes;
+
+        // This and ArrayBytes are the only important ones for deserialization really
         public dynamic Data
         {
             get
@@ -271,6 +289,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return (IsPrimitive && KeepInfoFieldsForJson);
         }
 
+        public bool ShouldSerializeArrayBytes()
+        {
+            // don't serialize IsPrimitive when it is not primitive or when KeepInfoFieldsForJson == false
+            return (ArrayBytes != null);
+        }
+
         public bool ShouldSerializeTypeName()
         {
             // don't serialize IsPrimitive when it is not primitive or when KeepInfoFieldsForJson == false
@@ -293,7 +317,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             newAbfo.IsPrimitive = this.IsPrimitive;
             newAbfo.simpleBinaryFormatterObject = this.simpleBinaryFormatterObject;
             newAbfo.TypeName = this.TypeName;
-            
+            newAbfo.ArrayBytes = this.ArrayBytes;
+            newAbfo.ArrayBytesDataRecordLength = this.ArrayBytesDataRecordLength;
             return newAbfo;
         }
 

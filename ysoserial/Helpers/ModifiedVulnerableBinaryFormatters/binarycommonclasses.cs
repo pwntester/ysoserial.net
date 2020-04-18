@@ -71,20 +71,20 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                             //assembly = type.Assembly.FullName;
                             //typeInformation = type.FullName;
 
-                            typeInformation = BinaryMinifier.FullTypeNameMinifier(type.FullName, type.Assembly.FullName);
-                            assembly = BinaryMinifier.AssemblyOrTypeNameMinifier(type.Assembly.FullName);
+                            typeInformation = BinaryFormatterMinifier.FullTypeNameMinifier(type.FullName, type.Assembly.FullName);
+                            assembly = BinaryFormatterMinifier.AssemblyOrTypeNameMinifier(type.Assembly.FullName);
                         }
                         else
                         {
                             //assembly = objectInfo.GetAssemblyString();
                             //typeInformation = objectInfo.GetTypeFullName();
 
-                            typeInformation = BinaryMinifier.FullTypeNameMinifier(objectInfo.GetTypeFullName(), objectInfo.GetAssemblyString());
-                            assembly = BinaryMinifier.AssemblyOrTypeNameMinifier(objectInfo.GetAssemblyString());
+                            typeInformation = BinaryFormatterMinifier.FullTypeNameMinifier(objectInfo.GetTypeFullName(), objectInfo.GetAssemblyString());
+                            assembly = BinaryFormatterMinifier.AssemblyOrTypeNameMinifier(objectInfo.GetAssemblyString());
                         }
 
                         //if (assembly.Equals(Converter.urtAssemblyString))
-                        if (assembly.Equals(BinaryMinifier.AssemblyOrTypeNameMinifier(Converter.urtAssemblyString)))
+                        if (assembly.Equals(BinaryFormatterMinifier.AssemblyOrTypeNameMinifier(Converter.urtAssemblyString)))
                         {
                             binaryTypeEnum = BinaryTypeEnum.ObjectUrt;
                             assemId = 0;
@@ -161,7 +161,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                 case BinaryTypeEnum.Primitive:
                 case BinaryTypeEnum.PrimitiveArray:
                     //Contract.Assert(typeInformation!=null, "[BinaryConverter.WriteTypeInfo]typeInformation!=null");
-                    sout.WriteByte((Byte)((InternalPrimitiveTypeE)typeInformation));                    
+                    //sout.WriteByte((Byte)((InternalPrimitiveTypeE) typeInformation));
+                    sout.WriteByte((Byte)((InternalPrimitiveTypeE) Convert.ToInt32(typeInformation)));                    
                     break;
                 case BinaryTypeEnum.String:
                 case BinaryTypeEnum.Object:
@@ -1721,7 +1722,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
                     sout.WriteByte((Byte)binaryHeaderEnum);
                     sout.WriteInt32(objectId);
                     sout.WriteInt32(lengthA[0]);
-                    sout.WriteByte((Byte)((InternalPrimitiveTypeE)typeInformation));
+                    //sout.WriteByte((Byte)((InternalPrimitiveTypeE)typeInformation));
+                    sout.WriteByte((Byte)((InternalPrimitiveTypeE)Convert.ToInt32(typeInformation)));
                     break;
                 case BinaryHeaderEnum.ArraySingleString:
                     sout.WriteByte((Byte)binaryHeaderEnum);

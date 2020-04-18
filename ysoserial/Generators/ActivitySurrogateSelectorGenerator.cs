@@ -54,9 +54,8 @@ namespace ysoserial.Generators
         {
         }
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public List<object> GadgetChains()
         {
-            System.Diagnostics.Trace.WriteLine("In GetObjectData");
             DesignerVerb verb = null;
             Hashtable ht = null;
             List<object> ls = null;
@@ -189,6 +188,15 @@ namespace ysoserial.Generators
             fi_keys.SetValue(ht, keys);
 
             ls.Add(ht);
+
+            return ls;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            System.Diagnostics.Trace.WriteLine("In GetObjectData");
+
+            List<object> ls = GadgetChains();
 
             // Wrap the object inside a DataSet. This is so we can use the custom
             // surrogate selector. Idiocy added and removed here.

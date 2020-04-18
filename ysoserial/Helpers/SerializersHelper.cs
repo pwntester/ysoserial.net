@@ -609,6 +609,7 @@ namespace ysoserial.Helpers
             byte[] byteArray = Convert.FromBase64String(str);
             MemoryStream ms = new MemoryStream(byteArray);
             BinaryFormatter bf = new BinaryFormatter();
+            ms.Position = 0;
             return bf.Deserialize(ms);
         }
 
@@ -616,6 +617,7 @@ namespace ysoserial.Helpers
         {
             MemoryStream ms = new MemoryStream(byteArray);
             BinaryFormatter bf = new BinaryFormatter();
+            ms.Position = 0;
             return bf.Deserialize(ms);
         }
 

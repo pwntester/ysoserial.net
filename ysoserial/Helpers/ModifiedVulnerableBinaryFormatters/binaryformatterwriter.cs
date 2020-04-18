@@ -74,7 +74,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             dataWriter.Write(value);
         }
 
-        private void WriteBytes(Byte[] value)
+        //private void WriteBytes(Byte[] value)
+        internal void WriteBytes(Byte[] value)
         {
             dataWriter.Write(value);
         }
@@ -641,7 +642,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
         internal void WriteMemberString(NameInfo memberNameInfo, NameInfo typeNameInfo, String value)
         {
             if(!memberNameInfo.NIFullName.Contains("Signature"))
-                value = BinaryMinifier.AssemblyOrTypeNameMinifier(value);
+                value = BinaryFormatterMinifier.AssemblyOrTypeNameMinifier(value);
 
             InternalWriteItemNull();
             if (memberNameInfo.NIisArrayItem)

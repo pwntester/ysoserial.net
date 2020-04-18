@@ -128,7 +128,7 @@
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryformatter.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryformatterwriter.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarymethodmessage.cs" />
-    <Compile Include="Helpers\BFMinifier.cs" />
+    <Compile Include="Helpers\BinaryFormatterMinifier.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectinfo.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectreader.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectwriter.cs" />

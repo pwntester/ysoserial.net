@@ -7,8 +7,8 @@
     <ProjectGuid>{E1E8C029-F7CD-4BD1-952E-E819B41520F0}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestConsoleApp</RootNamespace>
-    <AssemblyName>TestConsoleApp</AssemblyName>
+    <RootNamespace>TestConsoleApp_YSONET</RootNamespace>
+    <AssemblyName>TestConsoleApp_YSONET</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ysoserial", "ysoserial\ysoserial.csproj", "{6B40FDE7-14EA-4F57-8B7B-CC2EB4A25E6C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExploitClass", "ExploitClass\ExploitClass.csproj", "{0746F37A-9825-4E9D-A1EB-6DCC03B25C45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{E1E8C029-F7CD-4BD1-952E-E819B41520F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp_YSONET", "TestConsoleApp\TestConsoleApp_YSONET.csproj", "{E1E8C029-F7CD-4BD1-952E-E819B41520F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
