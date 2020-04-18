@@ -22,7 +22,7 @@ namespace ysoserial.Generators
             string[] files = file.Split(new[] { ';' }).Select(s => s.Trim()).ToArray();
             CodeDomProvider codeDomProvider = CodeDomProvider.CreateProvider("CSharp");
             CompilerParameters compilerParameters = new CompilerParameters();
-            compilerParameters.CompilerOptions = "-t:library -o+";
+            compilerParameters.CompilerOptions = "-t:library -o+ -platform:anycpu";
             compilerParameters.ReferencedAssemblies.AddRange(files.Skip(1).ToArray());
             CompilerResults compilerResults = codeDomProvider.CompileAssemblyFromFile(compilerParameters, files[0]);
             if (compilerResults.Errors.Count > 0)

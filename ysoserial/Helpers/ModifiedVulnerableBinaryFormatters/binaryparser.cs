@@ -1012,9 +1012,12 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             BinaryAssemblyInfo assemblyInfo = null;
             SerTrace.Log(this, "ReadArray ");
             BinaryArray record = new BinaryArray(binaryHeaderEnum);
+            int beforeBinaryArrayRecord = (int) dataReader.BaseStream.Position;
             record.Read(this);
+            int afterBinaryArrayRecord = (int) dataReader.BaseStream.Position;
             _currentAbfo.Data = record;
-#if _DEBUG                        
+            _currentAbfo.ArrayBytesDataRecordLength = afterBinaryArrayRecord - beforeBinaryArrayRecord;
+#if _DEBUG
             record.Dump();
 
             SerTrace.Log( this, "Read 1 ",((Enum)binaryHeaderEnum).ToString());
@@ -1179,7 +1182,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                 pr.PRnewObj = Converter.CreatePrimitiveArray(pr.PRarrayElementTypeCode, pr.PRlengthA[0]);
 
                 //pr.PRnewObj = Array.CreateInstance(pr.PRarrayElementType, pr.PRlengthA[0]);
-                Contract.Assert((pr.PRnewObj != null), "[BinaryParser expected a Primitive Array]");
+                //Contract.Assert((pr.PRnewObj != null), "[BinaryParser expected a Primitive Array]");
 
                 Array array = (Array)pr.PRnewObj;
                 int arrayOffset = 0;
@@ -1577,6 +1580,15 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
                                 case BinaryHeaderEnum.ArraySingleObject:
                                 case BinaryHeaderEnum.ArraySingleString:
                                     ReadArray(binaryHeaderEnum);
+                                    // This is where we need to actually save the data separately as they will not be included in the objects
+                                    int currentDataPosition = (int) dataReader.BaseStream.Position;
+                                    int dataArraySize = currentDataPosition - dataPositionBeforeReadChild - _currentAbfo.ArrayBytesDataRecordLength;
+                                    if (dataArraySize > 0)
+                                    {
+                                        byte[] arrayInBytes = new byte[dataArraySize];
+                                        Array.Copy(originalSerializedBytes, dataPositionBeforeReadChild + _currentAbfo.ArrayBytesDataRecordLength, arrayInBytes, 0, dataArraySize);
+                                        _currentAbfo.ArrayBytes = arrayInBytes;
+                                    }
                                     break;
                                 case BinaryHeaderEnum.MemberPrimitiveTyped:
                                     ReadMemberPrimitiveTyped();

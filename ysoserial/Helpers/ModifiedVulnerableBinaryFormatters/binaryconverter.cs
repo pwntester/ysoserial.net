@@ -477,7 +477,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters {
             Object var;
             SerTrace.Log( "Converter", "FromString Entry ",value," " , ((Enum)code).ToString());                
             // InternalPrimitiveTypeE needs to be a primitive type
-            Contract.Assert((code != InternalPrimitiveTypeE.Invalid), "[Converter.FromString]!InternalPrimitiveTypeE.Invalid ");
+            //Contract.Assert((code != InternalPrimitiveTypeE.Invalid), "[Converter.FromString]!InternalPrimitiveTypeE.Invalid ");
             if (code != InternalPrimitiveTypeE.Invalid)
                 var = Convert.ChangeType(value, ToTypeCode(code), CultureInfo.InvariantCulture);
             else

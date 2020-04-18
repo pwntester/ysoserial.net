@@ -31,6 +31,7 @@ namespace ysoserial
         static bool show_fullhelp = false;
         static bool isDebugMode = false;
         static bool isSearchFormatterAndRunMode = false;
+        static bool runMyTest = false;
 
         static IEnumerable<string> generators;
         static IEnumerable<string> plugins;
@@ -53,6 +54,7 @@ namespace ysoserial
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
                 {"fullhelp", "Shows this message + extra options for gadgets and plugins and exit.", v => show_fullhelp = v != null },
                 {"credit", "Shows the credit/history of gadgets and plugins (other parameters will be ignored).", v => show_credit =  v != null },
+                {"runmytest", "Runs that `Start` method of `TestingArenaHome` - useful for testing and debugging.", v => runMyTest =  v != null }
             };
 
         static void Main(string[] args)
@@ -78,6 +80,13 @@ namespace ysoserial
                 System.Environment.Exit(-1);
             }
 
+            if(runMyTest)
+            {
+                Helpers.TestingArena.TestingArenaHome runTest = new Helpers.TestingArena.TestingArenaHome();
+                runTest.Start(inputArgs);
+                Environment.Exit(0);
+            }
+
             if (show_fullhelp)
             {
                 show_help = true;
@@ -100,11 +109,11 @@ namespace ysoserial
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
 
             // Populate list of available gadgets
-            var generatorTypes = types.Where(p => typeof(Generator).IsAssignableFrom(p) && !p.IsInterface);
+            var generatorTypes = types.Where(p => typeof(Generator).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
             generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList().OrderBy(s=>s, StringComparer.OrdinalIgnoreCase);
 
             // Populate list of available plugins
-            var pluginTypes = types.Where(p => typeof(Plugin).IsAssignableFrom(p) && !p.IsInterface);
+            var pluginTypes = types.Where(p => typeof(Plugin).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
             plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList().OrderBy(s => s, StringComparer.OrdinalIgnoreCase); ;
 
             // Search in formatters

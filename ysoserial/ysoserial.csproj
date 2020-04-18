@@ -77,8 +77,8 @@
       <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationFramework" />
@@ -128,7 +128,7 @@
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryformatter.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryformatterwriter.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarymethodmessage.cs" />
-    <Compile Include="Helpers\BFMinifier.cs" />
+    <Compile Include="Helpers\BinaryFormatterMinifier.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectinfo.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectreader.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryobjectwriter.cs" />
@@ -157,6 +157,7 @@
     <Compile Include="Generators\WindowsClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
     <Compile Include="Helpers\JSONMinifier.cs" />
+    <Compile Include="Helpers\TestingArena\TestingArenaHome.cs" />
     <Compile Include="Helpers\XMLMinifier.cs" />
     <Compile Include="Helpers\YamlDocumentMinifier.cs" />
     <Compile Include="Plugins\ActivatorUrlPlugin.cs" />

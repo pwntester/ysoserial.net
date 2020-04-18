@@ -89,7 +89,7 @@ namespace ysoserial.Helpers
             try
             {
                 Console.WriteLine("\n~~BinaryFormatter:~~\n");
-                Console.WriteLine(BinaryFormatter_serialize(myobj));
+                Console.WriteLine(BinaryFormatter_serialize_ToBase64(myobj));
             }
             catch (Exception e)
             {
@@ -570,7 +570,7 @@ namespace ysoserial.Helpers
         {
             try
             {
-                return BinaryFormatter_deserialize(BinaryFormatter_serialize(myobj));
+                return BinaryFormatter_deserialize_FromBase64(BinaryFormatter_serialize_ToBase64(myobj));
             }
             catch (Exception e)
             {
@@ -579,35 +579,53 @@ namespace ysoserial.Helpers
             }
         }
 
-        public static string BinaryFormatter_serialize(object myobj)
+        public static string BinaryFormatter_serialize_ToBase64(object myobj)
         {
-            BinaryFormatter sf = new BinaryFormatter();
+            BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            sf.Serialize(ms, myobj);
+            bf.Serialize(ms, myobj);
             return Convert.ToBase64String(ms.ToArray());
         }
 
-        public static byte[] BinaryFormatter_serialize_toByteArray(object myobj)
+        public static byte[] BinaryFormatter_serialize_ToByteArray(object myobj)
         {
-            BinaryFormatter sf = new BinaryFormatter();
+            BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            sf.Serialize(ms, myobj);
+            bf.Serialize(ms, myobj);
             return ms.ToArray();
         }
 
-        public static object BinaryFormatter_deserialize(string str)
+        public static MemoryStream BinaryFormatter_serialize_ToMemoryStream(object myobj)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream();
+            bf.Serialize(ms, myobj);
+            ms.Position = 0;
+            return ms;
+        }
+
+        public static object BinaryFormatter_deserialize_FromBase64(string str)
         {
             byte[] byteArray = Convert.FromBase64String(str);
             MemoryStream ms = new MemoryStream(byteArray);
-            BinaryFormatter sf = new BinaryFormatter();
-            return sf.Deserialize(ms);
+            BinaryFormatter bf = new BinaryFormatter();
+            ms.Position = 0;
+            return bf.Deserialize(ms);
         }
 
-        public static object BinaryFormatter_deserialize_fromByteArray(byte[] byteArray)
+        public static object BinaryFormatter_deserialize(byte[] byteArray)
         {
             MemoryStream ms = new MemoryStream(byteArray);
-            BinaryFormatter sf = new BinaryFormatter();
-            return sf.Deserialize(ms);
+            BinaryFormatter bf = new BinaryFormatter();
+            ms.Position = 0;
+            return bf.Deserialize(ms);
+        }
+
+        public static object BinaryFormatter_deserialize(MemoryStream ms)
+        {
+            ms.Position = 0;
+            BinaryFormatter bf = new BinaryFormatter();
+            return bf.Deserialize(ms);
         }
 
         public static object LosFormatter_test(object myobj)
@@ -634,6 +652,11 @@ namespace ysoserial.Helpers
         public static object LosFormatter_deserialize(string str)
         {
             return new LosFormatter().Deserialize(str);
+        }
+
+        public static object LosFormatter_deserialize(byte[] byt)
+        {
+            return new LosFormatter().Deserialize(Encoding.UTF8.GetString(byt));
         }
 
         public static object ObjectStateFormatter_test(object myobj)

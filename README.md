@@ -110,6 +110,8 @@ Options:
                                and plugins and exit.
       --credit               Shows the credit/history of gadgets and plugins 
                                (other parameters will be ignored).
+      --runmytest            Runs that `Start` method of `TestingArenaHome` - 
+                               useful for testing and debugging.
 ```
 
 *Note:* When specifying complex commands, it can be tedious to escape some special character (;, |, &, ..). Use stdin option (-s) to read the command from stdin:
