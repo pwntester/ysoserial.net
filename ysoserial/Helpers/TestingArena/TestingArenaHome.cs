@@ -12,6 +12,10 @@ using System.Text.RegularExpressions;
 using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
 using System.Web.UI.WebControls;
 using System.Configuration;
+using System.Collections.Specialized;
+using System.Reflection;
+using System.Windows.Data;
+using System.Runtime.Serialization;
 
 namespace ysoserial.Helpers.TestingArena
 {
@@ -36,12 +40,14 @@ namespace ysoserial.Helpers.TestingArena
         public void Start(InputArgs inputArgs)
         {
             this.inputArgs = inputArgs;
+            // Add your function here perhaps - some examples:
             //MinimiseTCDJsonAndRun();
             //ManualTCDGPayload4Minifying();
             //TextFormatterMinifying();
             //ActivitySurrogateSelector();
             Console.ReadLine();
         }
+
 
         private void ActivitySurrogateSelector()
         {

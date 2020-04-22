@@ -30,7 +30,7 @@ namespace ysoserial.Generators
 
         public override List<string> Labels()
         {
-            return new List<string> { GadgetTypes.Mask }; // It works because we have a hashtable that holds the actual gadget!
+            return new List<string> { GadgetTypes.Dummy }; // It works because we have a hashtable that holds the actual gadget!
         }
 
         public override OptionSet Options()

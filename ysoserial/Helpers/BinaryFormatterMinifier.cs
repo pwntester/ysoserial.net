@@ -90,6 +90,14 @@ namespace ysoserial.Helpers
                     strInput = strInput_simpleCorlibAsm;
             }
 
+            if (strInput.Contains(",mscorlib"))
+            {
+                string strInput_removedMSCORLIB = strInput.Replace(",mscorlib", "");
+
+                if (IsValid(strInput_removedMSCORLIB, isAssemblyString))
+                    strInput = strInput_removedMSCORLIB;
+            }
+
             return strInput;
         }
 
