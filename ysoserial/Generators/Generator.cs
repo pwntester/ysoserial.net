@@ -32,7 +32,7 @@ namespace ysoserial.Generators
         NotBridgeNotDerived = "Not bridge or derived", 
         NotBridgeButDervied = "Not bridge but derived", // Bridge has dervied meaning in it too
         BridgeAndDerived = "Bridge and dervied",
-        Mask = "It relies on other gadgets and is not a real gadget on its own (not really bridged or derived)", // We hide these in normal help as they are only valuable for research purposes - example is ResourceSet
+        Dummy = "It relies on other gadgets and is not a real gadget on its own (not bridged or derived either)", // We hide these in normal help as they are only valuable for research purposes - example is ResourceSet
         None="";
     }
 }

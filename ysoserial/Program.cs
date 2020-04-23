@@ -396,7 +396,7 @@ namespace ysoserial
                             ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
                             Generator gg = (Generator)container.Unwrap();
 
-                            if (gg.Labels().Contains(GadgetTypes.Mask) && !show_fullhelp)
+                            if (gg.Labels().Contains(GadgetTypes.Dummy) && !show_fullhelp)
                             {
                                 // We hide the Mask gadgets in normal help as they are not that important!
                                 continue;
