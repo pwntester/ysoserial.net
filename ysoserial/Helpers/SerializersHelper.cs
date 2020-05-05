@@ -492,7 +492,7 @@ namespace ysoserial.Helpers
             var s = new NetDataContractSerializer();
             if (!rootElement.Equals(""))
             {
-                var xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument() { XmlResolver = null };
                 xmlDoc.LoadXml(str);
                 XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode(rootElement);
                 obj = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
