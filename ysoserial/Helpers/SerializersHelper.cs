@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
@@ -491,7 +492,7 @@ namespace ysoserial.Helpers
             var s = new NetDataContractSerializer();
             if (!rootElement.Equals(""))
             {
-                var xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument() { XmlResolver = null };
                 xmlDoc.LoadXml(str);
                 XmlElement xmlItem = (XmlElement)xmlDoc.SelectSingleNode(rootElement);
                 obj = s.ReadObject(new XmlTextReader(new StringReader(xmlItem.InnerXml)));
@@ -693,6 +694,28 @@ namespace ysoserial.Helpers
                 //ignore
                 return null;
             }
+        }
+
+        public static object DataContractJsonSerializer_deserialize(string str, string type, Type[] types)
+        {
+            DataContractJsonSerializer js = new DataContractJsonSerializer(Type.GetType(type), new DataContractJsonSerializerSettings()
+            {
+                KnownTypes = types
+            });
+            byte[] byteArray = Encoding.UTF8.GetBytes(str);
+            MemoryStream ms = new MemoryStream(byteArray);
+            return js.ReadObject(ms);
+        }
+
+        public static string DataContractJsonSerializer_serialize(object gadget, string type, Type[] types)
+        {
+            DataContractJsonSerializer js = new DataContractJsonSerializer(Type.GetType(type), new DataContractJsonSerializerSettings()
+            {
+                KnownTypes = types
+            });
+            MemoryStream ms = new MemoryStream();
+            js.WriteObject(ms, gadget);
+            return Encoding.Default.GetString(ms.ToArray());
         }
 
         public static string YamlDotNet_serialize(object myobj)
