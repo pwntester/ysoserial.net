@@ -346,7 +346,11 @@ namespace ysoserial.Helpers
 
    <xsl:for-each select=""namespace::*"">
      <xsl:variable name=""vPrefix"" select=""name()""/>
+<!--
+Not sure why this one did not work so I had to change $vtheElem/descendant::* to //*
+-->
 
+<!--
      <xsl:if test=
       ""$vtheElem/descendant::* [namespace-uri() = current()     and
                    substring-before(name(),':') = $vPrefix or
@@ -354,7 +358,15 @@ namespace ysoserial.Helpers
                    @*[contains(.,concat($vPrefix,':'))]
                   ]
       "">
-      <xsl:copy-of select="".""/>
+-->
+      <xsl:if test=
+      ""//* [namespace-uri() = current()     and
+                   substring-before(name(),':') = $vPrefix or
+                   @*[substring-before(name(),':') = $vPrefix] or
+                   @*[contains(.,concat($vPrefix,':'))]
+                  ]
+      "">
+      <xsl:copy-of select=""."" />
      </xsl:if>
    </xsl:for-each>
    <xsl:apply-templates select=""node()|@*""/>

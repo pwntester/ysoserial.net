@@ -121,6 +121,7 @@
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
     <Compile Include="Generators\RolePrincipalGenerator.cs" />
     <Compile Include="Generators\ClaimsIdentityGenerator.cs" />
+    <Compile Include="Generators\WindowsPrincipalGenerator.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\AdvancedBinaryFormatterParser.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarycommonclasses.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryconverter.cs" />
