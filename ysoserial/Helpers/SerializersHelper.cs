@@ -142,11 +142,13 @@ namespace ysoserial.Helpers
 
         public static void TestAll(object myobj)
         {
-            TestAll(myobj, myobj.GetType());
+            TestAll(myobj, myobj.GetType(), null);
         }
 
-        public static void TestAll(object myobj, Type type)
+        public static void TestAll(object myobj, Type type, Type[] knownTypes)
         {
+            // knownTypes is used in DataContractJsonSerializer_test
+
             StringBuilder sb = new StringBuilder();
             sb.Append("Object returned from:");            
             if(XmlSerializer_test(myobj, type) != null)
@@ -193,6 +195,11 @@ namespace ysoserial.Helpers
             {
                 sb.AppendLine("JavaScriptSerializer_test");
             }
+            if (DataContractJsonSerializer_test(myobj, type, knownTypes) != null)
+            {
+                sb.AppendLine("DataContractJsonSerializer_test");
+            }
+            Console.WriteLine(sb);
         }
 
         public static object XmlSerializer_test(object myobj)
@@ -696,28 +703,6 @@ namespace ysoserial.Helpers
             }
         }
 
-        public static object DataContractJsonSerializer_deserialize(string str, string type, Type[] types)
-        {
-            DataContractJsonSerializer js = new DataContractJsonSerializer(Type.GetType(type), new DataContractJsonSerializerSettings()
-            {
-                KnownTypes = types
-            });
-            byte[] byteArray = Encoding.UTF8.GetBytes(str);
-            MemoryStream ms = new MemoryStream(byteArray);
-            return js.ReadObject(ms);
-        }
-
-        public static string DataContractJsonSerializer_serialize(object gadget, string type, Type[] types)
-        {
-            DataContractJsonSerializer js = new DataContractJsonSerializer(Type.GetType(type), new DataContractJsonSerializerSettings()
-            {
-                KnownTypes = types
-            });
-            MemoryStream ms = new MemoryStream();
-            js.WriteObject(ms, gadget);
-            return Encoding.Default.GetString(ms.ToArray());
-        }
-
         public static string YamlDotNet_serialize(object myobj)
         {
             var serializer = new SerializerBuilder().Build();
@@ -761,6 +746,48 @@ namespace ysoserial.Helpers
             JavaScriptSerializer jss = new JavaScriptSerializer(new SimpleTypeResolver());
             return jss.Deserialize<Object>(str);
         }
-        
+
+        public static object DataContractJsonSerializer_test(object gadget, string type, Type[] knownTypes)
+        {
+            return DataContractJsonSerializer_test(gadget, Type.GetType(type), knownTypes);
+        }
+
+        public static object DataContractJsonSerializer_test(object gadget, Type type, Type[] knownTypes)
+        {
+            return DataContractJsonSerializer_deserialize(DataContractJsonSerializer_serialize(gadget, type, knownTypes), type, knownTypes);
+        } 
+
+        public static object DataContractJsonSerializer_deserialize(string str, string type, Type[] knownTypes)
+        {
+            return DataContractJsonSerializer_deserialize(str, Type.GetType(type), knownTypes);
+        }
+
+        public static object DataContractJsonSerializer_deserialize(string str, Type type, Type[] knownTypes)
+        {
+            DataContractJsonSerializer js = new DataContractJsonSerializer(type, new DataContractJsonSerializerSettings()
+            {
+                KnownTypes = knownTypes
+            });
+            byte[] byteArray = Encoding.UTF8.GetBytes(str);
+            MemoryStream ms = new MemoryStream(byteArray);
+            return js.ReadObject(ms);
+        }
+
+        public static string DataContractJsonSerializer_serialize(object gadget, string type, Type[] knownTypes)
+        {
+            return DataContractJsonSerializer_serialize(gadget, Type.GetType(type), knownTypes);
+        }
+
+        public static string DataContractJsonSerializer_serialize(object gadget, Type type, Type[] knownTypes)
+        {
+            DataContractJsonSerializer js = new DataContractJsonSerializer(type, new DataContractJsonSerializerSettings()
+            {
+                KnownTypes = knownTypes
+            });
+            MemoryStream ms = new MemoryStream();
+            js.WriteObject(ms, gadget);
+            return Encoding.Default.GetString(ms.ToArray());
+        }
+
     }
 }

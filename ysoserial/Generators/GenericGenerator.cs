@@ -119,9 +119,6 @@ namespace ysoserial.Generators
 
         public object Serialize(object payloadObj, string formatter, InputArgs inputArgs)
         {
-            // Disable ActivitySurrogate type protections during generation
-            ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
-
             MemoryStream stream = new MemoryStream();
           
             if (formatter.ToLower().Equals("binaryformatter"))

