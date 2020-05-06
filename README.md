@@ -59,6 +59,8 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , SoapFormatter (2)
 	(*) WindowsIdentity
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
+	(*) WindowsPrincipal
+		Formatters: BinaryFormatter , DataContractJsonSerializer , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 
 == PLUGINS ==
 	(*) ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
@@ -233,7 +235,7 @@ Credits for available gadgets:
 	SessionViewStateHistoryItem
 		[Finders: Soroush Dalili]
 	TextFormattingRunProperties
-		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili]
+		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Soroush Dalili]
 	TypeConfuseDelegate
 		[Finders: James Forshaw] [Contributors: Alvaro Munoz]
 	TypeConfuseDelegateMono
@@ -242,6 +244,8 @@ Credits for available gadgets:
 		[Finders: Soroush Dalili]
 	WindowsIdentity
 		[Finders: Levi Broderick] [Contributors: Alvaro Munoz, Soroush Dalili]
+	WindowsPrincipal
+		[Finders: Steven Seeley of Qihoo 360 Vulcan Team] [Contributors: Chris Anastasio]
 
 Credits for available plugins:
 	ActivatorUrl
