@@ -9,11 +9,13 @@ using System.Linq;
 using System.Configuration;
 using ysoserial.Helpers;
 using NDesk.Options;
+using System.Reflection;
 
 namespace ysoserial.Generators
 {
     public abstract class GenericGenerator : Generator
     {
+        public SerializationBinder serializationBinder = null;
         public abstract object Generate(string formatter, InputArgs inputArgs);
         public abstract string Finders();
         public abstract string Name();
@@ -141,6 +143,8 @@ namespace ysoserial.Generators
                     try
                     {
                         stream.Position = 0;
+                        if (serializationBinder != null)
+                            fmt.Binder = serializationBinder;
                         fmt.Deserialize(stream);
                     } 
                     catch(Exception err){
@@ -193,6 +197,8 @@ namespace ysoserial.Generators
                     try
                     {
                         stream.Position = 0;
+                        if (serializationBinder != null)
+                            sf.Binder = serializationBinder;
                         sf.Deserialize(stream);
                     }
                     catch (Exception err)
@@ -225,6 +231,8 @@ namespace ysoserial.Generators
                     try
                     {
                         stream.Position = 0;
+                        if (serializationBinder != null)
+                            ndcs.Binder = serializationBinder;
                         ndcs.Deserialize(stream);
                     }
                     catch (Exception err)
