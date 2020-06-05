@@ -212,9 +212,7 @@ namespace ysoserial.Helpers
             {
                 //ignore
                 return null;
-            }
-
-            
+            }            
         }
 
         public static object XmlSerializer_test(object myobj, Type type)

