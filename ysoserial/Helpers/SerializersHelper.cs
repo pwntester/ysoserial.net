@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Polenter.Serialization;
 using System;
 using System.Globalization;
 using System.IO;
@@ -14,6 +15,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 using YamlDotNet.Serialization;
+using ysoserial.Helpers.SharpSerializerHelpers;
 
 namespace ysoserial.Helpers
 {
@@ -150,7 +152,7 @@ namespace ysoserial.Helpers
             // knownTypes is used in DataContractJsonSerializer_test
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("Object returned from:");            
+            sb.Append("Object returned from:");
             if(XmlSerializer_test(myobj, type) != null)
             {
                 sb.AppendLine("XmlSerializer_test");
@@ -212,7 +214,7 @@ namespace ysoserial.Helpers
             {
                 //ignore
                 return null;
-            }            
+            }
         }
 
         public static object XmlSerializer_test(object myobj, Type type)
@@ -250,7 +252,7 @@ namespace ysoserial.Helpers
 
         public static object XMLSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
         {
-            object obj = null; 
+            object obj = null;
 
             if (!rootElement.Equals(""))
             {
@@ -269,7 +271,7 @@ namespace ysoserial.Helpers
                 var s = new XmlSerializer(Type.GetType(type));
                 obj = s.Deserialize(new XmlTextReader(new StringReader(str)));
             }
-            
+
             return obj;
         }
 
@@ -342,10 +344,10 @@ namespace ysoserial.Helpers
 
                         }
                     }
-                        
+
                 }
             }
-            
+
             return result;
         }
 
@@ -393,7 +395,7 @@ namespace ysoserial.Helpers
         public static object DataContractSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
         {
             object obj = null;
-            
+
             if (!rootElement.Equals(""))
             {
                 var xmlDoc = new XmlDocument();
@@ -768,8 +770,8 @@ namespace ysoserial.Helpers
             {
                 //ignore
                 return null;
-            } 
-        } 
+            }
+        }
 
         public static object DataContractJsonSerializer_deserialize(string str, string type, Type[] knownTypes)
         {
@@ -803,5 +805,50 @@ namespace ysoserial.Helpers
             return Encoding.Default.GetString(ms.ToArray());
         }
 
+        /// <summary>
+        /// Serializes a binary SharpSerializer ObjectDataProvider gadget with a specified command to a byte array object.
+        /// </summary>
+        /// <param name="command">The command to include.</param>
+        /// <returns>The serialized object.</returns>
+        public static object SharpSerializer_ObjectDataProvider_Binary_Serialize(string command)
+        {
+            return SharpSerializerHelperMethods.GenerateSharpSerializerBinaryPayload(command);
+        }
+
+        /// <summary>
+        /// Deserializes a binary SharpSerializer payload object.
+        /// </summary>
+        /// <param name="serializedData">The raw serialized object.</param>
+        public static void SharpSerializer_ObjectDataProvider_Binary_Deserialize(object serializedData)
+        {
+            SharpSerializer serializer = new SharpSerializer(true);
+            using (MemoryStream memoryStream = new MemoryStream((byte[])serializedData))
+            {
+                serializer.Deserialize(memoryStream);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an XML SharpSerializer ObjectDataProvider gadget with a specified command to a byte array object.
+        /// </summary>
+        /// <param name="command">The command to include.</param>
+        /// <returns>The serialized object.</returns>
+        public static string SharpSerializer_ObjectDataProvider_Xml_Serialize(string command)
+        {
+            return SharpSerializerHelperMethods.GenerateSharpSerializerXmlPayload(command);
+        }
+
+        /// <summary>
+        /// Deserializes an XML SharpSerializer payload object.
+        /// </summary>
+        /// <param name="serializedData">The raw serialized object.</param>
+        public static void SharpSerializer_ObjectDataProvider_Xml_Deserialize(string serializedData)
+        {
+            SharpSerializer serializer = new SharpSerializer(false);
+            using (MemoryStream memoryStream = new MemoryStream(Encoding.Default.GetBytes(serializedData)))
+            {
+                serializer.Deserialize(memoryStream);
+            }
+        }
     }
 }
