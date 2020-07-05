@@ -215,8 +215,6 @@ namespace ysoserial.Helpers
                 //ignore
                 return null;
             }
-
-
         }
 
         public static object XmlSerializer_test(object myobj, Type type)
@@ -751,12 +749,28 @@ namespace ysoserial.Helpers
 
         public static object DataContractJsonSerializer_test(object gadget, string type, Type[] knownTypes)
         {
-            return DataContractJsonSerializer_test(gadget, Type.GetType(type), knownTypes);
+            try
+            {
+                return DataContractJsonSerializer_test(gadget, Type.GetType(type), knownTypes);
+            }
+            catch (Exception e)
+            {
+                //ignore
+                return null;
+            }
         }
 
         public static object DataContractJsonSerializer_test(object gadget, Type type, Type[] knownTypes)
         {
-            return DataContractJsonSerializer_deserialize(DataContractJsonSerializer_serialize(gadget, type, knownTypes), type, knownTypes);
+            try
+            {
+                return DataContractJsonSerializer_deserialize(DataContractJsonSerializer_serialize(gadget, type, knownTypes), type, knownTypes);
+            }
+            catch (Exception e)
+            {
+                //ignore
+                return null;
+            } 
         }
 
         public static object DataContractJsonSerializer_deserialize(string str, string type, Type[] knownTypes)
