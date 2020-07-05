@@ -29,7 +29,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializer" };
+            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml" };
         }
 
         public override OptionSet Options()
@@ -595,13 +595,23 @@ namespace ysoserial.Generators
                 }
                 return payload;
             }
-            else if (formatter.ToLowerInvariant().Equals("sharpserializer"))
+            else if (formatter.ToLowerInvariant().Equals("sharpserializerbinary"))
             {
                 // Binary Serialization Mode
                 object serializedData = SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Serialize(inputArgs.Cmd);
                 if (inputArgs.Test)
                 {
                     SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Deserialize(serializedData);
+                }
+                return serializedData;
+            }
+            else if (formatter.ToLowerInvariant().Equals("sharpserializerxml"))
+            {
+                // XML Serialization Mode
+                string serializedData = SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Serialize(inputArgs.Cmd);
+                if (inputArgs.Test)
+                {
+                    SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Deserialize(serializedData);
                 }
                 return serializedData;
             }

