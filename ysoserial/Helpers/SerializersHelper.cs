@@ -139,7 +139,25 @@ namespace ysoserial.Helpers
                 Console.WriteLine("\tError in JavaScriptSerializer!");
             }
 
+            try
+            {
+                Console.WriteLine("\n~~SharpSerializer (Binary):~~\n");
+                Console.WriteLine(SharpSerializer_Binary_Serialize_ToBase64String(myobj));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\tError in SharpSerializer (Binary)!");
+            }
 
+            try
+            {
+                Console.WriteLine("\n~~SharpSerializer (Xml):~~\n");
+                Console.WriteLine(SharpSerializer_Xml_Serialize(myobj));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\tError in SharpSerializer (Xml)!");
+            }
         }
 
         public static void TestAll(object myobj)
@@ -200,6 +218,14 @@ namespace ysoserial.Helpers
             if (DataContractJsonSerializer_test(myobj, type, knownTypes) != null)
             {
                 sb.AppendLine("DataContractJsonSerializer_test");
+            }
+            if (SharpSerializer_Binary_test(myobj) != null)
+            {
+                sb.AppendLine("SharpSerializer_ObjectDataProvider_Binary_test");
+            }
+            if (SharpSerializer_Xml_test(myobj) != null)
+            {
+                sb.AppendLine("SharpSerializer_ObjectDataProvider_Xml_test");
             }
             Console.WriteLine(sb);
         }
@@ -816,15 +842,47 @@ namespace ysoserial.Helpers
         }
 
         /// <summary>
-        /// Deserializes a binary SharpSerializer payload object.
+        /// Deserializes a binary SharpSerializer object.
         /// </summary>
         /// <param name="serializedData">The raw serialized object.</param>
-        public static void SharpSerializer_ObjectDataProvider_Binary_Deserialize(object serializedData)
+        /// <returns>The deserialized object</returns>
+        public static object SharpSerializer_ObjectDataProvider_Binary_Deserialize(object serializedData)
         {
             SharpSerializer serializer = new SharpSerializer(true);
             using (MemoryStream memoryStream = new MemoryStream((byte[])serializedData))
             {
-                serializer.Deserialize(memoryStream);
+                return serializer.Deserialize(memoryStream);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object with the SharpSerializer binary setting as a base64 string.
+        /// </summary>
+        /// <param name="myobject">The object to serialize.</param>
+        /// <returns>The serialized object bytes as a base64 string.</returns>
+        public static string SharpSerializer_Binary_Serialize_ToBase64String(object myobject)
+        {
+            SharpSerializer serializer = new SharpSerializer(false);
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.Serialize(myobject, memoryStream);
+                return Convert.ToBase64String(memoryStream.ToArray());
+            }
+        }
+
+        /// <summary>
+        /// Tests the binary SharpSerializer deserialization.
+        /// </summary>
+        /// <param name="myobj">The object to deserialize.</param>
+        /// <returns>The deserialized object.</returns>
+        public static object SharpSerializer_Binary_test(object myobj)
+        {
+            SharpSerializer serializer = new SharpSerializer(true);
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.Serialize(myobj, memoryStream);
+                memoryStream.Position = 0;
+                return serializer.Deserialize(memoryStream);
             }
         }
 
@@ -833,7 +891,7 @@ namespace ysoserial.Helpers
         /// </summary>
         /// <param name="command">The command to include.</param>
         /// <returns>The serialized object.</returns>
-        public static string SharpSerializer_ObjectDataProvider_Xml_Serialize(string command)
+        public static object SharpSerializer_ObjectDataProvider_Xml_Serialize(string command)
         {
             return SharpSerializerHelperMethods.GenerateSharpSerializerXmlPayload(command);
         }
@@ -842,12 +900,44 @@ namespace ysoserial.Helpers
         /// Deserializes an XML SharpSerializer payload object.
         /// </summary>
         /// <param name="serializedData">The raw serialized object.</param>
-        public static void SharpSerializer_ObjectDataProvider_Xml_Deserialize(string serializedData)
+        /// <returns>The serialized object.</returns>
+        public static object SharpSerializer_ObjectDataProvider_Xml_Deserialize(string serializedData)
         {
             SharpSerializer serializer = new SharpSerializer(false);
             using (MemoryStream memoryStream = new MemoryStream(Encoding.Default.GetBytes(serializedData)))
             {
-                serializer.Deserialize(memoryStream);
+                return serializer.Deserialize(memoryStream);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object with the SharpSerializer XML setting.
+        /// </summary>
+        /// <param name="myobject">The object to serialize.</param>
+        /// <returns>The serialized object.</returns>
+        public static string SharpSerializer_Xml_Serialize(object myobject)
+        {
+            SharpSerializer serializer = new SharpSerializer(false);
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.Serialize(myobject, memoryStream);
+                return Encoding.Default.GetString(memoryStream.ToArray());
+            }
+        }
+
+        /// <summary>
+        /// Tests the XML SharpSerializer deserialization.
+        /// </summary>
+        /// <param name="myobj">The object to deserialize.</param>
+        /// <returns>The deserialized object.</returns>
+        public static object SharpSerializer_Xml_test(object myobj)
+        {
+            SharpSerializer serializer = new SharpSerializer(false);
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.Serialize(myobj, memoryStream);
+                memoryStream.Position = 0;
+                return serializer.Deserialize(memoryStream);
             }
         }
     }

