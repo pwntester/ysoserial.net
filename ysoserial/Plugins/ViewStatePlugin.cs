@@ -44,7 +44,7 @@ namespace ysoserial_frmv2.Plugins
         static string validationKey = "";
 
 
-        Assembly systemWebAsm = Assembly.Load("System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+        Assembly systemWebAsm = Assembly.Load("System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
         string formatter = "losformatter";
         string payloadString = "";
         string shortestViewStateString = "/wEPZGQ="; // not in use at the moment but good to know!!!
@@ -163,7 +163,7 @@ namespace ysoserial_frmv2.Plugins
                 Generator generator = null;
                 try
                 {
-                    var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget + "Generator");
+                    var container = Activator.CreateInstance(null, "ysoserial_frmv2.Generators." + gadget + "Generator");
                     generator = (Generator)container.Unwrap();
                 }
                 catch
