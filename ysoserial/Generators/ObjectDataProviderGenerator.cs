@@ -607,7 +607,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLowerInvariant().Equals("sharpserializerxml"))
             {
                 // XML Serialization Mode
-                string serializedData = SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Serialize(inputArgs.Cmd);
+                string serializedData = (string)SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Serialize(inputArgs.Cmd);
                 if (inputArgs.Test)
                 {
                     SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Deserialize(serializedData);
