@@ -41,7 +41,7 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            Generator generator = new TextFormattingRunPropertiesGenerator();
+            IGenerator generator = new TextFormattingRunPropertiesGenerator();
             string losFormatterText = Encoding.UTF8.GetString((byte[])generator.GenerateWithNoTest("LosFormatter", inputArgs));
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)

@@ -22,7 +22,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    public class SessionSecurityTokenHandlerPlugin : Plugin
+    public class SessionSecurityTokenHandlerPlugin : IPlugin
     {
         static string command = "";
         static bool test = false;

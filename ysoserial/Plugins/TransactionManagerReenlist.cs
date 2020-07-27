@@ -18,7 +18,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    public class TransactionManagerReenlistPlugin : Plugin
+    public class TransactionManagerReenlistPlugin : IPlugin
     {
         static string command = "";
         static bool test = false;
