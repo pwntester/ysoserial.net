@@ -147,7 +147,7 @@
     <Compile Include="Generators\ActivitySurrogateDisableTypeCheck.cs" />
     <Compile Include="Generators\ActivitySurrogateSelectorFromFileGenerator.cs" />
     <Compile Include="Generators\ActivitySurrogateSelectorGenerator.cs" />
-    <Compile Include="Generators\Generator.cs" />
+    <Compile Include="Generators\IGenerator.cs" />
     <Compile Include="Generators\GenericGenerator.cs" />
     <Compile Include="Generators\ObjectDataProviderGenerator.cs" />
     <Compile Include="Generators\TextFormattingRunPropertiesGenerator.cs" />
@@ -166,7 +166,7 @@
     <Compile Include="Plugins\ApplicationTrustPlugin.cs" />
     <Compile Include="Plugins\ClipboardPlugin.cs" />
     <Compile Include="Plugins\DotNetNukePlugin.cs" />
-    <Compile Include="Plugins\Plugin.cs" />
+    <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Plugins\ResxPlugin.cs" />
     <Compile Include="Plugins\SessionSecurityTokenHandlerPlugin.cs" />
     <Compile Include="Plugins\SharePointPlugin.cs" />
