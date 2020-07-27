@@ -109,11 +109,11 @@ namespace ysoserial
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
 
             // Populate list of available gadgets
-            var generatorTypes = types.Where(p => typeof(Generator).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
+            var generatorTypes = types.Where(p => typeof(IGenerator).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
             generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList().OrderBy(s=>s, StringComparer.OrdinalIgnoreCase);
 
             // Populate list of available plugins
-            var pluginTypes = types.Where(p => typeof(Plugin).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
+            var pluginTypes = types.Where(p => typeof(IPlugin).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
             plugins = pluginTypes.Select(x => x.Name.Replace("Plugin", "")).ToList().OrderBy(s => s, StringComparer.OrdinalIgnoreCase); ;
 
             // Search in formatters
@@ -146,13 +146,13 @@ namespace ysoserial
                 }
 
                 // Instantiate Plugin 
-                Plugin plugin = null;
+                IPlugin plugin = null;
                 try
                 {
                     plugin_name = plugins.Where(p => String.Equals(p, plugin_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                     var container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
                     
-                    plugin = (Plugin)container.Unwrap();
+                    plugin = (IPlugin)container.Unwrap();
                 }
                 catch
                 {
@@ -174,12 +174,12 @@ namespace ysoserial
                 }
 
                 // Instantiate Payload Generator
-                Generator generator = null;
+                IGenerator generator = null;
                 try
                 {
                     gadget_name = generators.Where(p => String.Equals(p, gadget_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                     var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget_name + "Generator");
-                    generator = (Generator)container.Unwrap();
+                    generator = (IGenerator)container.Unwrap();
                 }
                 catch
                 {
@@ -226,7 +226,7 @@ namespace ysoserial
                         if (g != "Generic")
                         {
                             ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
-                            Generator gg = (Generator)container.Unwrap();
+                            IGenerator gg = (IGenerator)container.Unwrap();
                             foreach (string formatter in gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
                             {
                                 if (formatter.IndexOf(formatter_name, StringComparison.OrdinalIgnoreCase) >= 0)
@@ -354,7 +354,7 @@ namespace ysoserial
                     if (g != "Generic")
                     {
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
-                        Generator gg = (Generator)container.Unwrap();
+                        IGenerator gg = (IGenerator)container.Unwrap();
                         Boolean gadgetSelected = false;
                         foreach(string formatter in gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
                         {
@@ -394,7 +394,7 @@ namespace ysoserial
                         if (g != "Generic")
                         {
                             ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
-                            Generator gg = (Generator)container.Unwrap();
+                            IGenerator gg = (IGenerator)container.Unwrap();
 
                             if (gg.Labels().Contains(GadgetTypes.Dummy) && !show_fullhelp)
                             {
@@ -456,7 +456,7 @@ namespace ysoserial
                         if (p != "Generic")
                         {
                             ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
-                            Plugin pp = (Plugin)container.Unwrap();
+                            IPlugin pp = (IPlugin)container.Unwrap();
                             Console.WriteLine("\t(*) " + pp.Name() + " (" + pp.Description() + ")");
                             
                             OptionSet options = pp.Options();
@@ -493,7 +493,7 @@ namespace ysoserial
                 {
                     plugin_name = plugins.Where(p => String.Equals(p, plugin_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                     ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
-                    Plugin pp = (Plugin)container.Unwrap();
+                    IPlugin pp = (IPlugin)container.Unwrap();
                     Console.WriteLine("Plugin:\n");
                     Console.WriteLine(pp.Name() + " (" + pp.Description() + ")");
                     Console.WriteLine("\nOptions:\n");
@@ -519,7 +519,7 @@ namespace ysoserial
                     if (g != "Generic")
                     {
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
-                        Generator gg = (Generator)container.Unwrap();
+                        IGenerator gg = (IGenerator)container.Unwrap();
                         //Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                         Console.WriteLine("\t" + gg.Name());
                         Console.WriteLine("\t\t" + gg.Credit());
@@ -541,7 +541,7 @@ namespace ysoserial
                     if (p != "Generic")
                     {
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
-                        Plugin pp = (Plugin)container.Unwrap();
+                        IPlugin pp = (IPlugin)container.Unwrap();
                         //Console.WriteLine("\t" + pp.Name() + " (" + pp.Description() + ")");
                         Console.WriteLine("\t" + pp.Name());
                         Console.WriteLine("\t\t" + pp.Credit());

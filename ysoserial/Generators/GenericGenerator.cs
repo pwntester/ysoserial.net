@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace ysoserial.Generators
 {
-    public abstract class GenericGenerator : Generator
+    public abstract class GenericGenerator : IGenerator
     {
         public SerializationBinder serializationBinder = null;
         public abstract object Generate(string formatter, InputArgs inputArgs);

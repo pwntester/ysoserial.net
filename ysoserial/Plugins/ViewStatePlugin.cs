@@ -24,7 +24,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    public class ViewStatePlugin : Plugin
+    public class ViewStatePlugin : IPlugin
     {
         static bool showExamples = false;
         static bool dryRun = false;
@@ -134,7 +134,7 @@ namespace ysoserial.Plugins
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
 
             // Populate list of available gadgets
-            var generatorTypes = types.Where(p => typeof(Generator).IsAssignableFrom(p) && !p.IsInterface);
+            var generatorTypes = types.Where(p => typeof(IGenerator).IsAssignableFrom(p) && !p.IsInterface);
             var generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList();
 
             uint parsedViewstateGeneratorIdentifier = 0;
@@ -174,11 +174,11 @@ namespace ysoserial.Plugins
                 }
 
                 // Instantiate Payload Generator
-                Generator generator = null;
+                IGenerator generator = null;
                 try
                 {
                     var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget + "Generator");
-                    generator = (Generator)container.Unwrap();
+                    generator = (IGenerator)container.Unwrap();
                 }
                 catch
                 {

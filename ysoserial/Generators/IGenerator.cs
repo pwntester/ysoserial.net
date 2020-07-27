@@ -5,7 +5,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Generators
 {
-    public interface Generator
+    public interface IGenerator
     {
         string Name();
         string AdditionalInfo();

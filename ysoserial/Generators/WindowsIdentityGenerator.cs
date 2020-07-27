@@ -53,7 +53,7 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            Generator generator = new TextFormattingRunPropertiesGenerator();
+            IGenerator generator = new TextFormattingRunPropertiesGenerator();
             byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 

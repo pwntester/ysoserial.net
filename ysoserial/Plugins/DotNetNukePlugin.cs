@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ysoserial.Plugins
 {
-    public class DotNetNukePlugin : Plugin
+    public class DotNetNukePlugin : IPlugin
     {
         static string mode = "";
         static string path = "";

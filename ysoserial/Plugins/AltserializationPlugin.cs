@@ -19,7 +19,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    public class AltserializationPlugin : Plugin
+    public class AltserializationPlugin : IPlugin
     {
         static string format = "";
         static string mode = "";

@@ -3,7 +3,7 @@ using NDesk.Options;
 
 namespace ysoserial.Plugins
 {
-    public interface Plugin
+    public interface IPlugin
     {
         string Name();
         string Description();

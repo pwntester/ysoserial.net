@@ -19,7 +19,7 @@ using ysoserial.Helpers;
 
 namespace ysoserial.Plugins
 {
-    public class SharePointPlugin : Plugin
+    public class SharePointPlugin : IPlugin
     {
         static string cve = "";
         static string cmd = "";
