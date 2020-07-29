@@ -157,7 +157,6 @@
     <Compile Include="Generators\WindowsClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
     <Compile Include="Helpers\JSONMinifier.cs" />
-    <Compile Include="Helpers\SharpSerializerHelpers\SharpSerializerHelperMethods.cs" />
     <Compile Include="Helpers\TestingArena\TestingArenaHome.cs" />
     <Compile Include="Helpers\XMLMinifier.cs" />
     <Compile Include="Helpers\YamlDocumentMinifier.cs" />
