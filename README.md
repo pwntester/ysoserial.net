@@ -40,7 +40,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) DataSet
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) ObjectDataProvider (supports extra options: use the '--fullhelp' argument to view)
-		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer , YamlDotNet < 5.0.0
+		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
 	(*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) RolePrincipal
@@ -68,9 +68,9 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) ApplicationTrust (Generates XML payload for the ApplicationTrust class)
 	(*) Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
 	(*) DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
-	(*) Resx (Generates RESX files)
+	(*) Resx (Generates RESX and .RESOURCES files)
 	(*) SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
-	(*) SharePoint (Generates poayloads for the following SharePoint CVEs: CVE-2019-0604, CVE-2018-8421)
+	(*) SharePoint (Generates poayloads for the following SharePoint CVEs: CVE-2020-1147, CVE-2019-0604, CVE-2018-8421)
 	(*) TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
 	(*) ViewState (Generates a ViewState using known MachineKey parameters)
 
@@ -223,7 +223,7 @@ Credits for available gadgets:
 	DataSet
 		[Finders: James Forshaw] [Contributors: Soroush Dalili]
 	ObjectDataProvider
-		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili, Dane Evans]
+		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili]
 	PSObject
 		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz]
 	ResourceSet
@@ -263,7 +263,7 @@ Credits for available plugins:
 	SessionSecurityTokenHandler
 		Soroush Dalili
 	SharePoint
-		CVE-2019-0604: Markus Wulftange, CVE-2018-8421: Soroush Dalili, implemented by Soroush Dalili
+		CVE-2018-8421: Soroush Dalili, CVE-2019-0604: Markus Wulftange, CVE-2020-1147: Oleksandr Mirosh, Markus Wulftange, Jonathan Birch, Steven Seeley (write-up)  - implemented by Soroush Dalili
 	TransactionManagerReenlist
 		Soroush Dalili
 	ViewState
@@ -307,6 +307,8 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://www.nccgroup.trust/uk/our-research/technical-advisory-code-execution-by-viewing-resource-files-in-net-reflector/
 - https://www.mdsec.co.uk/2020/02/cve-2020-0618-rce-in-sql-server-reporting-services-ssrs/
 - https://www.thezdi.com/blog/2020/2/24/cve-2020-0688-remote-code-execution-on-microsoft-exchange-server-through-fixed-cryptographic-keys
+- https://www.thezdi.com/blog/2020/4/28/cve-2020-0932-remote-code-execution-on-microsoft-sharepoint-using-typeconverters
+- https://srcincite.io/blog/2020/07/20/sharepoint-and-pwn-remote-code-execution-against-sharepoint-server-abusing-dataset.html
 
 ### Talks:
 - https://www.blackhat.com/docs/us-17/thursday/us-17-Munoz-Friday-The-13th-Json-Attacks.pdf
