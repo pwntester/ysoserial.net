@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Polenter.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
@@ -11,11 +12,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using System.Web.UI;
+using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 using YamlDotNet.Serialization;
-using ysoserial.Helpers.SharpSerializerHelpers;
 
 namespace ysoserial.Helpers
 {
@@ -142,7 +143,7 @@ namespace ysoserial.Helpers
             try
             {
                 Console.WriteLine("\n~~SharpSerializer (Binary):~~\n");
-                Console.WriteLine(SharpSerializer_Binary_Serialize_ToBase64String(myobj));
+                Console.WriteLine(SharpSerializer_Binary_serialize_ToBase64(myobj));
             }
             catch (Exception e)
             {
@@ -151,12 +152,12 @@ namespace ysoserial.Helpers
 
             try
             {
-                Console.WriteLine("\n~~SharpSerializer (Xml):~~\n");
-                Console.WriteLine(SharpSerializer_Xml_Serialize(myobj));
+                Console.WriteLine("\n~~SharpSerializer (XML):~~\n");
+                Console.WriteLine(SharpSerializer_XML_serialize_ToString(myobj));
             }
             catch (Exception e)
             {
-                Console.WriteLine("\tError in SharpSerializer (Xml)!");
+                Console.WriteLine("\tError in SharpSerializer (XML)!");
             }
         }
 
@@ -171,15 +172,15 @@ namespace ysoserial.Helpers
 
             StringBuilder sb = new StringBuilder();
             sb.Append("Object returned from:");
-            if(XmlSerializer_test(myobj, type) != null)
+            if (XmlSerializer_test(myobj, type) != null)
             {
                 sb.AppendLine("XmlSerializer_test");
             }
-            if(DataContractSerializer_test(myobj, type) != null)
+            if (DataContractSerializer_test(myobj, type) != null)
             {
                 sb.AppendLine("DataContractSerializer_test");
             }
-            if(Xaml_test(myobj) != null)
+            if (Xaml_test(myobj) != null)
             {
                 sb.AppendLine("Xaml_test");
             }
@@ -223,7 +224,7 @@ namespace ysoserial.Helpers
             {
                 sb.AppendLine("SharpSerializer_ObjectDataProvider_Binary_test");
             }
-            if (SharpSerializer_Xml_test(myobj) != null)
+            if (SharpSerializer_XML_test(myobj) != null)
             {
                 sb.AppendLine("SharpSerializer_ObjectDataProvider_Xml_test");
             }
@@ -273,7 +274,7 @@ namespace ysoserial.Helpers
 
         public static object XMLSerializer_deserialize(string str, string type)
         {
-            return XMLSerializer_deserialize(str, type, "" , "");
+            return XMLSerializer_deserialize(str, type, "", "");
         }
 
         public static object XMLSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
@@ -324,7 +325,7 @@ namespace ysoserial.Helpers
             // Finding the namespace tag prefix of "http://schemas.microsoft.com/2003/10/Serialization/"
             Regex tagPrefixSerializationRegex = new Regex(@"xmlns:([\w]+)\s*=\s*""http://schemas.microsoft.com/2003/10/Serialization/""", RegexOptions.IgnoreCase);
             Match tagPrefixSerializationMatch = tagPrefixSerializationRegex.Match(dirtymarshal);
-            if(tagPrefixSerializationMatch.Groups.Count > 1)
+            if (tagPrefixSerializationMatch.Groups.Count > 1)
             {
                 string tagPrefixSerialization = tagPrefixSerializationMatch.Groups[1].Value;
                 if (!string.IsNullOrEmpty(tagPrefixSerialization))
@@ -337,7 +338,7 @@ namespace ysoserial.Helpers
                         string factoryTypeFullString = matchFactoryType.Groups[0].Value;
                         string mainTypeTagPrefix = matchFactoryType.Groups[1].Value;
                         string mainTypeTagName = matchFactoryType.Groups[2].Value;
-                        if(!string.IsNullOrEmpty(mainTypeTagName) && !string.IsNullOrEmpty(mainTypeTagPrefix))
+                        if (!string.IsNullOrEmpty(mainTypeTagName) && !string.IsNullOrEmpty(mainTypeTagPrefix))
                         {
                             // start replacing the dirty bits!
 
@@ -365,7 +366,7 @@ namespace ysoserial.Helpers
                                 // we need this to make it standard
                                 result = XMLMinifier.XmlXSLTMinifier(dirtymarshal);
 
-                                result = "<" + rootTagName + " "+ typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
+                                result = "<" + rootTagName + " " + typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
                             }
 
                         }
@@ -831,114 +832,137 @@ namespace ysoserial.Helpers
             return Encoding.Default.GetString(ms.ToArray());
         }
 
-        /// <summary>
-        /// Serializes a binary SharpSerializer ObjectDataProvider gadget with a specified command to a byte array object.
-        /// </summary>
-        /// <param name="command">The command to include.</param>
-        /// <returns>The serialized object.</returns>
-        public static object SharpSerializer_ObjectDataProvider_Binary_Serialize(string command)
+        public static object SharpSerializer_Binary_deserialize_FromByteArray(byte[] serializedData)
         {
-            return SharpSerializerHelperMethods.GenerateSharpSerializerBinaryPayload(command);
-        }
-
-        /// <summary>
-        /// Deserializes a binary SharpSerializer object.
-        /// </summary>
-        /// <param name="serializedData">The raw serialized object.</param>
-        /// <returns>The deserialized object</returns>
-        public static object SharpSerializer_ObjectDataProvider_Binary_Deserialize(object serializedData)
-        {
-            SharpSerializer serializer = new SharpSerializer(true);
-            using (MemoryStream memoryStream = new MemoryStream((byte[])serializedData))
+            SharpSerializer serializer = new SharpSerializer(true); // true -> binary
+            using (MemoryStream memoryStream = new MemoryStream(serializedData))
             {
                 return serializer.Deserialize(memoryStream);
             }
         }
 
-        /// <summary>
-        /// Serializes an object with the SharpSerializer binary setting as a base64 string.
-        /// </summary>
-        /// <param name="myobject">The object to serialize.</param>
-        /// <returns>The serialized object bytes as a base64 string.</returns>
-        public static string SharpSerializer_Binary_Serialize_ToBase64String(object myobject)
+        public static object SharpSerializer_Binary_deserialize_FromBase64(string serializedDataBase64)
         {
-            SharpSerializer serializer = new SharpSerializer(false);
+            return SharpSerializer_Binary_deserialize_FromByteArray(Convert.FromBase64String(serializedDataBase64));
+        }
+
+        public static byte[] SharpSerializer_Binary_serialize_ToByteArray(object myobj)
+        {
+            return SharpSerializer_Binary_serialize_WithExclusion_ToByteArray(myobj, null);
+        }
+
+        public static string SharpSerializer_Binary_serialize_ToBase64(object myobj)
+        {
+            return SharpSerializer_Binary_serialize_WithExclusion_ToBase64(myobj, null);
+        }
+
+        public static byte[] SharpSerializer_Binary_serialize_WithExclusion_ToByteArray(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
+        {
+            var settings = new SharpSerializerBinarySettings();
+            settings.AdvancedSettings.RootName = "r"; // to keep it short
+            SharpSerializer serializer = new SharpSerializer(settings);
             using (var memoryStream = new MemoryStream())
             {
-                serializer.Serialize(myobject, memoryStream);
-                return Convert.ToBase64String(memoryStream.ToArray());
+                if (excludedProperties != null)
+                {
+                    foreach (KeyValuePair<Type, List<String>> excKVP in excludedProperties)
+                    {
+                        foreach (string excPropertyName in excKVP.Value)
+                        {
+                            serializer.PropertyProvider.PropertiesToIgnore.Add(excKVP.Key, excPropertyName);
+                        }
+                    }
+                }
+                serializer.Serialize(myobj, memoryStream);
+                return memoryStream.ToArray();
             }
         }
 
-        /// <summary>
-        /// Tests the binary SharpSerializer deserialization.
-        /// </summary>
-        /// <param name="myobj">The object to deserialize.</param>
-        /// <returns>The deserialized object.</returns>
+        public static string SharpSerializer_Binary_serialize_WithExclusion_ToBase64(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
+        {
+            return Convert.ToBase64String(SharpSerializer_Binary_serialize_WithExclusion_ToByteArray(myobj, excludedProperties));
+        }
+
         public static object SharpSerializer_Binary_test(object myobj)
         {
-            SharpSerializer serializer = new SharpSerializer(true);
+            try
+            {
+                return SharpSerializer_Binary_deserialize_FromByteArray(SharpSerializer_Binary_serialize_ToByteArray(myobj));
+            }
+            catch (Exception e)
+            {
+                //ignore
+                return null;
+            }
+        }
+
+        public static object SharpSerializer_XML_deserialize_FromByteArray(byte[] serializedData)
+        {
+            SharpSerializer serializer = new SharpSerializer(false); // false -> XML
+            using (MemoryStream memoryStream = new MemoryStream(serializedData))
+            {
+                return serializer.Deserialize(memoryStream);
+            }
+        }
+
+        public static object SharpSerializer_XML_deserialize_FromString(string serializedData)
+        {
+            return SharpSerializer_XML_deserialize_FromByteArray(Encoding.UTF8.GetBytes(serializedData));
+        }
+
+        public static byte[] SharpSerializer_XML_serialize_ToByteArray(object myobj)
+        {
+
+            return SharpSerializer_XML_serialize_WithExclusion_ToByteArray(myobj, null);
+        }
+
+        public static string SharpSerializer_XML_serialize_ToString(object myobj)
+        {
+            return SharpSerializer_XML_serialize_WithExclusion_ToString(myobj, null);
+        }
+
+        public static byte[] SharpSerializer_XML_serialize_WithExclusion_ToByteArray(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
+        {
+            var settings = new SharpSerializerXmlSettings();
+            settings.Encoding = System.Text.Encoding.ASCII;
+            settings.AdvancedSettings.RootName = "r"; // to keep it short
+            SharpSerializer serializer = new SharpSerializer(settings);
             using (var memoryStream = new MemoryStream())
             {
+                if (excludedProperties != null)
+                {
+                    foreach (KeyValuePair<Type, List<String>> excKVP in excludedProperties)
+                    {
+                        foreach (string excPropertyName in excKVP.Value)
+                        {
+                            serializer.PropertyProvider.PropertiesToIgnore.Add(excKVP.Key, excPropertyName);
+                        }
+                    }
+                }
+                
                 serializer.Serialize(myobj, memoryStream);
-                memoryStream.Position = 0;
-                return serializer.Deserialize(memoryStream);
+                return memoryStream.ToArray();
             }
         }
 
-        /// <summary>
-        /// Serializes an XML SharpSerializer ObjectDataProvider gadget with a specified command to a byte array object.
-        /// </summary>
-        /// <param name="command">The command to include.</param>
-        /// <returns>The serialized object.</returns>
-        public static object SharpSerializer_ObjectDataProvider_Xml_Serialize(string command)
+        public static string SharpSerializer_XML_serialize_WithExclusion_ToString(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
         {
-            return SharpSerializerHelperMethods.GenerateSharpSerializerXmlPayload(command);
+            return Encoding.UTF8.GetString(SharpSerializer_XML_serialize_WithExclusion_ToByteArray(myobj, excludedProperties));
         }
 
-        /// <summary>
-        /// Deserializes an XML SharpSerializer payload object.
-        /// </summary>
-        /// <param name="serializedData">The raw serialized object.</param>
-        /// <returns>The serialized object.</returns>
-        public static object SharpSerializer_ObjectDataProvider_Xml_Deserialize(string serializedData)
+        public static object SharpSerializer_XML_test(object myobj)
         {
-            SharpSerializer serializer = new SharpSerializer(false);
-            using (MemoryStream memoryStream = new MemoryStream(Encoding.Default.GetBytes(serializedData)))
+            try
             {
-                return serializer.Deserialize(memoryStream);
+                return SharpSerializer_XML_deserialize_FromByteArray(SharpSerializer_XML_serialize_ToByteArray(myobj));
+            }
+            catch (Exception e)
+            {
+                //ignore
+                return null;
             }
         }
 
-        /// <summary>
-        /// Serializes an object with the SharpSerializer XML setting.
-        /// </summary>
-        /// <param name="myobject">The object to serialize.</param>
-        /// <returns>The serialized object.</returns>
-        public static string SharpSerializer_Xml_Serialize(object myobject)
-        {
-            SharpSerializer serializer = new SharpSerializer(false);
-            using (var memoryStream = new MemoryStream())
-            {
-                serializer.Serialize(myobject, memoryStream);
-                return Encoding.Default.GetString(memoryStream.ToArray());
-            }
-        }
 
-        /// <summary>
-        /// Tests the XML SharpSerializer deserialization.
-        /// </summary>
-        /// <param name="myobj">The object to deserialize.</param>
-        /// <returns>The deserialized object.</returns>
-        public static object SharpSerializer_Xml_test(object myobj)
-        {
-            SharpSerializer serializer = new SharpSerializer(false);
-            using (var memoryStream = new MemoryStream())
-            {
-                serializer.Serialize(myobj, memoryStream);
-                memoryStream.Position = 0;
-                return serializer.Deserialize(memoryStream);
-            }
-        }
     }
 }

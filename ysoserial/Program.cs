@@ -25,7 +25,7 @@ namespace ysoserial
         static string plugin_name = "";
         static bool test = false;
         static bool minify = false;
-        static bool useSimpleType = true;
+        static bool useSimpleType = false;
         static bool show_help = false;
         static bool show_credit = false;
         static bool show_fullhelp = false;
