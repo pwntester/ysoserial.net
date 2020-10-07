@@ -223,7 +223,7 @@ Credits for available gadgets:
 	DataSet
 		[Finders: James Forshaw] [Contributors: Soroush Dalili]
 	ObjectDataProvider
-		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili]
+		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili, Dane Evans]
 	PSObject
 		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz]
 	ResourceSet
