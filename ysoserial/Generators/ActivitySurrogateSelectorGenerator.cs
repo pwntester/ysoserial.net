@@ -35,7 +35,7 @@ namespace ysoserial.Generators
         protected byte[] assemblyBytes;
         protected int variant_number = 1;
         protected InputArgs inputArgs = new InputArgs();
-        public PayloadClass() : this(1, new InputArgs()) { }
+        public PayloadClass() { }
         public PayloadClass(int variant_number, InputArgs inputArgs)
         {
             this.variant_number = variant_number;
