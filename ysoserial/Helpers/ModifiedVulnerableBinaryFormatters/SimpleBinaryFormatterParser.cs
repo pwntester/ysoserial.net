@@ -78,6 +78,8 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
             return size;
         }
 
+        // This was buggy so it was replaced:
+        /*
         public static byte[] Calculate7BitEncodedInt(int value)
         {
             // it cannot be more than 5 bytes according to [MS-NRBF]
@@ -103,7 +105,22 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
 
             return output;
         }
+        */
+        // Thanks to a previously submitted code by Dane Evans
+        public static byte[] Calculate7BitEncodedInt(int value)
+        {
+            List<byte> bytes = new List<byte>();
 
+            uint num;
+            for (num = (uint)value; num >= 128U; num >>= 7)
+            {
+                bytes.Add((byte)(num | 128U));
+            }
+
+            bytes.Add((byte)num);
+            return bytes.ToArray();
+        }
+        
         public static byte[] Create7bitLengthObjectString(string strInput)
         {
             byte[] size = Calculate7BitEncodedInt(strInput.Length);

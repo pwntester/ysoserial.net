@@ -939,7 +939,7 @@ namespace ysoserial.Helpers
                         }
                     }
                 }
-                
+
                 serializer.Serialize(myobj, memoryStream);
                 return memoryStream.ToArray();
             }
