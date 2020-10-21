@@ -88,6 +88,8 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -120,6 +122,7 @@
     <Compile Include="Generators\SessionViewStateHistoryItemGenerator.cs" />
     <Compile Include="Generators\RolePrincipalGenerator.cs" />
     <Compile Include="Generators\ClaimsIdentityGenerator.cs" />
+    <Compile Include="Generators\ToolboxItemContainerGenerator.cs" />
     <Compile Include="Generators\WindowsPrincipalGenerator.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\AdvancedBinaryFormatterParser.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarycommonclasses.cs" />
