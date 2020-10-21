@@ -51,6 +51,8 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) TextFormattingRunProperties [This normally generates the shortest payload] (supports extra options: use the '--fullhelp' argument to view)
 		Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , SoapFormatter
+	(*) ToolboxItemContainer
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) TypeConfuseDelegate
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
 	(*) TypeConfuseDelegateMono [Tweaked TypeConfuseDelegate gadget to work with Mono]
@@ -236,6 +238,8 @@ Credits for available gadgets:
 		[Finders: Soroush Dalili]
 	TextFormattingRunProperties
 		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Soroush Dalili]
+	ToolboxItemContainer
+		[Finders: @frycos]
 	TypeConfuseDelegate
 		[Finders: James Forshaw] [Contributors: Alvaro Munoz]
 	TypeConfuseDelegateMono
