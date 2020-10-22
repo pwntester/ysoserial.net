@@ -405,12 +405,13 @@ namespace ysoserial.Helpers
         {
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
-            using (XmlWriter writer = XmlWriter.Create("test.xml", settings))
+            StringBuilder sb = new StringBuilder();
+            using (XmlWriter writer = XmlWriter.Create(sb, settings))
             {
                 DataContractSerializer ser = new DataContractSerializer(type);
                 ser.WriteObject(writer, myobj);
             }
-            string text = File.ReadAllText("test.xml");
+            string text = sb.ToString();
             return text;
         }
 
@@ -468,11 +469,14 @@ namespace ysoserial.Helpers
             // return XamlWriter.Save(myobj); // we lose indentation here so:
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
-            using (XmlWriter writer = XmlWriter.Create("test.xaml", settings))
+            StringBuilder sb = new StringBuilder();
+
+            using (XmlWriter writer = XmlWriter.Create(sb, settings))
             {
                 System.Windows.Markup.XamlWriter.Save(myobj, writer);
             }
-            string text = File.ReadAllText("test.xaml");
+            
+            string text = sb.ToString();
             return text;
         }
 
@@ -506,12 +510,13 @@ namespace ysoserial.Helpers
         {
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
-            using (XmlWriter writer = XmlWriter.Create("testnetdata.xml", settings))
+            StringBuilder sb = new StringBuilder();
+            using (XmlWriter writer = XmlWriter.Create(sb, settings))
             {
                 NetDataContractSerializer ser = new NetDataContractSerializer();
                 ser.WriteObject(writer, myobj);
             }
-            string text = File.ReadAllText("testnetdata.xml");
+            string text = sb.ToString();
             return text;
         }
 
