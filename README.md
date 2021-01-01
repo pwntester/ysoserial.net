@@ -2,7 +2,7 @@
 ---
 ![GitHub CI](https://github.com/pwntester/ysoserial.net/workflows/GitHub%20CI/badge.svg?branch=master)
 [![v2](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/v2.svg?label=v2%20branch)](https://dev.azure.com/alvaro0002/ysoserial.net/_build/latest?definitionId=1&branchName=v2)
-[![download](https://img.shields.io/badge/dowload-latest-blue.svg)](https://github.com/pwntester/ysoserial.net/releases/latest)
+[![download](https://img.shields.io/badge/download-latest-blue.svg)](https://github.com/pwntester/ysoserial.net/releases/latest)
 [![license](https://img.shields.io/github/license/pwntester/ysoserial.net.svg)](LICENSE.txt)
 ![stars](https://img.shields.io/github/stars/pwntester/ysoserial.net.svg?style=social)
 ![forks](https://img.shields.io/github/forks/pwntester/ysoserial.net.svg?style=social)
