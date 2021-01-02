@@ -22,7 +22,7 @@ This software has been created purely for the purposes of academic research and 
 This software is a personal project and not related with any companies, including Project owner and contributors employers.
 
 ## Installation
-You can install the software from this page: https://github.com/pwntester/ysoserial.net/releases
+You can install the latest version and previous releases of YSoSerial.NET from [the releases page](https://github.com/pwntester/ysoserial.net/releases)
 
 - Release 1.34: [Download](https://github.com/pwntester/ysoserial.net/releases/download/v1.34/ysoserial-1.34.zip) (latest version)
 - Release 1.33: [Download](https://github.com/pwntester/ysoserial.net/releases/download/v1.33/ysoserial-1.33.zip)
