@@ -24,10 +24,7 @@ This software is a personal project and not related with any companies, includin
 ## Installation
 You can install the latest version and previous releases of YSoSerial.NET from [the releases page](https://github.com/pwntester/ysoserial.net/releases)
 
-- Release 1.34: [Download](https://github.com/pwntester/ysoserial.net/releases/download/v1.34/ysoserial-1.34.zip) (latest version)
-- Release 1.33: [Download](https://github.com/pwntester/ysoserial.net/releases/download/v1.33/ysoserial-1.33.zip)
-- Release 1.32: [Download](https://github.com/pwntester/ysoserial.net/releases/download/v1.32/ysoserial-1.32.zip)
-- Release 1.31: [Download](https://github.com/pwntester/ysoserial.net/archive/v1.31.zip)
+- Release 1.34 (latest version): [Download](https://github.com/pwntester/ysoserial.net/releases/download/v1.34/ysoserial-1.34.zip)
 
 ## Usage
 ```
