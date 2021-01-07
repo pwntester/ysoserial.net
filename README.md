@@ -2,7 +2,7 @@
 ---
 ![GitHub CI](https://github.com/pwntester/ysoserial.net/workflows/GitHub%20CI/badge.svg?branch=master)
 [![v2](https://img.shields.io/azure-devops/build/alvaro0002/ysoserial.net/1/v2.svg?label=v2%20branch)](https://dev.azure.com/alvaro0002/ysoserial.net/_build/latest?definitionId=1&branchName=v2)
-[![download](https://img.shields.io/badge/dowload-latest-blue.svg)](https://github.com/pwntester/ysoserial.net/releases/latest)
+[![download](https://img.shields.io/badge/download-latest-blue.svg)](https://github.com/pwntester/ysoserial.net/releases/latest)
 [![license](https://img.shields.io/github/license/pwntester/ysoserial.net.svg)](LICENSE.txt)
 ![stars](https://img.shields.io/github/stars/pwntester/ysoserial.net.svg?style=social)
 ![forks](https://img.shields.io/github/forks/pwntester/ysoserial.net.svg?style=social)
@@ -20,6 +20,11 @@ This project is inspired by [Chris Frohoff's ysoserial project](https://github.c
 This software has been created purely for the purposes of academic research and for the development of effective defensive techniques, and is not intended to be used to attack systems except where explicitly authorized. Project maintainers are not responsible or liable for misuse of the software. Use responsibly.
 
 This software is a personal project and not related with any companies, including Project owner and contributors employers.
+
+## Installation
+You can install the latest version and previous releases of YSoSerial.NET from [the releases page](https://github.com/pwntester/ysoserial.net/releases)
+
+- Release 1.34 (latest version): [Download](https://github.com/pwntester/ysoserial.net/releases/download/v1.34/ysoserial-1.34.zip)
 
 ## Usage
 ```
