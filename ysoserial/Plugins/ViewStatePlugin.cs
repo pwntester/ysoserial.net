@@ -246,8 +246,8 @@ namespace ysoserial.Plugins
 
                 if (isLegacy)
                 {
-
-                    dwCode = (int)StringComparer.InvariantCultureIgnoreCase.GetHashCode("/test233");
+                    // seems the result it's same as following code (without --legacy) but i don't know why :)
+                    dwCode = (int)StringComparer.InvariantCultureIgnoreCase.GetHashCode(IISAppInPathOrVirtualDir);
                 }
                 else
                 {
