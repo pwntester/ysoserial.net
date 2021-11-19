@@ -68,7 +68,8 @@ xmlns:r=""clr-namespace:System.Reflection;assembly=mscorlib"">
                 xaml_payload = XMLMinifier.Minify(xaml_payload, null, null);
             }
 
-            TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
+            // TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
+            object payload = TypeConfuseDelegateGenerator.GetXamlGadget(xaml_payload);
             return Serialize(payload, formatter, inputArgs);
         }
         
