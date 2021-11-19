@@ -243,3 +243,6 @@ ModelManifest.xml
 
 # Tests
 ysoserial/Helpers/TestingArena/
+
+# Rider
+.idea
