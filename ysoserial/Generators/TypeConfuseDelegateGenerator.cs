@@ -399,10 +399,6 @@ namespace ysoserial.Generators
             }
             else
             {
-                //Optional
-                // ObjectDataProviderGenerator myObjectDataProviderGenerator = new ObjectDataProviderGenerator();
-                // string xaml_payload = myObjectDataProviderGenerator.GenerateWithNoTest("xaml", inputArgs).ToString();
-                // return Serialize(GetXamlGadget(xaml_payload), formatter, inputArgs);
                 return Serialize(TypeConfuseDelegateGadget(inputArgs), formatter, inputArgs);
             }
         }
