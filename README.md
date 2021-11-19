@@ -42,6 +42,8 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
 	(*) ClaimsIdentity
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
+	(*) ClaimsPrincipal
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) DataSet
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) ObjectDataProvider (supports extra options: use the '--fullhelp' argument to view)
