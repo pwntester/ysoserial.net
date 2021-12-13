@@ -152,10 +152,12 @@ DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
 
 Options:
 
-  -m, --mode=VALUE           the payload mode: read_file, upload_file, run_command.
+  -m, --mode=VALUE           the payload mode: read_file, write_file, run_command.
   -c, --command=VALUE        the command to be executed in run_command mode.
   -u, --url=VALUE            the url to fetch the file from in write_file mode.
   -f, --file=VALUE           the file to read in read_file mode or the file to write to in write_file_mode.
+      --minify               Whether to minify the payloads where applicable (experimental). Default: false
+      --ust, --usesimpletype This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true
 ```
 
 ## Examples
