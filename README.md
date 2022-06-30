@@ -46,6 +46,8 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) DataSet
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
+	(*) DataSetTypeSpoof
+        Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 	(*) ObjectDataProvider (supports extra options: use the '--fullhelp' argument to view)
 		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
 	(*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
