@@ -232,7 +232,7 @@ namespace ysoserial
                                 if (formatter.IndexOf(formatter_name, StringComparison.OrdinalIgnoreCase) >= 0)
                                 {
                                     // only keeping the first part of formatter that contains alphanumerical to ignore variants or other descriptions
-                                    string current_formatter_name = Regex.Split(formatter, @"[^\w$_\-]")[0];
+                                    string current_formatter_name = Regex.Split(formatter, @"[^\w$_\-.]")[0];
                                     Console.Write("\r\n\r\n(*) Gadget: " + gg.Name() + " - Formatter: " + current_formatter_name + " - ");                                    
 
                                     outputformat = GetDefaultOutputFormat(current_formatter_name);
