@@ -236,7 +236,9 @@ namespace ysoserial
                                 {
                                     // only keeping the first part of formatter that contains alphanumerical to ignore variants or other descriptions
                                     string current_formatter_name = Regex.Split(formatter, @"[^\w$_\-.]")[0];
+                                    
                                     String payloadTitle = "(*) Gadget: " + gg.Name() + " - Formatter: " + current_formatter_name;
+
 
                                     outputformat = GetDefaultOutputFormat(current_formatter_name);
                                     if (cmd == "" && cmdstdin)
