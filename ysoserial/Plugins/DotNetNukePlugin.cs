@@ -14,7 +14,7 @@ namespace ysoserial.Plugins
         static string url = "";
         static string command = "";
         static bool minify = false;
-        static bool useSimpleType = true;
+        static bool useSimpleType = false;
 
         static OptionSet options = new OptionSet()
             {
@@ -23,7 +23,6 @@ namespace ysoserial.Plugins
                 {"u|url=", "the url to fetch the file from in write_file mode.", v => url = v },
                 {"f|file=", "the file to read in read_file mode or the file to write to in write_file_mode.", v => path = v },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
-                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
             };
 
         public string Name()

