@@ -16,6 +16,7 @@ namespace ysoserial
     {
         //Command line arguments
         static string outputformat = "";
+        static string outputpath = "";
         static string gadget_name = "";
         static string formatter_name = "";
         static string searchFormatter = "";
@@ -39,16 +40,17 @@ namespace ysoserial
         static OptionSet options = new OptionSet()
             {
                 {"p|plugin=", "The plugin to be used.", v => plugin_name = v },
-                {"o|output=", "The output format (raw|base64). Default: raw", v => outputformat = v },
+                {"o|output=", "The output format (raw|base64|raw-urlencode|base64-urlencode). Default: raw", v => outputformat = v },
                 {"g|gadget=", "The gadget chain.", v => gadget_name = v },
                 {"f|formatter=", "The formatter.", v => formatter_name = v },
                 {"c|command=", "The command to be executed.", v => cmd = v },
                 {"rawcmd", "Command will be executed as is without `cmd /c ` being appended (anything after first space is an argument).", v => rawcmd =  v != null },
                 {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
+                {"outputpath=", "The output file path. It will be ignored if empty.", v => outputpath = v },
                 {"minify", "Whether to minify the payloads where applicable. Default: false", v => minify =  v != null },
                 {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple (always `true` with `--minify` for binary formatters). Default: true", v => useSimpleType =  v != null },
-                {"raf|runallformatters", "Whether to run all the gadgets with the provided formatter (ignores gagdet name, output format, and the test flag). This will search in formatters and also show the displayed payload length. Default: false", v => isSearchFormatterAndRunMode =  v != null },
+                {"raf|runallformatters", "Whether to run all the gadgets with the provided formatter (ignores gagdet name, output format, and the test flag arguments). This will search in formatters and also show the displayed payload length. Default: false", v => isSearchFormatterAndRunMode =  v != null },
                 {"sf|searchformatter=", "Search in all formatters to show relevant gadgets and their formatters (other parameters will be ignored).", v => searchFormatter =  v},
                 {"debugmode", "Enable debugging to show exception errors and output length", v => isDebugMode  =  v != null},
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
@@ -80,7 +82,7 @@ namespace ysoserial
                 System.Environment.Exit(-1);
             }
 
-            if(runMyTest)
+            if (runMyTest)
             {
                 Helpers.TestingArena.TestingArenaHome runTest = new Helpers.TestingArena.TestingArenaHome();
                 runTest.Start(inputArgs);
@@ -101,7 +103,7 @@ namespace ysoserial
             if (((cmd == "" && !cmdstdin) || formatter_name == "" || gadget_name == "") &&
                 plugin_name == "" && !show_credit && searchFormatter == "")
             {
-                if(!show_help)
+                if (!show_help)
                     Console.WriteLine("Missing arguments. You may need to provide the command parameter even if it is being ignored.");
                 show_help = true;
             }
@@ -110,7 +112,7 @@ namespace ysoserial
 
             // Populate list of available gadgets
             var generatorTypes = types.Where(p => typeof(IGenerator).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
-            generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList().OrderBy(s=>s, StringComparer.OrdinalIgnoreCase);
+            generators = generatorTypes.Select(x => x.Name.Replace("Generator", "")).ToList().OrderBy(s => s, StringComparer.OrdinalIgnoreCase);
 
             // Populate list of available plugins
             var pluginTypes = types.Where(p => typeof(IPlugin).IsAssignableFrom(p) && !p.IsInterface && !p.AssemblyQualifiedName.Contains("Helpers.TestingArena"));
@@ -151,7 +153,7 @@ namespace ysoserial
                 {
                     plugin_name = plugins.Where(p => String.Equals(p, plugin_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                     var container = Activator.CreateInstance(null, "ysoserial.Plugins." + plugin_name + "Plugin");
-                    
+
                     plugin = (IPlugin)container.Unwrap();
                 }
                 catch
@@ -162,7 +164,7 @@ namespace ysoserial
 
                 raw = plugin.Run(args);
 
-                DisplayOutput(outputformat, raw, isDebugMode);
+                ProcessOutput(outputformat, raw, isDebugMode, outputpath);
             }
             // othersiwe run payload generation
             else if (!isSearchFormatterAndRunMode && (cmd != "" || cmdstdin) && formatter_name != "" && gadget_name != "")
@@ -214,11 +216,12 @@ namespace ysoserial
                     outputformat = GetDefaultOutputFormat(formatter_name);
                 }
 
-                DisplayOutput(outputformat, raw, isDebugMode);
+                ProcessOutput(outputformat, raw, isDebugMode, outputpath);
             }
             else if (isSearchFormatterAndRunMode && (cmd != "" || cmdstdin) && formatter_name != "")
             {
                 Console.Write("## Payloads with formatters contains \"" + formatter_name + "\" ##");
+                int counter = 0;
                 foreach (string g in generators)
                 {
                     try
@@ -233,7 +236,9 @@ namespace ysoserial
                                 {
                                     // only keeping the first part of formatter that contains alphanumerical to ignore variants or other descriptions
                                     string current_formatter_name = Regex.Split(formatter, @"[^\w$_\-.]")[0];
-                                    Console.Write("\r\n\r\n(*) Gadget: " + gg.Name() + " - Formatter: " + current_formatter_name + " - ");                                    
+                                    
+                                    String payloadTitle = "(*) Gadget: " + gg.Name() + " - Formatter: " + current_formatter_name;
+
 
                                     outputformat = GetDefaultOutputFormat(current_formatter_name);
                                     if (cmd == "" && cmdstdin)
@@ -246,7 +251,7 @@ namespace ysoserial
                                     string rawPayloadString = "";
                                     if (raw.GetType() == typeof(String))
                                     {
-                                        rawPayloadString = (string) raw;
+                                        rawPayloadString = (string)raw;
                                     }
                                     else if (raw.GetType() == typeof(byte[]))
                                     {
@@ -255,13 +260,14 @@ namespace ysoserial
 
                                     if (!String.IsNullOrEmpty(rawPayloadString))
                                     {
-                                        DisplayOutput(outputformat, raw, true);
+                                        ProcessOutput(outputformat, raw, true, outputpath, counter, payloadTitle, "\r\n");
+                                        counter++;
                                     }
                                     else
                                     {
-                                        Console.WriteLine("\r\nError in generating this payload!");
+                                        Console.WriteLine("\r\nError in generating this payload: " + payloadTitle);
                                     }
-                                        
+
                                 }
                             }
                         }
@@ -281,44 +287,86 @@ namespace ysoserial
             }
         }
 
-        private static void DisplayOutput(string outputformat, object raw, bool showOutputLength)
+        private static void ProcessOutput(string outputformat, object raw, bool showOutputLength, string outputFilePath)
         {
-            // If requested, base64 encode the output
-            if (outputformat.ToLower().Equals("base64"))
+            ProcessOutput(outputformat, raw, showOutputLength, outputFilePath, 0, "", "");
+        }
+        private static void ProcessOutput(string outputformat, object raw, bool showOutputLength, string outputFilePath, int loopCount, string prefix, string suffix)
+        {
+            byte[] outputBytes = null;
+            string outputString = "";
+            int outputActualLength = 0;
+
+            if (outputformat.ToLower().Contains("base64"))
             {
                 if (raw.GetType() == typeof(String))
                 {
-                    raw = Encoding.ASCII.GetBytes((String)raw);
-                }
-                string b64encoded = Convert.ToBase64String((byte[])raw);
-                if (showOutputLength)
-                {
-                    Console.WriteLine("Output length: " + b64encoded.Length + "\r\n");
-                }
-                Console.WriteLine(b64encoded);
-            }
-            else
-            {
-                MemoryStream data = new MemoryStream();
-                if (raw.GetType() == typeof(String))
-                {
-                    data = new MemoryStream(Encoding.UTF8.GetBytes((String)raw ?? ""));
+                    outputBytes = Encoding.ASCII.GetBytes((String)raw);
                 }
                 else if (raw.GetType() == typeof(byte[]))
                 {
-                    data = new MemoryStream((byte[])raw);
+                    outputBytes = (byte[])raw;
+                }
+
+                outputString = Convert.ToBase64String(outputBytes);
+                outputActualLength = outputString.Length;
+
+                if (outputformat.ToLower().Contains("urlencode"))
+                {
+                    outputString = Uri.EscapeDataString(outputString);
+                }
+
+                outputBytes = Encoding.ASCII.GetBytes(outputString);
+            }
+            else if (raw.GetType() == typeof(String))
+            {
+                outputString = (String) raw;
+                outputActualLength = outputString.Length;
+
+                if (outputformat.ToLower().Contains("urlencode"))
+                {
+                    outputString = Uri.EscapeDataString(outputString);
+                }
+                outputBytes = Encoding.UTF8.GetBytes((String) outputString ?? "");
+            }
+            else if (raw.GetType() == typeof(byte[]))
+            {
+                outputActualLength = ((byte[])raw).Length;
+
+                if (outputformat.ToLower().Contains("urlencode"))
+                {
+                    outputString = Encoding.UTF8.GetString((byte[])raw);
+                    outputString = Uri.EscapeDataString(outputString);
+                    outputBytes = Encoding.ASCII.GetBytes((String)outputString ?? "");
                 }
                 else
                 {
-                    Console.WriteLine("Unsupported serialized format");
-                    return;
+                    outputBytes = (byte[])raw;
+                }
+
+            }
+
+            if (outputBytes == null)
+            {
+                Console.WriteLine("Unsupported serialized format");
+                return;
+            }
+
+            if (String.IsNullOrWhiteSpace(outputFilePath))
+            {
+                // output in console
+
+                if (!String.IsNullOrEmpty(prefix))
+                {
+                    Console.WriteLine(prefix);
                 }
 
                 if (showOutputLength)
                 {
-                    Console.WriteLine("Output length: " + data.Length + "\r\n");
+                    Console.WriteLine("(*) Output length: " + outputActualLength);
                 }
 
+                MemoryStream data = new MemoryStream(outputBytes);
                 using (Stream console = Console.OpenStandardOutput())
                 {
                     byte[] buffer = new byte[4 * 1024];
@@ -330,6 +378,56 @@ namespace ysoserial
                     }
                     console.Flush();
                 }
+
+                if (!String.IsNullOrEmpty(suffix))
+                {
+                    Console.WriteLine(suffix);
+                }
+            }
+            else
+            {
+                // saving in file
+                try
+                {
+                    if (loopCount <= 0)
+                    {
+                        if (File.Exists(outputFilePath))
+                        {
+                            File.Delete(outputFilePath);
+                        }
+                    }
+
+                    using (var stream = new FileStream(outputFilePath, FileMode.Append))
+                    {
+                        using (StreamWriter writer = new StreamWriter(stream))
+                        {
+                            if (!String.IsNullOrEmpty(prefix))
+                            {
+                                writer.WriteLine(prefix);
+                            }
+
+                            if (showOutputLength)
+                            {
+                                writer.WriteLine("(*) Output length: " + outputBytes.Length);
+                            }
+
+                            writer.Flush();
+
+                            stream.Write(outputBytes, 0, outputBytes.Length);
+
+                            if (!String.IsNullOrEmpty(suffix))
+                            {
+                                writer.WriteLine(suffix);
+                            }
+                            writer.Flush();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error in saving to a file: " + e.Message);
+                }
+
             }
         }
 
@@ -356,11 +454,11 @@ namespace ysoserial
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
                         IGenerator gg = (IGenerator)container.Unwrap();
                         Boolean gadgetSelected = false;
-                        foreach(string formatter in gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
+                        foreach (string formatter in gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
                         {
-                            if (formatter.IndexOf(formatter_name, StringComparison.OrdinalIgnoreCase) >=0)
+                            if (formatter.IndexOf(formatter_name, StringComparison.OrdinalIgnoreCase) >= 0)
                             {
-                                if(gadgetSelected == false)
+                                if (gadgetSelected == false)
                                 {
                                     Console.WriteLine("\t" + gg.Name());
                                     Console.WriteLine("\t\tFound formatters:");
@@ -458,9 +556,9 @@ namespace ysoserial
                             ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
                             IPlugin pp = (IPlugin)container.Unwrap();
                             Console.WriteLine("\t(*) " + pp.Name() + " (" + pp.Description() + ")");
-                            
+
                             OptionSet options = pp.Options();
-                            
+
                             if (options != null && show_fullhelp)
                             {
                                 StringWriter baseTextWriter = new StringWriter();
@@ -509,7 +607,7 @@ namespace ysoserial
 
         private static void ShowCredit()
         {
-            Console.WriteLine("ysoserial.net has been developed by Alvaro Muñoz (@pwntester)");
+            Console.WriteLine("ysoserial.net has been originally developed by Alvaro Muñoz (@pwntester)");
             Console.WriteLine("");
             Console.WriteLine("Credits for available gadgets:");
             foreach (string g in generators)
@@ -520,7 +618,6 @@ namespace ysoserial
                     {
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Generators." + g + "Generator");
                         IGenerator gg = (IGenerator)container.Unwrap();
-                        //Console.WriteLine("\t" + gg.Name() + " (" + gg.Description() + ")");
                         Console.WriteLine("\t" + gg.Name());
                         Console.WriteLine("\t\t" + gg.Credit());
                     }
@@ -542,7 +639,6 @@ namespace ysoserial
                     {
                         ObjectHandle container = Activator.CreateInstance(null, "ysoserial.Plugins." + p + "Plugin");
                         IPlugin pp = (IPlugin)container.Unwrap();
-                        //Console.WriteLine("\t" + pp.Name() + " (" + pp.Description() + ")");
                         Console.WriteLine("\t" + pp.Name());
                         Console.WriteLine("\t\t" + pp.Credit());
                     }
