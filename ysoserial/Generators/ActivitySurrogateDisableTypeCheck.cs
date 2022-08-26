@@ -67,7 +67,7 @@ xmlns:r=""clr-namespace:System.Reflection;assembly=mscorlib"">
             if (inputArgs.Minify)
             {
                 
-                xaml_payload = XMLMinifier.Minify(xaml_payload, null, null);
+                xaml_payload = XmlMinifier.Minify(xaml_payload, null, null);
                 payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
             }
             

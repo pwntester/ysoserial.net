@@ -202,9 +202,9 @@
     <Compile Include="Generators\TypeConfuseDelegateMonoGenerator.cs" />
     <Compile Include="Generators\WindowsClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
-    <Compile Include="Helpers\JSONMinifier.cs" />
+    <Compile Include="Helpers\JsonMinifier.cs" />
     <Compile Include="Helpers\TestingArena\TestingArenaHome.cs" />
-    <Compile Include="Helpers\XMLMinifier.cs" />
+    <Compile Include="Helpers\XmlMinifier.cs" />
     <Compile Include="Helpers\YamlDocumentMinifier.cs" />
     <Compile Include="Plugins\ActivatorUrlPlugin.cs" />
     <Compile Include="Plugins\AltserializationPlugin.cs" />

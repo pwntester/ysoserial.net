@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace ysoserial.Helpers
 {
-    public class JSONMinifier
+    public class JsonMinifier
     {
         public static String Minify(String jsonString, String[] LooseAssemblyNames, String[] finalDiscardableRegExStringArray)
         {
@@ -15,13 +15,13 @@ namespace ysoserial.Helpers
             
             */
 
-            jsonString = JSONNETMinifier(jsonString);
-            jsonString = JSONDirtyMatchReplaceMinifier(jsonString, LooseAssemblyNames, finalDiscardableRegExStringArray);
+            jsonString = JsonNetMinifier(jsonString);
+            jsonString = JsonDirtyMatchReplaceMinifier(jsonString, LooseAssemblyNames, finalDiscardableRegExStringArray);
 
             return jsonString;
         }
 
-        private static String JSONDirtyMatchReplaceMinifier(String jsonString, String[] LooseAssemblyNames, String[] finalDiscardableRegExStringArray)
+        private static String JsonDirtyMatchReplaceMinifier(String jsonString, String[] LooseAssemblyNames, String[] finalDiscardableRegExStringArray)
         {
 
             // replacing spaces between things like:
@@ -59,7 +59,7 @@ namespace ysoserial.Helpers
             return jsonString;
         }
 
-        private static String JSONNETMinifier(String jsonString)
+        private static String JsonNetMinifier(String jsonString)
         {
             using (StringWriter stringWriter = new StringWriter())
             using (JsonReader jsonReader = new JsonTextReader(new StringReader(jsonString)))

