@@ -134,7 +134,7 @@ namespace ysoserial.Generators
                 if (inputArgs.Minify)
                 {
 
-                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
 
                 }
 

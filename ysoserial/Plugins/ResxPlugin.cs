@@ -280,7 +280,7 @@ namespace ysoserial.Plugins
 
                 if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, null, null);
+                    payload = XmlMinifier.Minify(payload, null, null);
                 }
             }
 

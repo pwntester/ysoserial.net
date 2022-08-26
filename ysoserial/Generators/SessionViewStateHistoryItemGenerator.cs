@@ -60,7 +60,7 @@ namespace ysoserial.Generators
                     // by default JsonSerializerSettings.TypeNameAssemblyFormat is set to Simple so we can remove the version etc from the assembly name
                     // see https://www.newtonsoft.com/json/help/html/P_Newtonsoft_Json_JsonSerializerSettings_TypeNameAssemblyFormat.htm
                     // if TypeNameAssemblyFormat == Full , then we have to keep the full name
-                    payload = JSONMinifier.Minify(payload, new string[] { "System.Web.Mobile" }, null);
+                    payload = JsonMinifier.Minify(payload, new string[] { "System.Web.Mobile" }, null);
                 }
 
 
@@ -86,7 +86,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, null, null);
+                    payload = XmlMinifier.Minify(payload, null, null);
                 }
 
                 if (inputArgs.Test)
@@ -111,7 +111,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, null, null);
+                    payload = XmlMinifier.Minify(payload, null, null);
                 }
 
                 if (inputArgs.Test)
@@ -141,7 +141,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
                 }
 
                 if (inputArgs.Test)
