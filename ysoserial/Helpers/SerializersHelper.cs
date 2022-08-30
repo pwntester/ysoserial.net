@@ -17,6 +17,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 using YamlDotNet.Serialization;
+using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
 
 namespace ysoserial.Helpers
 {
@@ -636,25 +637,24 @@ namespace ysoserial.Helpers
             }
         }
 
+        public static string BinaryFormatter_serialize_ToJson(object myobj)
+        {
+            return AdvancedBinaryFormatterParser.StreamToJson(BinaryFormatter_serialize_ToMemoryStream(myobj), false, true, true);
+        }
+
         public static string BinaryFormatter_serialize_ToBase64(object myobj)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, myobj);
-            return Convert.ToBase64String(ms.ToArray());
+            return Convert.ToBase64String(BinaryFormatter_serialize_ToMemoryStream(myobj).ToArray()); 
         }
 
         public static byte[] BinaryFormatter_serialize_ToByteArray(object myobj)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, myobj);
-            return ms.ToArray();
+            return BinaryFormatter_serialize_ToMemoryStream(myobj).ToArray();
         }
 
         public static MemoryStream BinaryFormatter_serialize_ToMemoryStream(object myobj)
         {
-            BinaryFormatter bf = new BinaryFormatter();
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
             MemoryStream ms = new MemoryStream();
             bf.Serialize(ms, myobj);
             ms.Position = 0;
@@ -665,23 +665,19 @@ namespace ysoserial.Helpers
         {
             byte[] byteArray = Convert.FromBase64String(str);
             MemoryStream ms = new MemoryStream(byteArray);
-            BinaryFormatter bf = new BinaryFormatter();
-            ms.Position = 0;
-            return bf.Deserialize(ms);
+            return BinaryFormatter_deserialize(ms);
         }
 
         public static object BinaryFormatter_deserialize(byte[] byteArray)
         {
             MemoryStream ms = new MemoryStream(byteArray);
-            BinaryFormatter bf = new BinaryFormatter();
-            ms.Position = 0;
-            return bf.Deserialize(ms);
+            return BinaryFormatter_deserialize(ms);
         }
 
         public static object BinaryFormatter_deserialize(MemoryStream ms)
         {
             ms.Position = 0;
-            BinaryFormatter bf = new BinaryFormatter();
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
             return bf.Deserialize(ms);
         }
 
