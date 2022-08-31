@@ -88,11 +88,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, new string[] { ",mscorlib" });
+                        payload = JsonMinifier.Minify(payload, new string[] { "mscorlib" }, new string[] { ",mscorlib" });
                     }
                     else
                     {
-                        payload = JSONMinifier.Minify(payload, null, null);
+                        payload = JsonMinifier.Minify(payload, null, null);
                     }
                 }
 
@@ -121,16 +121,16 @@ namespace ysoserial.Generators
     </WindowsPrincipal>
 </root>";
 
-                // this will break the payload, because x is used! todo for @irsdl: fix the xslt in XMLMinifier.cs to have the option to include "unused variables"
+                // this will break the payload, because x is used! todo for @irsdl: fix the xslt in XmlMinifier.cs to have the option to include "unused variables"
                 if (inputArgs.Minify)
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, new string[] { ",mscorlib" });
+                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib" }, new string[] { ",mscorlib" });
                     }
                     else
                     {
-                        payload = XMLMinifier.Minify(payload, null, null);
+                        payload = XmlMinifier.Minify(payload, null, null);
                     }
                 }
 
@@ -163,11 +163,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib" }, null);
                     }
                     else
                     {
-                        payload = XMLMinifier.Minify(payload, null, null);
+                        payload = XmlMinifier.Minify(payload, null, null);
                     }
                 }
 
@@ -224,11 +224,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
+                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
                     }
                     else
                     {
-                        payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
                     }
                 }
 

@@ -120,7 +120,7 @@ namespace ysoserial.Generators
                     if (inputArgs.Minify)
                     {
                         // using discardable regex array to make it shorter!
-                        bridge = XMLMinifier.Minify(bridge, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
+                        bridge = XmlMinifier.Minify(bridge, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
                     }
 
                     // There are loads of other objects in Presentation that use ResourceDictionary and they can all be used here instead
@@ -136,7 +136,7 @@ namespace ysoserial.Generators
                 if (inputArgs.Minify)
                 {
                     // using discardable regex array to make it shorter!
-                    payload = XMLMinifier.Minify(payload, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
+                    payload = XmlMinifier.Minify(payload, null, new String[] { @"StandardErrorEncoding=.*LoadUserProfile=""False"" ", @"IsInitialLoadEnabled=""False"" " });
                 }
 
                 if (inputArgs.Test)
@@ -200,11 +200,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JSONMinifier.Minify(payload, new String[] { "PresentationFramework", "mscorlib", "System" }, null);
+                        payload = JsonMinifier.Minify(payload, new String[] { "PresentationFramework", "mscorlib", "System" }, null);
                     }
                     else
                     {
-                        payload = JSONMinifier.Minify(payload, null, null);
+                        payload = JsonMinifier.Minify(payload, null, null);
                     }
                 }
 
@@ -255,7 +255,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = JSONMinifier.Minify(payload, null, null);
+                    payload = JsonMinifier.Minify(payload, null, null);
                 }
 
                 if (inputArgs.Test)
@@ -301,7 +301,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = JSONMinifier.Minify(payload, null, null);
+                    payload = JsonMinifier.Minify(payload, null, null);
                 }
 
                 if (inputArgs.Test)
@@ -377,7 +377,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.XMLSerializer, true);
+                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.XMLSerializer, true);
                 }
 
 
@@ -385,7 +385,7 @@ namespace ysoserial.Generators
                 {
                     try
                     {
-                        SerializersHelper.XMLSerializer_deserialize(payload, null, "root", "type");
+                        SerializersHelper.XmlSerializer_deserialize(payload, null, "root", "type");
                     }
                     catch (Exception err)
                     {
@@ -486,7 +486,7 @@ namespace ysoserial.Generators
                 }
                 if (inputArgs.Minify)
                 {
-                    payload = XMLMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
+                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
                 }
 
                 if (inputArgs.Test)
@@ -606,7 +606,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = JSONMinifier.Minify(payload, null, null);
+                    payload = JsonMinifier.Minify(payload, null, null);
                 }
 
                 if (inputArgs.Test)
@@ -673,11 +673,11 @@ namespace ysoserial.Generators
 
                 if (formatter.ToLowerInvariant().Equals("sharpserializerxml"))
                 {
-                    var serializedData = SerializersHelper.SharpSerializer_XML_serialize_WithExclusion_ToString(odp, allExclusions);
+                    var serializedData = SerializersHelper.SharpSerializer_Xml_serialize_WithExclusion_ToString(odp, allExclusions);
 
                     if (inputArgs.Minify)
                     {
-                        serializedData = XMLMinifier.Minify(serializedData, null, new string[] { @" name=""r""" }, FormatterType.DataContractXML, true);
+                        serializedData = XmlMinifier.Minify(serializedData, null, new string[] { @" name=""r""" }, FormatterType.DataContractXML, true);
                     }
 
 
@@ -685,7 +685,7 @@ namespace ysoserial.Generators
                     {
                         try
                         {
-                            SerializersHelper.SharpSerializer_XML_deserialize_FromString(serializedData);
+                            SerializersHelper.SharpSerializer_Xml_deserialize_FromString(serializedData);
                         }
                         catch { }
                     }

@@ -17,6 +17,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Xml.Serialization;
 using YamlDotNet.Serialization;
+using ysoserial.Helpers.ModifiedVulnerableBinaryFormatters;
 
 namespace ysoserial.Helpers
 {
@@ -153,7 +154,7 @@ namespace ysoserial.Helpers
             try
             {
                 Console.WriteLine("\n~~SharpSerializer (XML):~~\n");
-                Console.WriteLine(SharpSerializer_XML_serialize_ToString(myobj));
+                Console.WriteLine(SharpSerializer_Xml_serialize_ToString(myobj));
             }
             catch (Exception e)
             {
@@ -224,7 +225,7 @@ namespace ysoserial.Helpers
             {
                 sb.AppendLine("SharpSerializer_ObjectDataProvider_Binary_test");
             }
-            if (SharpSerializer_XML_test(myobj) != null)
+            if (SharpSerializer_Xml_test(myobj) != null)
             {
                 sb.AppendLine("SharpSerializer_ObjectDataProvider_Xml_test");
             }
@@ -235,7 +236,7 @@ namespace ysoserial.Helpers
         {
             try
             {
-                return XMLSerializer_deserialize(XmlSerializer_serialize(myobj), myobj.GetType());
+                return XmlSerializer_deserialize(XmlSerializer_serialize(myobj), myobj.GetType());
             }
             catch (Exception e)
             {
@@ -248,7 +249,7 @@ namespace ysoserial.Helpers
         {
             try
             {
-                return XMLSerializer_deserialize(XmlSerializer_serialize(myobj, type), type);
+                return XmlSerializer_deserialize(XmlSerializer_serialize(myobj, type), type);
             }
             catch (Exception e)
             {
@@ -272,12 +273,12 @@ namespace ysoserial.Helpers
             return text;
         }
 
-        public static object XMLSerializer_deserialize(string str, string type)
+        public static object XmlSerializer_deserialize(string str, string type)
         {
-            return XMLSerializer_deserialize(str, type, "", "");
+            return XmlSerializer_deserialize(str, type, "", "");
         }
 
-        public static object XMLSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
+        public static object XmlSerializer_deserialize(string str, string type, string rootElement, string typeAttributeName)
         {
             object obj = null;
 
@@ -302,7 +303,7 @@ namespace ysoserial.Helpers
             return obj;
         }
 
-        public static object XMLSerializer_deserialize(string str, Type type)
+        public static object XmlSerializer_deserialize(string str, Type type)
         {
             var s = new XmlSerializer(type);
             object obj = s.Deserialize(new XmlTextReader(new StringReader(str)));
@@ -364,7 +365,7 @@ namespace ysoserial.Helpers
                                 }
 
                                 // we need this to make it standard
-                                result = XMLMinifier.XmlXSLTMinifier(dirtymarshal);
+                                result = XmlMinifier.XmlXSLTMinifier(dirtymarshal);
 
                                 result = "<" + rootTagName + " " + typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
                             }
@@ -385,9 +386,14 @@ namespace ysoserial.Helpers
 
         public static object DataContractSerializer_test(object myobj, Type type)
         {
+            return DataContractSerializer_test(myobj, type, null);
+        }
+
+        public static object DataContractSerializer_test(object myobj, Type type, Type[] knownTypes)
+        {
             try
             {
-                return DataContractSerializer_deserialize(DataContractSerializer_serialize(myobj, type), type);
+                return DataContractSerializer_deserialize(DataContractSerializer_serialize(myobj, type, knownTypes), type, knownTypes);
             }
             catch (Exception e)
             {
@@ -403,12 +409,17 @@ namespace ysoserial.Helpers
 
         public static string DataContractSerializer_serialize(object myobj, Type type)
         {
+            return DataContractSerializer_serialize(myobj, type, null);
+        }
+
+        public static string DataContractSerializer_serialize(object myobj, Type type, Type[] knownTypes)
+        {
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             StringBuilder sb = new StringBuilder();
             using (XmlWriter writer = XmlWriter.Create(sb, settings))
             {
-                DataContractSerializer ser = new DataContractSerializer(type);
+                DataContractSerializer ser = new DataContractSerializer(type, knownTypes);
                 ser.WriteObject(writer, myobj);
             }
             string text = sb.ToString();
@@ -446,10 +457,17 @@ namespace ysoserial.Helpers
 
         public static object DataContractSerializer_deserialize(string str, Type type)
         {
-            var s = new DataContractSerializer(type);
+            return DataContractSerializer_deserialize(str, type, null);
+        }
+
+        public static object DataContractSerializer_deserialize(string str, Type type, Type[] knownTypes)
+        {
+            var s = new DataContractSerializer(type, knownTypes);
             object obj = s.ReadObject(new XmlTextReader(new StringReader(str)));
             return obj;
         }
+
+        
 
         public static object Xaml_test(object myobj)
         {
@@ -619,25 +637,24 @@ namespace ysoserial.Helpers
             }
         }
 
+        public static string BinaryFormatter_serialize_ToJson(object myobj)
+        {
+            return AdvancedBinaryFormatterParser.StreamToJson(BinaryFormatter_serialize_ToMemoryStream(myobj), false, true, true);
+        }
+
         public static string BinaryFormatter_serialize_ToBase64(object myobj)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, myobj);
-            return Convert.ToBase64String(ms.ToArray());
+            return Convert.ToBase64String(BinaryFormatter_serialize_ToMemoryStream(myobj).ToArray()); 
         }
 
         public static byte[] BinaryFormatter_serialize_ToByteArray(object myobj)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, myobj);
-            return ms.ToArray();
+            return BinaryFormatter_serialize_ToMemoryStream(myobj).ToArray();
         }
 
         public static MemoryStream BinaryFormatter_serialize_ToMemoryStream(object myobj)
         {
-            BinaryFormatter bf = new BinaryFormatter();
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
             MemoryStream ms = new MemoryStream();
             bf.Serialize(ms, myobj);
             ms.Position = 0;
@@ -648,23 +665,19 @@ namespace ysoserial.Helpers
         {
             byte[] byteArray = Convert.FromBase64String(str);
             MemoryStream ms = new MemoryStream(byteArray);
-            BinaryFormatter bf = new BinaryFormatter();
-            ms.Position = 0;
-            return bf.Deserialize(ms);
+            return BinaryFormatter_deserialize(ms);
         }
 
         public static object BinaryFormatter_deserialize(byte[] byteArray)
         {
             MemoryStream ms = new MemoryStream(byteArray);
-            BinaryFormatter bf = new BinaryFormatter();
-            ms.Position = 0;
-            return bf.Deserialize(ms);
+            return BinaryFormatter_deserialize(ms);
         }
 
         public static object BinaryFormatter_deserialize(MemoryStream ms)
         {
             ms.Position = 0;
-            BinaryFormatter bf = new BinaryFormatter();
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
             return bf.Deserialize(ms);
         }
 
@@ -901,7 +914,7 @@ namespace ysoserial.Helpers
             }
         }
 
-        public static object SharpSerializer_XML_deserialize_FromByteArray(byte[] serializedData)
+        public static object SharpSerializer_Xml_deserialize_FromByteArray(byte[] serializedData)
         {
             SharpSerializer serializer = new SharpSerializer(false); // false -> XML
             using (MemoryStream memoryStream = new MemoryStream(serializedData))
@@ -910,23 +923,23 @@ namespace ysoserial.Helpers
             }
         }
 
-        public static object SharpSerializer_XML_deserialize_FromString(string serializedData)
+        public static object SharpSerializer_Xml_deserialize_FromString(string serializedData)
         {
-            return SharpSerializer_XML_deserialize_FromByteArray(Encoding.UTF8.GetBytes(serializedData));
+            return SharpSerializer_Xml_deserialize_FromByteArray(Encoding.UTF8.GetBytes(serializedData));
         }
 
-        public static byte[] SharpSerializer_XML_serialize_ToByteArray(object myobj)
+        public static byte[] SharpSerializer_Xml_serialize_ToByteArray(object myobj)
         {
 
-            return SharpSerializer_XML_serialize_WithExclusion_ToByteArray(myobj, null);
+            return SharpSerializer_Xml_serialize_WithExclusion_ToByteArray(myobj, null);
         }
 
-        public static string SharpSerializer_XML_serialize_ToString(object myobj)
+        public static string SharpSerializer_Xml_serialize_ToString(object myobj)
         {
-            return SharpSerializer_XML_serialize_WithExclusion_ToString(myobj, null);
+            return SharpSerializer_Xml_serialize_WithExclusion_ToString(myobj, null);
         }
 
-        public static byte[] SharpSerializer_XML_serialize_WithExclusion_ToByteArray(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
+        public static byte[] SharpSerializer_Xml_serialize_WithExclusion_ToByteArray(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
         {
             var settings = new SharpSerializerXmlSettings();
             settings.Encoding = System.Text.Encoding.ASCII;
@@ -950,16 +963,16 @@ namespace ysoserial.Helpers
             }
         }
 
-        public static string SharpSerializer_XML_serialize_WithExclusion_ToString(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
+        public static string SharpSerializer_Xml_serialize_WithExclusion_ToString(object myobj, List<KeyValuePair<Type, List<String>>> excludedProperties)
         {
-            return Encoding.UTF8.GetString(SharpSerializer_XML_serialize_WithExclusion_ToByteArray(myobj, excludedProperties));
+            return Encoding.UTF8.GetString(SharpSerializer_Xml_serialize_WithExclusion_ToByteArray(myobj, excludedProperties));
         }
 
-        public static object SharpSerializer_XML_test(object myobj)
+        public static object SharpSerializer_Xml_test(object myobj)
         {
             try
             {
-                return SharpSerializer_XML_deserialize_FromByteArray(SharpSerializer_XML_serialize_ToByteArray(myobj));
+                return SharpSerializer_Xml_deserialize_FromByteArray(SharpSerializer_Xml_serialize_ToByteArray(myobj));
             }
             catch (Exception e)
             {

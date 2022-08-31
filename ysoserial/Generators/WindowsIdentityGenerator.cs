@@ -74,11 +74,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JSONMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                        payload = JsonMinifier.Minify(payload, new string[] { "mscorlib" }, null);
                     }
                     else
                     {
-                        payload = JSONMinifier.Minify(payload, null, null);
+                        payload = JsonMinifier.Minify(payload, null, null);
                     }
                 }
 
@@ -107,11 +107,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib" }, null);
                     }
                     else
                     {
-                        payload = XMLMinifier.Minify(payload, null, null);
+                        payload = XmlMinifier.Minify(payload, null, null);
                     }
                 }
 
@@ -140,11 +140,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null);
+                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib" }, null);
                     }
                     else
                     {
-                        payload = XMLMinifier.Minify(payload, null, null);
+                        payload = XmlMinifier.Minify(payload, null, null);
                     }
                 }
 
@@ -175,11 +175,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XMLMinifier.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
+                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
                     }
                     else
                     {
-                        payload = XMLMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
                     }
                 }
 
