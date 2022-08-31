@@ -40,7 +40,7 @@ namespace ysoserial
         static OptionSet options = new OptionSet()
             {
                 {"p|plugin=", "The plugin to be used.", v => plugin_name = v },
-                {"o|output=", "The output format (raw|base64|raw-urlencode|base64-urlencode). Default: raw", v => outputformat = v },
+                {"o|output=", "The output format (raw|base64|raw-urlencode|base64-urlencode|hex). Default: raw", v => outputformat = v },
                 {"g|gadget=", "The gadget chain.", v => gadget_name = v },
                 {"f|formatter=", "The formatter.", v => formatter_name = v },
                 {"c|command=", "The command to be executed.", v => cmd = v },
@@ -194,7 +194,16 @@ namespace ysoserial
                 {
                     if (cmd == "" && cmdstdin)
                     {
-                        cmd = Console.ReadLine();
+                        Stream stdin = Console.OpenStandardInput(2050);
+                        byte[] inBuffer = new byte[2050];
+                        int outLen = stdin.Read(inBuffer, 0, inBuffer.Length);
+                        char[] chars = Encoding.UTF7.GetChars(inBuffer, 0, outLen);
+                        cmd = new string(chars);
+                        if ((cmd[cmd.Length - 2] == '\r') && (cmd[cmd.Length - 1] == '\n'))
+                        {
+                            cmd = cmd.Substring(0,cmd.Length-2);
+                        }
+                        inputArgs.Cmd = cmd;
                     }
                     raw = generator.GenerateWithInit(formatter_name, inputArgs);
                 }
@@ -220,7 +229,7 @@ namespace ysoserial
             }
             else if (isSearchFormatterAndRunMode && (cmd != "" || cmdstdin) && formatter_name != "")
             {
-                Console.Write("## Payloads with formatters contains \"" + formatter_name + "\" ##");
+                Console.WriteLine("## Payloads with formatters contains \"" + formatter_name + "\" ##");
                 int counter = 0;
                 foreach (string g in generators)
                 {
@@ -243,7 +252,16 @@ namespace ysoserial
                                     outputformat = GetDefaultOutputFormat(current_formatter_name);
                                     if (cmd == "" && cmdstdin)
                                     {
-                                        cmd = Console.ReadLine();
+                                        Stream stdin = Console.OpenStandardInput(2050);
+                                        byte[] inBuffer = new byte[2050];
+                                        int outLen = stdin.Read(inBuffer, 0, inBuffer.Length);
+                                        char[] chars = Encoding.UTF7.GetChars(inBuffer, 0, outLen);
+                                        cmd = new string(chars);
+                                        if ((cmd[cmd.Length - 2] == '\r') && (cmd[cmd.Length - 1] == '\n'))
+                                        {
+                                            cmd = cmd.Substring(0, cmd.Length - 2);
+                                        }
+                                        inputArgs.Cmd = cmd;
                                     }
 
                                     raw = gg.GenerateWithInit(current_formatter_name, inputArgs);
@@ -327,6 +345,10 @@ namespace ysoserial
                 {
                     outputString = Uri.EscapeDataString(outputString);
                 }
+                else if (outputformat.ToLower().Equals("hex")) {
+                    outputBytes = Encoding.ASCII.GetBytes((String)outputString);
+                    outputString = BitConverter.ToString(outputBytes).Replace("-", "");
+                }
                 outputBytes = Encoding.UTF8.GetBytes((String) outputString ?? "");
             }
             else if (raw.GetType() == typeof(byte[]))
@@ -337,6 +359,11 @@ namespace ysoserial
                 {
                     outputString = Encoding.UTF8.GetString((byte[])raw);
                     outputString = Uri.EscapeDataString(outputString);
+                    outputBytes = Encoding.ASCII.GetBytes((String)outputString ?? "");
+                }
+                else if(outputformat.ToLower().Equals("hex"))
+                {
+                    outputString = BitConverter.ToString((byte[])raw).Replace("-", "");
                     outputBytes = Encoding.ASCII.GetBytes((String)outputString ?? "");
                 }
                 else
