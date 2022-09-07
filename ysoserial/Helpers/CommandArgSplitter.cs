@@ -24,10 +24,10 @@ namespace ysoserial.Helpers
             if (cmdType == CommandType.JSON)
             {
                 // escape for JSON
-                result[0] = result[0].Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\'");
+                result[0] = result[0].Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\\'");
                 if (hasArgs)
                 {
-                    result[1] = result[1].Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\'");
+                    result[1] = result[1].Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\\'");
                 }
             }
             else if (cmdType == CommandType.XML)
