@@ -24,10 +24,10 @@ namespace ysoserial.Helpers
             if (cmdType == CommandType.JSON)
             {
                 // escape for JSON
-                result[0] = result[0].Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\'");
+                result[0] = result[0].Replace(@"\", @"\\").Replace(@"""", @"\""").Replace(@"'", @"\'");
                 if (hasArgs)
                 {
-                    result[1] = result[1].Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\'");
+                    result[1] = result[1].Replace(@"\", @"\\").Replace(@"""", @"\""").Replace(@"'", @"\'");
                 }
             }
             else if (cmdType == CommandType.XML)
@@ -91,12 +91,12 @@ namespace ysoserial.Helpers
 
         public static string XmlStringAttributeEscape(string text)
         {
-            return XmlStringHTMLEscape(text).Replace("\"","&#x22;");
+            return XmlStringHTMLEscape(text).Replace(@"""",@"&#x22;");
         }
 
         public static string JsonStringEscape(string text)
         {
-            return text.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\'");
+            return text.Replace(@"\", @"\\").Replace(@"""", @"\""").Replace(@"'", @"\'");
         }
 
         public static String[] SplitCommand(string cmd, out Boolean hasArgs)
