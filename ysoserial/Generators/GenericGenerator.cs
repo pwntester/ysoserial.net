@@ -20,6 +20,13 @@ namespace ysoserial.Generators
         public abstract string Finders();
         public abstract string Name();
         public abstract List<string> SupportedFormatters();
+        
+        // This is used when we want a gadget to support incoming from another gadget
+        public virtual string SupportedBridgedFormatter()
+        {
+            return Formatters.None;
+        }
+        public object BridgedPayload { get; set ;}
 
         public virtual string AdditionalInfo()
         {
@@ -275,5 +282,6 @@ namespace ysoserial.Generators
             }
         }
 
+        
     }
 }

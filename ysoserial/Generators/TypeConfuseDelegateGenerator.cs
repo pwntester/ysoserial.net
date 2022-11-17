@@ -433,7 +433,7 @@ namespace ysoserial.Generators
             }
             else
             {
-                set.Add(""); // this is needed (as Process.Start accepts two args)
+                set.Add("");
             }
             
             FieldInfo fi = typeof(MulticastDelegate).GetField("_invocationList", BindingFlags.NonPublic | BindingFlags.Instance);

