@@ -58,31 +58,60 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 			
 	(*) AxHostState
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: BinaryFormatter
 	(*) ClaimsIdentity
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-			Labels: Bridge and dervied, OnDeserialized
+			Labels: Bridge and derived, OnDeserialized
 			Supported formatter for the bridge: BinaryFormatter
 	(*) ClaimsPrincipal
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-			Labels: Bridge and dervied, OnDeserialized, SecondOrderDeserialization
+			Labels: Bridge and derived, OnDeserialized, SecondOrderDeserialization
 			Supported formatter for the bridge: BinaryFormatter
 	(*) DataSet
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: BinaryFormatter
-	(*) DataSetTypeSpoof [A more advanced type spoofing which can use any arbtirary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson]
+	(*) DataSetOldBehaviour [This gadget targets and old behaviour of DataSet which uses XML format]
+		Formatters: BinaryFormatter , LosFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: LosFormatter
+			Extra options:
+			      --spoofedAssembly=VALUE
+			                             The numerical internal gadget choice to use: 
+			                               1=TypeConfuseDelegate, 
+			                               2=TextFormattingRunProperties (default: 1 
+			                               [TypeConfuseDelegate])
+			
+	(*) DataSetOldBehaviourFromFile [Another variant of the DataSetOldBehaviour gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
+		Formatters: BinaryFormatter , LosFormatter
+			Labels: Bridge and derived
+			Extra options:
+			  -x=VALUE                   The numerical internal gadget choice to use: 
+			                               1=TypeConfuseDelegate, 
+			                               2=TextFormattingRunProperties (default: 1 
+			                               [TypeConfuseDelegate])
+			
+	(*) DataSetTypeSpoof [A more advanced type spoofing which can use any arbitrary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson or in the DataSetOldBehaviour gadget]
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: BinaryFormatter
+	(*) GenericPrincipal
+		Formatters: BinaryFormatter , LosFormatter
+			Labels: Bridge and derived, OnDeserialized, SecondOrderDeserialization
+			Supported formatter for the bridge: BinaryFormatter
+			Extra options:
+			      --var, --variant=VALUE Payload variant number where applicable. 
+			                               Choices: 1 (uses serialized ClaimsIdentities), 2 
+			                               (uses serialized Claims)
+			
 	(*) ObjectDataProvider
 		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
 			Labels: Not bridge or derived
 			Extra options:
 			      --var, --variant=VALUE Payload variant number where applicable. 
 			                               Choices: 1, 2, 3, ... based on formatter.
-			      --xamlurl=VALUE        This is to create a very short paylaod when 
+			      --xamlurl=VALUE        This is to create a very short payload when 
 			                               affected box can read the target XAML URL e.g. 
 			                               "http://b8.ee/x" (can be a file path on a shared 
 			                               drive or the local system). This is used by the 
@@ -108,21 +137,21 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 			
 	(*) RolePrincipal
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: BinaryFormatter
 	(*) SessionSecurityToken
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: BinaryFormatter
 	(*) SessionViewStateHistoryItem
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: LosFormatter
 	(*) TextFormattingRunProperties [This normally generates the shortest payload]
 		Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Not bridge but derived
 			Extra options:
-			      --xamlurl=VALUE        This is to create a very short paylaod when 
+			      --xamlurl=VALUE        This is to create a very short payload when 
 			                               affected box can read the target XAML URL e.g. 
 			                               "http://b8.ee/x" (can be a file path on a shared 
 			                               drive or the local system). This is used by the 
@@ -135,7 +164,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 			
 	(*) ToolboxItemContainer
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: BinaryFormatter
 	(*) TypeConfuseDelegate
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
@@ -145,7 +174,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 			Labels: Not bridge or derived
 	(*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)]
 		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , SoapFormatter (2)
-			Labels: Bridge and dervied, Not in GAC
+			Labels: Bridge and derived, Not in GAC
 			Supported formatter for the bridge: BinaryFormatter
 			Extra options:
 			      --var, --variant=VALUE Payload variant number where applicable. 
@@ -153,11 +182,11 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 			
 	(*) WindowsIdentity
 		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 			Supported formatter for the bridge: BinaryFormatter
 	(*) WindowsPrincipal
 		Formatters: BinaryFormatter , DataContractJsonSerializer , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-			Labels: Bridge and dervied
+			Labels: Bridge and derived
 
 == PLUGINS ==
 	(*) ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
@@ -353,7 +382,7 @@ Options:
                                formatters). Default: true
       --raf, --runallformatters
                              Whether to run all the gadgets with the provided 
-                               formatter (ignores gagdet name, output format, 
+                               formatter (ignores gadget name, output format, 
                                and the test flag arguments). This will search 
                                in formatters and also show the displayed 
                                payload length. Default: false
@@ -479,7 +508,7 @@ Special thanks to all contributors:
 $ ./ysoserial.exe --credit
 
 ysoserial.net has been originally developed by Alvaro Munoz (@pwntester)
-this tool is being maintained by Alvaro Munoz (@pwntester) and Soroush Dalili (@irsdl)
+this tool is being maintained by Soroush Dalili (@irsdl) and Alvaro Munoz (@pwntester) 
 
 Credits for available gadgets:
 	ActivitySurrogateDisableTypeCheck
@@ -496,8 +525,14 @@ Credits for available gadgets:
 		[Finders: jang]
 	DataSet
 		[Finders: James Forshaw] [Contributors: Soroush Dalili]
+	DataSetOldBehaviour
+		[Finders: Steven Seeley] [Contributors: Soroush Dalili]
+	DataSetOldBehaviourFromFile
+		[Finders: Steven Seeley, Markus Wulftange] [Contributors: Soroush Dalili]
 	DataSetTypeSpoof
 		[Finders: James Forshaw] [Contributors: Soroush Dalili, Markus Wulftange, Jang]
+	GenericPrincipal
+		[Finders: Soroush Dalili]
 	ObjectDataProvider
 		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili, Dane Evans]
 	ObjRef

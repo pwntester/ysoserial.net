@@ -22,7 +22,7 @@ namespace ysoserial.Generators
 
         public override string AdditionalInfo()
         {
-            return "A more advanced type spoofing which can use any arbtirary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson";
+            return "A more advanced type spoofing which can use any arbitrary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson or in the DataSetOldBehaviour gadget";
         }
 
         public override string SupportedBridgedFormatter()

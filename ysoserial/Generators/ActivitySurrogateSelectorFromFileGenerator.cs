@@ -19,22 +19,7 @@ namespace ysoserial.Generators
         {
             this.variant_number = variant_number;
             this.inputArgs = inputArgs;
-            string[] files = file.Split(new[] { ';' }).Select(s => s.Trim()).ToArray();
-            CodeDomProvider codeDomProvider = CodeDomProvider.CreateProvider("CSharp");
-            CompilerParameters compilerParameters = new CompilerParameters();
-            compilerParameters.CompilerOptions = "-t:library -o+ -platform:anycpu";
-            compilerParameters.ReferencedAssemblies.AddRange(files.Skip(1).ToArray());
-            CompilerResults compilerResults = codeDomProvider.CompileAssemblyFromFile(compilerParameters, files[0]);
-            if (compilerResults.Errors.Count > 0)
-            {
-                foreach (CompilerError error in compilerResults.Errors)
-                {
-                    Console.Error.WriteLine(error.ErrorText);
-                }
-                Environment.Exit(-1);
-            }
-            base.assemblyBytes = File.ReadAllBytes(compilerResults.PathToAssembly);
-            File.Delete(compilerResults.PathToAssembly);
+            base.assemblyBytes = LocalCodeCompiler.CompileToAsmBytes(file);
         }
     }
 
