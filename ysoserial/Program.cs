@@ -53,7 +53,7 @@ namespace ysoserial
                 {"outputpath=", "The output file path. It will be ignored if empty.", v => outputpath = v },
                 {"minify", "Whether to minify the payloads where applicable. Default: false", v => minify =  v != null },
                 {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple (always `true` with `--minify` for binary formatters). Default: true", v => useSimpleType =  v != null },
-                {"raf|runallformatters", "Whether to run all the gadgets with the provided formatter (ignores gagdet name, output format, and the test flag arguments). This will search in formatters and also show the displayed payload length. Default: false", v => isSearchFormatterAndRunMode =  v != null },
+                {"raf|runallformatters", "Whether to run all the gadgets with the provided formatter (ignores gadget name, output format, and the test flag arguments). This will search in formatters and also show the displayed payload length. Default: false", v => isSearchFormatterAndRunMode =  v != null },
                 {"sf|searchformatter=", "Search in all formatters to show relevant gadgets and their formatters (other parameters will be ignored).", v => searchFormatter =  v},
                 {"debugmode", "Enable debugging to show exception errors and output length", v => isDebugMode  =  v != null},
                 {"h|help", "Shows this message and exit.", v => show_help = v != null },
@@ -304,9 +304,7 @@ namespace ysoserial
                     else
                     {
                         // we do not need to run the payload when building the bridges unless it is the last one
-                        InputArgs tempInputArgs = inputArgs.DeepCopy();
-                        tempInputArgs.Test = false;
-                        raw = generator.GenerateWithInit(current_formatter_name, tempInputArgs);
+                        raw = generator.GenerateWithNoTest(current_formatter_name, inputArgs);
                     }
 
                     

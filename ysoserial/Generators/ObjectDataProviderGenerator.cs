@@ -40,7 +40,7 @@ namespace ysoserial.Generators
             OptionSet options = new OptionSet()
             {
                 {"var|variant=", "Payload variant number where applicable. Choices: 1, 2, 3, ... based on formatter.", v => int.TryParse(v, out variant_number) },
-                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+                {"xamlurl=", "This is to create a very short payload when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
             };
 
             return options;
