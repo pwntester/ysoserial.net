@@ -157,11 +157,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
                     }
                 }
 
@@ -198,7 +198,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
+                    payload = XmlHelper.Minify(payload, null, null, FormatterType.DataContractXML, true);
                 }
 
                 if (inputArgs.Test)
@@ -246,7 +246,7 @@ namespace ysoserial.Generators
 
             if (inputArgs.Minify)
             {
-                xaml_payload = XmlMinifier.Minify(xaml_payload, null, null);
+                xaml_payload = XmlHelper.Minify(xaml_payload, null, null);
             }
 
             TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);

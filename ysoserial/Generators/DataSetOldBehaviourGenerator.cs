@@ -65,7 +65,7 @@ namespace ysoserial.Generators
         {
             OptionSet options = new OptionSet()
             {
-                {"spoofedAssembly=", "The numerical internal gadget choice to use: 1=TypeConfuseDelegate, 2=TextFormattingRunProperties (default: 1 [TypeConfuseDelegate])", v => spoofedAssembly = v }
+                {"spoofedAssembly=", "The assembly name you want to use in the generated serialized object (example: 'mscorlib')", v => spoofedAssembly = v }
             };
 
             return options;
@@ -91,13 +91,13 @@ namespace ysoserial.Generators
             {
                 if (inputArgs.UseSimpleType)
                 {
-                    xmlSchema = XmlMinifier.Minify(xmlSchema, new string[] { }, new string[] { });
-                    xmlLosFormatterDeserializeCaller = XmlMinifier.Minify(xmlLosFormatterDeserializeCaller, new string[] { }, new string[] { });
+                    xmlSchema = XmlHelper.Minify(xmlSchema, new string[] { }, new string[] { });
+                    xmlLosFormatterDeserializeCaller = XmlHelper.Minify(xmlLosFormatterDeserializeCaller, new string[] { }, new string[] { });
                 }
                 else
                 {
-                    xmlSchema = XmlMinifier.Minify(xmlSchema, new string[] { }, new string[] { });
-                    xmlLosFormatterDeserializeCaller = XmlMinifier.Minify(xmlLosFormatterDeserializeCaller, new string[] { }, new string[] { });
+                    xmlSchema = XmlHelper.Minify(xmlSchema, new string[] { }, new string[] { });
+                    xmlLosFormatterDeserializeCaller = XmlHelper.Minify(xmlLosFormatterDeserializeCaller, new string[] { }, new string[] { });
                 }
             }
 

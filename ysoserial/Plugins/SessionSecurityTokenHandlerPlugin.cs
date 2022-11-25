@@ -86,7 +86,7 @@ namespace ysoserial.Plugins
 
             if (minify)
             {
-                payload = XmlMinifier.Minify(payload, null, null);
+                payload = XmlHelper.Minify(payload, null, null);
             }
 
             if (String.IsNullOrEmpty(command) || String.IsNullOrWhiteSpace(command))
@@ -107,7 +107,7 @@ namespace ysoserial.Plugins
             
             if (minify)
             {
-                payload = XmlMinifier.Minify(payload, null, null);
+                payload = XmlHelper.Minify(payload, null, null);
             }
 
             if (test)

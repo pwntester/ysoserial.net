@@ -113,11 +113,11 @@ namespace ysoserial.Generators
                     
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JsonMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                        payload = JsonHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
                     else
                     {
-                        payload = JsonMinifier.Minify(payload, null, null);
+                        payload = JsonHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -161,11 +161,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -224,11 +224,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -277,11 +277,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, FormatterType.SoapFormatter);
+                        payload = XmlHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, FormatterType.SoapFormatter);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                        payload = XmlHelper.Minify(payload, null, null, FormatterType.SoapFormatter);
                     }
                 }
 

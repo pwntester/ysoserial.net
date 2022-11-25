@@ -93,11 +93,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
+                        payload = XmlHelper.Minify(payload, new string[] { "mscorlib" }, null, FormatterType.SoapFormatter);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                        payload = XmlHelper.Minify(payload, null, null, FormatterType.SoapFormatter);
                     }
                 }
 
