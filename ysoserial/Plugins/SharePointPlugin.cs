@@ -324,7 +324,7 @@ PublicKeyToken=31bf3856ad364e35"">
             }
             //payloadPart2 = PayloadMinifier(payloadPart2); // we need to make it smaller as goes bigger after encoding
 
-            payloadPart2 = XmlMinifier.Minify(payloadPart2, null, null, FormatterType.DataContractXML, true);
+            payloadPart2 = XmlHelper.Minify(payloadPart2, null, null, FormatterType.DataContractXML, true);
 
             //Console.WriteLine(payloadPart2);
             string payload = payloadPart1 + payloadPart2;

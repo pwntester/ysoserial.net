@@ -365,7 +365,7 @@ namespace ysoserial.Helpers
                                 }
 
                                 // we need this to make it standard
-                                result = XmlMinifier.XmlXSLTMinifier(dirtymarshal);
+                                result = XmlHelper.XmlXSLTMinifier(dirtymarshal);
 
                                 result = "<" + rootTagName + " " + typeAttributeName + @"=""" + objectType.AssemblyQualifiedName + @""">" + result + "</" + rootTagName + ">";
                             }

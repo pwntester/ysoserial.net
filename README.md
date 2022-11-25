@@ -78,19 +78,16 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 			Supported formatter for the bridge: LosFormatter
 			Extra options:
 			      --spoofedAssembly=VALUE
-			                             The numerical internal gadget choice to use: 
-			                               1=TypeConfuseDelegate, 
-			                               2=TextFormattingRunProperties (default: 1 
-			                               [TypeConfuseDelegate])
+			                             The assembly name you want to use in the 
+			                               generated serialized object (example: 'mscorlib')
 			
 	(*) DataSetOldBehaviourFromFile [Another variant of the DataSetOldBehaviour gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
 		Formatters: BinaryFormatter , LosFormatter
 			Labels: Bridge and derived
 			Extra options:
-			  -x=VALUE                   The numerical internal gadget choice to use: 
-			                               1=TypeConfuseDelegate, 
-			                               2=TextFormattingRunProperties (default: 1 
-			                               [TypeConfuseDelegate])
+			      --spoofedAssembly=VALUE
+			                             The assembly name you want to use in the 
+			                               generated serialized object (example: 'mscorlib')
 			
 	(*) DataSetTypeSpoof [A more advanced type spoofing which can use any arbitrary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson or in the DataSetOldBehaviour gadget]
 		Formatters: BinaryFormatter , LosFormatter , SoapFormatter

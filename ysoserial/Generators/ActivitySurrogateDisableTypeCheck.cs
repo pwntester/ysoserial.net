@@ -78,7 +78,7 @@ xmlns:r=""clr-namespace:System.Reflection;assembly=mscorlib"">
 
             if (inputArgs.Minify)
             {
-                xaml_payload = XmlMinifier.Minify(xaml_payload, null, null);
+                xaml_payload = XmlHelper.Minify(xaml_payload, null, null);
             }
 
             object payload;

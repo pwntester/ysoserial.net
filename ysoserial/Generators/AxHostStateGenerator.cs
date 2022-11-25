@@ -72,11 +72,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor"}, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor"}, null, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
                     }
                 }
 

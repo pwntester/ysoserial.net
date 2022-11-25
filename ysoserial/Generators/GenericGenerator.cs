@@ -191,11 +191,11 @@ namespace ysoserial.Generators
                     stream.Position = 0;
                     if (inputArgs.UseSimpleType)
                     {
-                        stream = XmlMinifier.Minify(stream, new String[] { "Microsoft.PowerShell.Editor" }, null, FormatterType.SoapFormatter, true);
+                        stream = XmlHelper.Minify(stream, new String[] { "Microsoft.PowerShell.Editor" }, null, FormatterType.SoapFormatter, true);
                     }
                     else
                     {
-                        stream = XmlMinifier.Minify(stream, null, null, FormatterType.SoapFormatter, true);
+                        stream = XmlHelper.Minify(stream, null, null, FormatterType.SoapFormatter, true);
                     }
                 }
 
@@ -225,11 +225,11 @@ namespace ysoserial.Generators
                     stream.Position = 0;
                     if (inputArgs.UseSimpleType)
                     {
-                        stream = XmlMinifier.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, new string[] { @"\<Signature2[^\/]+<\/Signature2\>" }, FormatterType.NetDataContractXML, true);
+                        stream = XmlHelper.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, new string[] { @"\<Signature2[^\/]+<\/Signature2\>" }, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {
-                        stream = XmlMinifier.Minify(stream, null, null, FormatterType.NetDataContractXML, true);
+                        stream = XmlHelper.Minify(stream, null, null, FormatterType.NetDataContractXML, true);
                     }
                 }
 

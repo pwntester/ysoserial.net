@@ -80,7 +80,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = JsonMinifier.Minify(payload, new string[] { "System.IdentityModel" }, null);
+                    payload = JsonHelper.Minify(payload, new string[] { "System.IdentityModel" }, null);
                 }
 
 
@@ -106,7 +106,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XmlMinifier.Minify(payload, null, null);
+                    payload = XmlHelper.Minify(payload, null, null);
                 }
 
                 if (inputArgs.Test)
@@ -131,7 +131,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XmlMinifier.Minify(payload, null, null);
+                    payload = XmlHelper.Minify(payload, null, null);
                 }
 
                 if (inputArgs.Test)
@@ -162,7 +162,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                    payload = XmlHelper.Minify(payload, null, null, FormatterType.SoapFormatter);
                 }
 
                 if (inputArgs.Test)

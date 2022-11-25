@@ -66,11 +66,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JsonMinifier.Minify(payload, new string[] { "System.Web" }, null);
+                        payload = JsonHelper.Minify(payload, new string[] { "System.Web" }, null);
                     }
                     else
                     {
-                        payload = JsonMinifier.Minify(payload, null, null);
+                        payload = JsonHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -100,11 +100,11 @@ namespace ysoserial.Generators
                     if (inputArgs.UseSimpleType)
                     {
                         // System.Web needs to be there! ust seems useless here
-                        payload = XmlMinifier.Minify(payload, new string[] { "" }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { "" }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -135,11 +135,11 @@ namespace ysoserial.Generators
                     if (inputArgs.UseSimpleType)
                     {
                         // System.Web needs to be there! ust seems useless here
-                        payload = XmlMinifier.Minify(payload, new string[] { }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 

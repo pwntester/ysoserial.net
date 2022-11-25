@@ -9,10 +9,8 @@ using System.Xml.Xsl;
 
 namespace ysoserial.Helpers
 {
-    public class XmlMinifier
+    public class XmlHelper
     {
-        
-
         public static MemoryStream Minify(Stream xmlDocumentStream, String[] looseAssemblyNames, String[] finalDiscardableRegExStringArray)
         {
             return Minify(xmlDocumentStream, looseAssemblyNames, finalDiscardableRegExStringArray, FormatterType.None);
@@ -541,6 +539,20 @@ Not sure why this one did not work so I had to change $vtheElem/descendant::* to
             xmlDocument = xmlDocument.Replace("NetDataContractorIdMinifier_", "");
 
             return xmlDocument;
+        }
+
+        public static string ConvertBytesToArrayOfUnsignedByteXML(byte[] input, string byteTag, string header, string footer)
+        {
+            var inputAsList = input.ToList();
+            var result = SerializersHelper.XmlSerializer_serialize(inputAsList);
+            result = Regex.Replace(result, @"<\?xml[^>]*>", header);
+            result = Regex.Replace(result, @"</?ArrayOfUnsignedByte[^>]*>", footer);
+            result = Regex.Replace(result, @"\s", "");
+            if(!string.IsNullOrEmpty(byteTag))
+            {
+                result = result.Replace("unsignedByte", byteTag);
+            }
+            return result;
         }
     }
 }
