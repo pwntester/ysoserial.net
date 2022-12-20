@@ -194,7 +194,7 @@ namespace ysoserial
                     Stream stdin = Console.OpenStandardInput(2050);
                     byte[] inBuffer = new byte[2050];
                     int outLen = stdin.Read(inBuffer, 0, inBuffer.Length);
-                    char[] chars = Encoding.UTF7.GetChars(inBuffer, 0, outLen);
+                    char[] chars = Encoding.ASCII.GetChars(inBuffer, 0, outLen);
                     cmd = new string(chars);
                     if ((cmd[cmd.Length - 2] == '\r') && (cmd[cmd.Length - 1] == '\n'))
                     {
@@ -354,7 +354,7 @@ namespace ysoserial
                                         Stream stdin = Console.OpenStandardInput(2050);
                                         byte[] inBuffer = new byte[2050];
                                         int outLen = stdin.Read(inBuffer, 0, inBuffer.Length);
-                                        char[] chars = Encoding.UTF7.GetChars(inBuffer, 0, outLen);
+                                        char[] chars = Encoding.ASCII.GetChars(inBuffer, 0, outLen);
                                         cmd = new string(chars);
                                         if ((cmd[cmd.Length - 2] == '\r') && (cmd[cmd.Length - 1] == '\n'))
                                         {
