@@ -14,6 +14,8 @@ namespace ysoserial.Generators
         string Contributors();
         List<string> Labels();
         List<string> SupportedFormatters();
+        string SupportedBridgedFormatter();
+        object BridgedPayload { get; set; }
         object Generate(string formatter, InputArgs inputArgs);
         object GenerateWithInit(string formatter, InputArgs inputArgs);
         object GenerateWithNoTest(string formatter, InputArgs inputArgs);
@@ -29,10 +31,29 @@ namespace ysoserial.Generators
     public static class GadgetTypes
     {
         public const string
-        NotBridgeNotDerived = "Not bridge or derived", 
+        NotBridgeNotDerived = "Not bridge or derived",
         NotBridgeButDervied = "Not bridge but derived", // Bridge has dervied meaning in it too
-        BridgeAndDerived = "Bridge and dervied",
+        BridgeAndDerived = "Bridge and derived",
         Dummy = "It relies on other gadgets and is not a real gadget on its own (not bridged or derived either)", // We hide these in normal help as they are only valuable for research purposes - example is ResourceSet
-        None="";
+        None = "";
+    }
+
+    public static class Formatters
+    {
+        public const string
+        BinaryFormatter = "BinaryFormatter",
+        LosFormatter = "LosFormatter",
+        SoapFormatter = "SoapFormatter",
+        NetDataContractSerializer = "NetDataContractSerializer",
+        DataContractSerializer = "DataContractSerializer",
+        FastJson = "FastJson",
+        FsPickler = "FsPickler",
+        JavaScriptSerializer = "JavaScriptSerializer",
+        JsonNet = "Json.Net",
+        SharpSerializerBinary = "SharpSerializerBinary",
+        Xaml = "Xaml",
+        XmlSerializer = "XmlSerializer",
+        YamlDotNet = "YamlDotNet",
+        None = "";
     }
 }

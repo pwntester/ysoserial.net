@@ -20,6 +20,13 @@ namespace ysoserial.Generators
         public abstract string Finders();
         public abstract string Name();
         public abstract List<string> SupportedFormatters();
+        
+        // This is used when we want a gadget to support incoming from another gadget
+        public virtual string SupportedBridgedFormatter()
+        {
+            return Formatters.None;
+        }
+        public object BridgedPayload { get; set ;}
 
         public virtual string AdditionalInfo()
         {
@@ -184,11 +191,11 @@ namespace ysoserial.Generators
                     stream.Position = 0;
                     if (inputArgs.UseSimpleType)
                     {
-                        stream = XmlMinifier.Minify(stream, new String[] { "Microsoft.PowerShell.Editor" }, null, FormatterType.SoapFormatter, true);
+                        stream = XmlHelper.Minify(stream, new String[] { "Microsoft.PowerShell.Editor" }, null, FormatterType.SoapFormatter, true);
                     }
                     else
                     {
-                        stream = XmlMinifier.Minify(stream, null, null, FormatterType.SoapFormatter, true);
+                        stream = XmlHelper.Minify(stream, null, null, FormatterType.SoapFormatter, true);
                     }
                 }
 
@@ -218,11 +225,11 @@ namespace ysoserial.Generators
                     stream.Position = 0;
                     if (inputArgs.UseSimpleType)
                     {
-                        stream = XmlMinifier.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, new string[] { @"\<Signature2[^\/]+<\/Signature2\>" }, FormatterType.NetDataContractXML, true);
+                        stream = XmlHelper.Minify(stream, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, new string[] { @"\<Signature2[^\/]+<\/Signature2\>" }, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {
-                        stream = XmlMinifier.Minify(stream, null, null, FormatterType.NetDataContractXML, true);
+                        stream = XmlHelper.Minify(stream, null, null, FormatterType.NetDataContractXML, true);
                     }
                 }
 
@@ -275,5 +282,6 @@ namespace ysoserial.Generators
             }
         }
 
+        
     }
 }

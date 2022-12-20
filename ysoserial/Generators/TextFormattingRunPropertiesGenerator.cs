@@ -68,7 +68,7 @@ namespace ysoserial.Generators
         {
             OptionSet options = new OptionSet()
             {                
-                {"xamlurl=", "This is to create a very short paylaod when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload of ObjectDataProvider which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
+                {"xamlurl=", "This is to create a very short payload when affected box can read the target XAML URL e.g. \"http://b8.ee/x\" (can be a file path on a shared drive or the local system). This is used by the 3rd XAML payload of ObjectDataProvider which is a ResourceDictionary with the Source parameter. Command parameter will be ignored. The shorter the better!", v => xaml_url = v },
                 {"hasRootDCS", "To include a root element with the DataContractSerializer payload.", v => hasRootDCS = v != null },
             };
 
@@ -157,11 +157,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor" }, null, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
                     }
                 }
 
@@ -198,7 +198,7 @@ namespace ysoserial.Generators
 
                 if (inputArgs.Minify)
                 {
-                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.DataContractXML, true);
+                    payload = XmlHelper.Minify(payload, null, null, FormatterType.DataContractXML, true);
                 }
 
                 if (inputArgs.Test)
@@ -246,7 +246,7 @@ namespace ysoserial.Generators
 
             if (inputArgs.Minify)
             {
-                xaml_payload = XmlMinifier.Minify(xaml_payload, null, null);
+                xaml_payload = XmlHelper.Minify(xaml_payload, null, null);
             }
 
             TextFormattingRunPropertiesMarshal payload = new TextFormattingRunPropertiesMarshal(xaml_payload);

