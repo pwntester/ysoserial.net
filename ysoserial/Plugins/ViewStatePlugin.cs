@@ -34,6 +34,7 @@ namespace ysoserial.Plugins
         static bool isDebug = false;
         static string gadget = "ActivitySurrogateSelector";
         static string command = "";
+        static bool cmdstdin = false;
         static string unsignedPayload = "";
 
         static bool isLegacy = false;
@@ -61,6 +62,7 @@ namespace ysoserial.Plugins
                 /*{"dryrun", "to create a valid ViewState without using an exploit payload. The gadget and command parameters will be ignored", v => dryRun = v != null },*/
                 {"g|gadget=", "a gadget chain that supports LosFormatter. Default: ActivitySurrogateSelector", v => gadget = v },
                 {"c|command=", "the command suitable for the used gadget (will be ignored for ActivitySurrogateSelector)", v => command = v },
+                {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
                 {"upayload=", "the unsigned LosFormatter payload in (base64 encoded). The gadget and command parameters will be ignored", v => unsignedPayload = v },
                 { "generator=", "the __VIEWSTATEGENERATOR value which is in HEX, useful for .NET <= 4.0. When not empty, 'legacy' will be used and 'path' and 'apppath' will be ignored.", v => viewstateGenerator = v},
                 {"path=", "the target web page. example: /app/folder1/page.aspx", v => targetPagePath = v},
@@ -105,7 +107,12 @@ namespace ysoserial.Plugins
             try
             {
                 extra = options.Parse(args);
-                inputArgs.Cmd = command;
+                if (String.IsNullOrEmpty(command) && cmdstdin)
+                {
+                    inputArgs.Cmd = Console.ReadLine();
+                } else {
+                    inputArgs.Cmd = command;
+                }
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
             }
@@ -125,7 +132,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            if (String.IsNullOrEmpty(command) && !dryRun)
+            if (String.IsNullOrEmpty(command) && !dryRun && !cmdstdin)
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
