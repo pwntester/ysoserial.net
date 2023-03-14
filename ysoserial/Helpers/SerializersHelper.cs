@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using MessagePack;
+using MessagePack.Resolvers;
+using Newtonsoft.Json;
 using Polenter.Serialization;
 using System;
 using System.Collections.Generic;
@@ -160,6 +162,26 @@ namespace ysoserial.Helpers
             {
                 Console.WriteLine("\tError in SharpSerializer (XML)!");
             }
+
+            try
+            {
+                Console.WriteLine("\n~~MessagePackTypeless:~~\n");
+                Console.WriteLine(MessagePackTypeless_serialize_ToBase64(myobj));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\tError in MessagePackTypeless!");
+            }
+
+            try
+            {
+                Console.WriteLine("\n~~MessagePackTypeless (Lz4):~~\n");
+                Console.WriteLine(MessagePackTypeless_Lz4_serialize_ToBase64(myobj));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\tError in MessagePackTypeless (Lz4)!");
+            }
         }
 
         public static void TestAll(object myobj)
@@ -228,6 +250,14 @@ namespace ysoserial.Helpers
             if (SharpSerializer_Xml_test(myobj) != null)
             {
                 sb.AppendLine("SharpSerializer_ObjectDataProvider_Xml_test");
+            }
+            if (MessagePackTypeless_test(myobj) != null)
+            {
+                sb.AppendLine("MessagePackTypeless_test");
+            }
+            if (MessagePackTypelessLz4_test(myobj) != null)
+            {
+                sb.AppendLine("MessagePackTypelessLz4_test");
             }
             Console.WriteLine(sb);
         }
@@ -467,7 +497,7 @@ namespace ysoserial.Helpers
             return obj;
         }
 
-        
+
 
         public static object Xaml_test(object myobj)
         {
@@ -493,7 +523,7 @@ namespace ysoserial.Helpers
             {
                 System.Windows.Markup.XamlWriter.Save(myobj, writer);
             }
-            
+
             string text = sb.ToString();
             return text;
         }
@@ -644,7 +674,7 @@ namespace ysoserial.Helpers
 
         public static string BinaryFormatter_serialize_ToBase64(object myobj)
         {
-            return Convert.ToBase64String(BinaryFormatter_serialize_ToMemoryStream(myobj).ToArray()); 
+            return Convert.ToBase64String(BinaryFormatter_serialize_ToMemoryStream(myobj).ToArray());
         }
 
         public static byte[] BinaryFormatter_serialize_ToByteArray(object myobj)
@@ -981,6 +1011,48 @@ namespace ysoserial.Helpers
             }
         }
 
+        private static string MessagePackTypeless_serialize_ToBase64(object myobj)
+        {
+            MessagePackSerializerOptions options = TypelessContractlessStandardResolver.Options;
+            var serialized = MessagePackSerializer.Serialize(myobj, options);
+            return Convert.ToBase64String(serialized);
+        }
 
+        private static string MessagePackTypeless_Lz4_serialize_ToBase64(object myobj)
+        {
+            MessagePackSerializerOptions options = TypelessContractlessStandardResolver.Options.WithCompression(MessagePackCompression.Lz4BlockArray);
+            var serialized = MessagePackSerializer.Serialize(myobj, options);
+            return Convert.ToBase64String(serialized);
+        }
+
+        public static object MessagePackTypeless_test(object myobj)
+        {
+            try
+            {
+                MessagePackSerializerOptions options = TypelessContractlessStandardResolver.Options;
+                var serialized = MessagePackSerializer.Serialize(myobj, options);
+                return MessagePackSerializer.Deserialize<object>(serialized, options);
+            }
+            catch (Exception e)
+            {
+                //ignore
+                return null;
+            }
+        }
+
+        public static object MessagePackTypelessLz4_test(object myobj)
+        {
+            try
+            {
+                MessagePackSerializerOptions options = TypelessContractlessStandardResolver.Options.WithCompression(MessagePackCompression.Lz4BlockArray);
+                var serialized = MessagePackSerializer.Serialize(myobj, options);
+                return MessagePackSerializer.Deserialize<object>(serialized, options);
+            }
+            catch (Exception e)
+            {
+                //ignore
+                return null;
+            }
+        }
     }
 }
