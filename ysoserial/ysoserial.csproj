@@ -239,6 +239,7 @@
     <Compile Include="Generators\WindowsClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\WindowsIdentityGenerator.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
+    <Compile Include="Helpers\GadgetSurrogates\ObjectDataProviderSurrogates.cs" />
     <Compile Include="Helpers\TestingArena\TestingArenaHome.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
     <Compile Include="Helpers\YamlDocumentHelper.cs" />
