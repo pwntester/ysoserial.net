@@ -103,7 +103,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 			                               (uses serialized Claims)
 			
 	(*) ObjectDataProvider
-		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , MessagePackTypeless , MessagePackTypelessLz4 , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
+		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , MessagePackTypeless >= 2.3.75, MessagePackTypelessLz4 >= 2.3.75 , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
 			Labels: Not bridge or derived
 			Extra options:
 			      --var, --variant=VALUE Payload variant number where applicable. 
