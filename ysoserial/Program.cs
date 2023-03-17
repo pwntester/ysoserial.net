@@ -561,7 +561,7 @@ namespace ysoserial
         private static string GetDefaultOutputFormat(string formatter_name)
         {
             string result = "raw";
-            List<String> base64Default = new List<string>() { "BinaryFormatter", "ObjectStateFormatter" }; // LosFormatter is already base64 encoded
+            List<String> base64Default = new List<string>() { "BinaryFormatter", "ObjectStateFormatter", "MessagePackTypeless", "MessagePackTypelessLz4", "SharpSerializerBinary" }; // LosFormatter is already base64 encoded
             var b64match = base64Default.FirstOrDefault(b64formatter => String.Equals(b64formatter, formatter_name, StringComparison.OrdinalIgnoreCase));
             if (b64match != null)
                 result = "base64";
