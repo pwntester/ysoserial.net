@@ -613,6 +613,7 @@ Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to fin
 - https://soroush.secproject.com/blog/2019/08/uploading-web-config-for-fun-and-profit-2/
 - https://www.mdsec.co.uk/2020/04/introducing-ysoserial-net-april-2020-improvements/
 - https://www.netspi.com/blog/technical/adversary-simulation/re-animating-activitysurrogateselector/
+- https://blog.netwrix.com/2023/04/10/generating-deserialization-payloads-for-messagepack-cs-typeless-mode/
 
 ### Usage:
 - https://cert.360.cn/warning/detail?id=e689288863456481733e01b093c986b6
