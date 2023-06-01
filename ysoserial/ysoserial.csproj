@@ -193,6 +193,7 @@
     <Compile Include="Generators\ClaimsPrincipalGenerator.cs" />
     <Compile Include="Generators\DataSetGenerator.cs" />
     <Compile Include="Generators\DataSetTypeSpoofGenerator.cs" />
+    <Compile Include="Generators\XamlAssemblyLoadFromFileGenerator.cs" />
     <Compile Include="Generators\ObjRefGenerator.cs" />
     <Compile Include="Generators\ResourceSetGenerator.cs" />
     <Compile Include="Generators\SessionSecurityTokenGenerator.cs" />
