@@ -184,7 +184,7 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 	(*) WindowsPrincipal
 		Formatters: BinaryFormatter , DataContractJsonSerializer , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Bridge and derived
-	(*) XamlAssemblyLoadFromFileGenerator [Loads assembly using XAML. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
+	(*) XamlAssemblyLoadFromFile [Loads assembly using XAML. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
 		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
 			Labels: Not bridge but derived
 			Extra options:
@@ -565,7 +565,7 @@ Credits for available gadgets:
 		[Finders: Levi Broderick] [Contributors: Alvaro Munoz, Soroush Dalili]
 	WindowsPrincipal
 		[Finders: Steven Seeley of Qihoo 360 Vulcan Team] [Contributors: Chris Anastasio]
-	XamlAssemblyLoadFromFileGenerator
+	XamlAssemblyLoadFromFile
 		[Finders: Soroush Dalili] [Contributors: russtone]
 
 Credits for available plugins:

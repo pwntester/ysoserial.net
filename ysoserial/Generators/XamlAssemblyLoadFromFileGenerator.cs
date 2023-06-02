@@ -11,7 +11,7 @@ namespace ysoserial.Generators
    {
       public override string Name()
       {
-         return "XamlAssemblyLoadFromFileGenerator";
+         return "XamlAssemblyLoadFromFile";
       }
 
       public override string AdditionalInfo()
