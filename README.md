@@ -565,6 +565,8 @@ Credits for available gadgets:
 		[Finders: Levi Broderick] [Contributors: Alvaro Munoz, Soroush Dalili]
 	WindowsPrincipal
 		[Finders: Steven Seeley of Qihoo 360 Vulcan Team] [Contributors: Chris Anastasio]
+	XamlAssemblyLoadFromFileGenerator
+		[Finders: Soroush Dalili] [Contributors: russtone]
 
 Credits for available plugins:
 	ActivatorUrl
