@@ -32,407 +32,327 @@ $ ./ysoserial.exe --fullhelp
 ysoserial.net generates deserialization payloads for a variety of .NET formatters.
 
 == GADGETS ==
-        (*) ActivitySurrogateDisableTypeCheck [Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored]
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Not bridge but derived
-                        Extra options:
-                              --var, --variant=VALUE Choices: 1 -> use TypeConfuseDelegateGenerator
-                                                       [default], 2 -> use
-                                                       TextFormattingRunPropertiesMarshal
-
-        (*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class]
-                Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
-                        Labels: Not bridge or derived
-                        Extra options:
-                              --var, --variant=VALUE Payload variant number where applicable.
-                                                       Choices: 1 (default), 2 (shorter but may not
-                                                       work between versions)
-
-        (*) ActivitySurrogateSelectorFromFile [Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
-                Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
-                        Labels: Not bridge or derived
-                        Extra options:
-                              --var, --variant=VALUE Payload variant number where applicable.
-                                                       Choices: 1 (default), 2 (shorter but may not
-                                                       work between versions)
-
-        (*) AxHostState
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) BaseActivationFactory [Gadget for .NET 5/6/7 with WPF enabled or Microsoft.WindowsDesktop.App\PresentationFramework.dll available. Leads to remote DLL loading (native C/C++ DLL)]
-                Formatters: Json.Net
-                        Labels: Not bridge or derived, .NET 5/6/7, Requires WPF enabled or PresentationFramework.dll
-        (*) ClaimsIdentity
-                Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-                        Labels: Bridge and derived, OnDeserialized
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) ClaimsPrincipal
-                Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-                        Labels: Bridge and derived, OnDeserialized, SecondOrderDeserialization
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) DataSet
-                Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) DataSetOldBehaviour [This gadget targets and old behaviour of DataSet which uses XML format]
-                Formatters: BinaryFormatter , LosFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: LosFormatter
-                        Extra options:
-                              --spoofedAssembly=VALUE
-                                                     The assembly name you want to use in the
-                                                       generated serialized object (example: 'mscorlib')
-
-        (*) DataSetOldBehaviourFromFile [Another variant of the DataSetOldBehaviour gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
-                Formatters: BinaryFormatter , LosFormatter
-                        Labels: Bridge and derived
-                        Extra options:
-                              --spoofedAssembly=VALUE
-                                                     The assembly name you want to use in the
-                                                       generated serialized object (example: 'mscorlib')
-
-        (*) DataSetTypeSpoof [A more advanced type spoofing which can use any arbitrary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson or in the DataSetOldBehaviour gadget]
-                Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) GenericPrincipal
-                Formatters: BinaryFormatter , LosFormatter
-                        Labels: Bridge and derived, OnDeserialized, SecondOrderDeserialization
-                        Supported formatter for the bridge: BinaryFormatter
-                        Extra options:
-                              --var, --variant=VALUE Payload variant number where applicable.
-                                                       Choices: 1 (uses serialized ClaimsIdentities), 2
-                                                       (uses serialized Claims)
-
-        (*) GetterCompilerResults [Remote DLL loading gadget for .NET 5/6/7 with WPF enabled (mixed DLL). Local DLL loading for .NET Framework. DLL path delivered with -c argument]
-                Formatters: Json.Net
-                        Labels: Chain of arbitrary getter call and not derived gadget, Remote DLL loading for .NET 5/6/7 with WPF Enabled, Local DLL loading for .NET Framework
-                        Extra options:
-                              --var, --variant=VALUE Variant number. Variant defines a different
-                                                       getter-call gadget. Choices:
-                                                       1 (default) - PropertyGrid getter-call gadget,
-                                                       2 - ComboBox getter-call gadget
-                                                       3 - ListBox getter-call gadget
-                                                       4 - CheckedListBox getter-call gadget
-
-        (*) GetterSecurityException
-                Formatters: Json.Net
-                        Labels: Chain of arbitrary getter call and derived gadget
-                        Extra options:
-                              --var, --variant=VALUE Variant number. Variant defines a different
-                                                       getter-call gadget. Choices:
-                                                       1 (default) - PropertyGrid getter-call gadget,
-                                                       2 - ComboBox getter-call gadget
-                                                       3 - ListBox getter-call gadget
-                                                       4 - CheckedListBox getter-call gadget
-
-        (*) GetterSettingsPropertyValue
-                Formatters: Json.Net , MessagePackTypeless , MessagePackTypelessLz4 , Xaml
-                        Labels: Chain of arbitrary getter call and derived gadget
-                        Extra options:
-                              --var, --variant=VALUE Variant number. Variant defines a different
-                                                       getter-call gadget. Choices:
-                                                       1 (default) - PropertyGrid getter-call gadget,
-                                                       2 - ComboBox getter-call gadget
-                                                       3 - ListBox getter-call gadget
-                                                       4 - CheckedListBox getter-call gadget
-
-        (*) ObjectDataProvider
-                Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , MessagePackTypeless , MessagePackTypelessLz4 , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
-                        Labels: Not bridge or derived
-                        Extra options:
-                              --var, --variant=VALUE Payload variant number where applicable.
-                                                       Choices: 1, 2, 3, ... based on formatter.
-                              --xamlurl=VALUE        This is to create a very short payload when
-                                                       affected box can read the target XAML URL e.g.
-                                                       "http://b8.ee/x" (can be a file path on a shared
-                                                       drive or the local system). This is used by the
-                                                       3rd XAML payload which is a ResourceDictionary
-                                                       with the Source parameter. Command parameter
-                                                       will be ignored. The shorter the better!
-
-        (*) ObjRef
-                Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
-                        Labels:
-        (*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Not bridge but derived
-        (*) ResourceSet
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
-                        Labels: It relies on other gadgets and is not a real gadget on its own (not bridged or derived either)
-                        Extra options:
-                              --ig, --internalgadget=VALUE
-                                                     The numerical internal gadget choice to use:
-                                                       1=TypeConfuseDelegate,
-                                                       2=TextFormattingRunProperties (default: 1
-                                                       [TypeConfuseDelegate])
-
-        (*) RolePrincipal
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) SessionSecurityToken
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) SessionViewStateHistoryItem
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: LosFormatter
-        (*) TextFormattingRunProperties [This normally generates the shortest payload]
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Not bridge but derived
-                        Extra options:
-                              --xamlurl=VALUE        This is to create a very short payload when
-                                                       affected box can read the target XAML URL e.g.
-                                                       "http://b8.ee/x" (can be a file path on a shared
-                                                       drive or the local system). This is used by the
-                                                       3rd XAML payload of ObjectDataProvider which is
-                                                       a ResourceDictionary with the Source parameter.
-                                                       Command parameter will be ignored. The shorter
-                                                       the better!
-                              --hasRootDCS           To include a root element with the
-                                                       DataContractSerializer payload.
-
-        (*) ToolboxItemContainer
-                Formatters: BinaryFormatter , LosFormatter , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) TypeConfuseDelegate
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
-                        Labels: Not bridge or derived
-        (*) TypeConfuseDelegateMono [Tweaked TypeConfuseDelegate gadget to work with Mono]
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
-                        Labels: Not bridge or derived
-        (*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)]
-                Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , SoapFormatter (2)
-                        Labels: Bridge and derived, Not in GAC
-                        Supported formatter for the bridge: BinaryFormatter
-                        Extra options:
-                              --var, --variant=VALUE Payload variant number where applicable.
-                                                       Choices: 1, 2, or 3 based on formatter.
-
-        (*) WindowsIdentity
-                Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Bridge and derived
-                        Supported formatter for the bridge: BinaryFormatter
-        (*) WindowsPrincipal
-                Formatters: BinaryFormatter , DataContractJsonSerializer , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Bridge and derived
-        (*) XamlAssemblyLoadFromFile [Loads assembly using XAML. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
-                Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
-                        Labels: Not bridge but derived
-                        Extra options:
-                              --var, --variant=VALUE Choices: 1 -> use TypeConfuseDelegateGenerator
-                                                       [default], 2 -> use
-                                                       TextFormattingRunPropertiesMarshal
-
-        (*) XamlImageInfo [Gadget leads to XAML deserialization. Variant 1 (GAC) reads XAML from file (local path or UNC path can be given). Variant 2 (non-GAC) delivers XAML directly, but requires Microsoft.Web.Deployment.dll]
-                Formatters: Json.Net
-                        Labels: Not bridge but derived, Variant 1 in GAC, Variant 2 not in GAC
-                        Extra options:
-                              --var, --variant=VALUE Variant number. Variant defines a different
-                                                       Stream delivery class. Choices:
-                                                       1 (default and GAC) - LazyFileStream for Stream
-                                                       delivery, file path has to be provided for -c
-                                                       argument (UNC or local)
-                                                       2 (non-GAC, requires Microsoft.Web.Deploymen-
-                                                       t.dll) - ReadOnlyStreamFromStrings for Stream
-                                                       delivery, command to execute can be provided for
-                                                       -c argument
-
+	(*) ActivitySurrogateDisableTypeCheck [Disables 4.8+ type protections for ActivitySurrogateSelector, command is ignored]
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Not bridge but derived
+			Extra options:
+			      --var, --variant=VALUE Choices: 1 -> use TypeConfuseDelegateGenerator 
+			                               [default], 2 -> use 
+			                               TextFormattingRunPropertiesMarshal
+			
+	(*) ActivitySurrogateSelector [This gadget ignores the command parameter and executes the constructor of ExploitClass class]
+		Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
+			Labels: Not bridge or derived
+			Extra options:
+			      --var, --variant=VALUE Payload variant number where applicable. 
+			                               Choices: 1 (default), 2 (shorter but may not 
+			                               work between versions)
+			
+	(*) ActivitySurrogateSelectorFromFile [Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
+		Formatters: BinaryFormatter (2) , LosFormatter , SoapFormatter
+			Labels: Not bridge or derived
+			Extra options:
+			      --var, --variant=VALUE Payload variant number where applicable. 
+			                               Choices: 1 (default), 2 (shorter but may not 
+			                               work between versions)
+			
+	(*) AxHostState
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: BinaryFormatter
+	(*) ClaimsIdentity
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
+			Labels: Bridge and derived, OnDeserialized
+			Supported formatter for the bridge: BinaryFormatter
+	(*) ClaimsPrincipal
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
+			Labels: Bridge and derived, OnDeserialized, SecondOrderDeserialization
+			Supported formatter for the bridge: BinaryFormatter
+	(*) DataSet
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: BinaryFormatter
+	(*) DataSetOldBehaviour [This gadget targets and old behaviour of DataSet which uses XML format]
+		Formatters: BinaryFormatter , LosFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: LosFormatter
+			Extra options:
+			      --spoofedAssembly=VALUE
+			                             The assembly name you want to use in the 
+			                               generated serialized object (example: 'mscorlib')
+			
+	(*) DataSetOldBehaviourFromFile [Another variant of the DataSetOldBehaviour gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
+		Formatters: BinaryFormatter , LosFormatter
+			Labels: Bridge and derived
+			Extra options:
+			      --spoofedAssembly=VALUE
+			                             The assembly name you want to use in the 
+			                               generated serialized object (example: 'mscorlib')
+			
+	(*) DataSetTypeSpoof [A more advanced type spoofing which can use any arbitrary types can be seen in TestingArenaHome::SpoofByBinaryFormatterJson or in the DataSetOldBehaviour gadget]
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: BinaryFormatter
+	(*) GenericPrincipal
+		Formatters: BinaryFormatter , LosFormatter
+			Labels: Bridge and derived, OnDeserialized, SecondOrderDeserialization
+			Supported formatter for the bridge: BinaryFormatter
+			Extra options:
+			      --var, --variant=VALUE Payload variant number where applicable. 
+			                               Choices: 1 (uses serialized ClaimsIdentities), 2 
+			                               (uses serialized Claims)
+			
+	(*) ObjectDataProvider
+		Formatters: DataContractSerializer (2) , FastJson , FsPickler , JavaScriptSerializer , Json.Net , MessagePackTypeless >= 2.3.75, MessagePackTypelessLz4 >= 2.3.75 , SharpSerializerBinary , SharpSerializerXml , Xaml (4) , XmlSerializer (2) , YamlDotNet < 5.0.0
+			Labels: Not bridge or derived
+			Extra options:
+			      --var, --variant=VALUE Payload variant number where applicable. 
+			                               Choices: 1, 2, 3, ... based on formatter.
+			      --xamlurl=VALUE        This is to create a very short payload when 
+			                               affected box can read the target XAML URL e.g. 
+			                               "http://b8.ee/x" (can be a file path on a shared 
+			                               drive or the local system). This is used by the 
+			                               3rd XAML payload which is a ResourceDictionary 
+			                               with the Source parameter. Command parameter 
+			                               will be ignored. The shorter the better!
+			
+	(*) ObjRef
+		Formatters: BinaryFormatter , LosFormatter , ObjectStateFormatter , SoapFormatter
+			Labels: 
+	(*) PSObject [Target must run a system not patched for CVE-2017-8565 (Published: 07/11/2017)]
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Not bridge but derived
+	(*) ResourceSet
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
+			Labels: It relies on other gadgets and is not a real gadget on its own (not bridged or derived either)
+			Extra options:
+			      --ig, --internalgadget=VALUE
+			                             The numerical internal gadget choice to use: 
+			                               1=TypeConfuseDelegate, 
+			                               2=TextFormattingRunProperties (default: 1 
+			                               [TypeConfuseDelegate])
+			
+	(*) RolePrincipal
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: BinaryFormatter
+	(*) SessionSecurityToken
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: BinaryFormatter
+	(*) SessionViewStateHistoryItem
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: LosFormatter
+	(*) TextFormattingRunProperties [This normally generates the shortest payload]
+		Formatters: BinaryFormatter , DataContractSerializer , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Not bridge but derived
+			Extra options:
+			      --xamlurl=VALUE        This is to create a very short payload when 
+			                               affected box can read the target XAML URL e.g. 
+			                               "http://b8.ee/x" (can be a file path on a shared 
+			                               drive or the local system). This is used by the 
+			                               3rd XAML payload of ObjectDataProvider which is 
+			                               a ResourceDictionary with the Source parameter. 
+			                               Command parameter will be ignored. The shorter 
+			                               the better!
+			      --hasRootDCS           To include a root element with the 
+			                               DataContractSerializer payload.
+			
+	(*) ToolboxItemContainer
+		Formatters: BinaryFormatter , LosFormatter , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: BinaryFormatter
+	(*) TypeConfuseDelegate
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
+			Labels: Not bridge or derived
+	(*) TypeConfuseDelegateMono [Tweaked TypeConfuseDelegate gadget to work with Mono]
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer
+			Labels: Not bridge or derived
+	(*) WindowsClaimsIdentity [Requires Microsoft.IdentityModel.Claims namespace (not default GAC)]
+		Formatters: BinaryFormatter (3) , DataContractSerializer (2) , Json.Net (2) , LosFormatter (3) , NetDataContractSerializer (3) , SoapFormatter (2)
+			Labels: Bridge and derived, Not in GAC
+			Supported formatter for the bridge: BinaryFormatter
+			Extra options:
+			      --var, --variant=VALUE Payload variant number where applicable. 
+			                               Choices: 1, 2, or 3 based on formatter.
+			
+	(*) WindowsIdentity
+		Formatters: BinaryFormatter , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Bridge and derived
+			Supported formatter for the bridge: BinaryFormatter
+	(*) WindowsPrincipal
+		Formatters: BinaryFormatter , DataContractJsonSerializer , DataContractSerializer , Json.Net , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Bridge and derived
+	(*) XamlAssemblyLoadFromFile [Loads assembly using XAML. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll']
+		Formatters: BinaryFormatter , LosFormatter , NetDataContractSerializer , SoapFormatter
+			Labels: Not bridge but derived
+			Extra options:
+			      --var, --variant=VALUE Choices: 1 -> use TypeConfuseDelegateGenerator 
+			                               [default], 2 -> use 
+			                               TextFormattingRunPropertiesMarshal
 
 == PLUGINS ==
-        (*) ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
-                Options:
-                  -c, --command=VALUE        the command to be executed.
-                  -u, --url=VALUE            the url passed to Activator.GetObject.
-                  -s                         if TCPChannel security should be enabled.
-
-        (*) Altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
-                Options:
-                  -M, --mode=VALUE           the payload mode: HttpStaticObjectsCollection or
-                                               SessionStateItemCollection. Default:
-                                               HttpStaticObjectsCollection
-                  -o, --output=VALUE         the output format (raw|base64).
-                  -c, --command=VALUE        the command to be executed
-                  -t, --test                 whether to run payload locally. Default: false
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-                      --ust, --usesimpletype This is to remove additional info only when
-                                               minifying and FormatterAssemblyStyle=Simple.
-                                               Default: true
-
-        (*) ApplicationTrust (Generates XML payload for the ApplicationTrust class)
-                Options:
-                  -c, --command=VALUE        the command to be executed
-                  -t, --test                 whether to run payload locally. Default: false
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-                      --ust, --usesimpletype This is to remove additional info only when
-                                               minifying and FormatterAssemblyStyle=Simple.
-                                               Default: true
-
-        (*) Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
-                Options:
-                  -F, --format=VALUE         the object format: Csv, DeviceIndependentBitmap,
-                                               DataInterchangeFormat, PenData, RiffAudio,
-                                               WindowsForms10PersistentObject, System.String,
-                                               SymbolicLink, TaggedImageFileFormat, WaveAudio.
-                                               Default: WindowsForms10PersistentObject (the
-                                               only one that works in Feb 2020 as a result of
-                                               an incomplete silent patch - - will not be
-                                               useful to target text based fields anymore)
-                  -c, --command=VALUE        the command to be executed
-                  -t, --test                 whether to run payload locally. Default: false
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-                      --ust, --usesimpletype This is to remove additional info only when
-                                               minifying and FormatterAssemblyStyle=Simple.
-                                               Default: true
-
-        (*) DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
-                Options:
-                  -m, --mode=VALUE           the payload mode: read_file, write_file,
-                                               run_command.
-                  -c, --command=VALUE        the command to be executed in run_command mode.
-                  -u, --url=VALUE            the url to fetch the file from in write_file
-                                               mode.
-                  -f, --file=VALUE           the file to read in read_file mode or the file
-                                               to write to in write_file_mode.
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-
-        (*) GetterCallGadgets (Implements arbitrary getter call gadgets for .NET Framework and .NET 5/6/7 with WPF enabled)
-                Options:
-                  -l                         prints list of implemented gadgets
-                  -i, --inner=VALUE          file containing inner-gadget
-                  -g, --gadget=VALUE         gadget to use
-                  -m, --member=VALUE         getter to call (required for some gadgets)
-                  -t                         test gadget (execute)
-
-        (*) NetNonRceGadgets (Implements Non-RCE gadgets for .NET Framework)
-                Options:
-                  -l                         prints list of implemented gadgets
-                  -i, --input=VALUE          input to the gadget
-                  -g, --gadget=VALUE         gadget to use
-                  -f, --formatter=VALUE      Formatter to use
-                  -t                         test gadget (execute after generation)
-
-        (*) Resx (Generates RESX and .RESOURCES files)
-                Options:
-                  -M, --mode=VALUE           the payload mode: indirect_resx_file,
-                                               CompiledDotResources (useful for CVE-2020-0932
-                                               for example), BinaryFormatter, SoapFormatter.
-                  -c, --command=VALUE        the command to be executed in BinaryFormatter
-                                               and CompiledDotResources. If this is provided
-                                               for SoapFormatter, it will be used as a file for
-                                               ActivitySurrogateSelectorFromFile
-                  -g, --gadget=VALUE         The gadget chain used for BinaryFormatter and
-                                               CompiledDotResources (default:
-                                               TextFormattingRunProperties).
-                  -F, --file=VALUE           UNC file path location: this is used in
-                                               indirect_resx_file mode.
-                      --of, --outputfile=VALUE
-                                             a file path location for CompiledDotResources to
-                                               store the .resources file (default: payloa-
-                                               d.resources)
-                  -t, --test                 Whether to run payload locally. Default: false
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-                      --ust, --usesimpletype This is to remove additional info only when
-                                               minifying and FormatterAssemblyStyle=Simple.
-                                               Default: true
-
-        (*) SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
-                Options:
-                  -c, --command=VALUE        the command to be executed e.g. "cmd /c calc"
-                  -t, --test                 whether to run payload locally. Default: false
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-                      --ust, --usesimpletype This is to remove additional info only when
-                                               minifying and FormatterAssemblyStyle=Simple.
-                                               Default: true
-
-        (*) SharePoint (Generates payloads for the following SharePoint CVEs: CVE-2020-1147, CVE-2019-0604, CVE-2018-8421)
-                Options:
-                      --cve=VALUE            the CVE reference: CVE-2020-1147 (result is safe
-                                               for a POST request), CVE-2019-0604, CVE-2018-8421
-                      --useurl               to use the XAML url rather than using the direct
-                                               command in CVE-2019-0604 and CVE-2018-8421
-                  -g, --gadget=VALUE         a gadget chain that supports LosFormatter for
-                                               CVE-2020-1147. Default: TypeConfuseDelegate
-                  -c, --command=VALUE        the command to be executed e.g. "cmd /c calc" or
-                                               the XAML url e.g. "http://b8.ee/x" to make the
-                                               payload shorter with the `--useurl` argument
-
-        (*) ThirdPartyGadgets (Implements gadgets for 3rd Party Libraries)
-                Options:
-                  -l                         prints list of implemented gadgets
-                  -i, --input=VALUE          input to the gadget
-                  -g, --gadget=VALUE         gadget to use
-                  -f, --formatter=VALUE      formatter to use
-                  -r                         removes version and pubkeytoken from types, it
-                                               may be useful when we do not know version of
-                                               targetd library or require short payload
-                  -t                         test gadget (execute after generation)
-
-        (*) TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
-                Options:
-                  -c, --command=VALUE        the command to be executed
-                  -t, --test                 whether to run payload locally. Default: false
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-                      --ust, --usesimpletype This is to remove additional info only when
-                                               minifying and FormatterAssemblyStyle=Simple.
-                                               Default: true
-
-        (*) ViewState (Generates a ViewState using known MachineKey parameters)
-                Options:
-                      --examples             to show a few examples. Other parameters will be
-                                               ignored
-                  -g, --gadget=VALUE         a gadget chain that supports LosFormatter.
-                                               Default: ActivitySurrogateSelector
-                  -c, --command=VALUE        the command suitable for the used gadget (will
-                                               be ignored for ActivitySurrogateSelector)
-                  -s, --stdin                The command to be executed will be read from
-                                               standard input.
-                      --upayload=VALUE       the unsigned LosFormatter payload in (base64
-                                               encoded). The gadget and command parameters will
-                                               be ignored
-                      --generator=VALUE      the __VIEWSTATEGENERATOR value which is in HEX,
-                                               useful for .NET <= 4.0. When not empty, 'legacy'
-                                               will be used and 'path' and 'apppath' will be
-                                               ignored.
-                      --path=VALUE           the target web page. example: /app/folder1/pag-
-                                               e.aspx
-                      --apppath=VALUE        the application path. this is needed in order to
-                                               simulate TemplateSourceDirectory
-                      --islegacy             when provided, it uses the legacy algorithm
-                                               suitable for .NET 4.0 and below
-                      --isencrypted          this will be used when the legacy algorithm is
-                                               used to bypass WAFs
-                      --viewstateuserkey=VALUE
-                                             this to set the ViewStateUserKey parameter that
-                                               sometimes used as the anti-CSRF token
-                      --decryptionalg=VALUE  the encryption algorithm can be set to  DES,
-                                               3DES, AES. Default: AES
-                      --decryptionkey=VALUE  this is the decryptionKey attribute from
-                                               machineKey in the web.config file
-                      --validationalg=VALUE  the validation algorithm can be set to SHA1,
-                                               HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES,
-                                               AES. Default: HMACSHA256
-                      --validationkey=VALUE  this is the validationKey attribute from
-                                               machineKey in the web.config file
-                      --showraw              to stop URL-encoding the result. Default: false
-                      --minify               Whether to minify the payloads where applicable
-                                               (experimental). Default: false
-                      --ust, --usesimpletype This is to remove additional info only when
-                                               minifying and FormatterAssemblyStyle=Simple.
-                                               Default: true
-                      --isdebug              to show useful debugging messages!
-
+	(*) ActivatorUrl (Sends a generated payload to an activated, presumably remote, object)
+		Options:
+		  -c, --command=VALUE        the command to be executed.
+		  -u, --url=VALUE            the url passed to Activator.GetObject.
+		  -s                         if TCPChannel security should be enabled.
+		
+	(*) Altserialization (Generates payload for HttpStaticObjectsCollection or SessionStateItemCollection)
+		Options:
+		  -M, --mode=VALUE           the payload mode: HttpStaticObjectsCollection or 
+		                               SessionStateItemCollection. Default: 
+		                               HttpStaticObjectsCollection
+		  -o, --output=VALUE         the output format (raw|base64).
+		  -c, --command=VALUE        the command to be executed
+		  -t, --test                 whether to run payload locally. Default: false
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		      --ust, --usesimpletype This is to remove additional info only when 
+		                               minifying and FormatterAssemblyStyle=Simple. 
+		                               Default: true
+		
+	(*) ApplicationTrust (Generates XML payload for the ApplicationTrust class)
+		Options:
+		  -c, --command=VALUE        the command to be executed
+		  -t, --test                 whether to run payload locally. Default: false
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		      --ust, --usesimpletype This is to remove additional info only when 
+		                               minifying and FormatterAssemblyStyle=Simple. 
+		                               Default: true
+		
+	(*) Clipboard (Generates payload for DataObject and copy it into the clipboard - ready to be pasted in affected apps)
+		Options:
+		  -F, --format=VALUE         the object format: Csv, DeviceIndependentBitmap, 
+		                               DataInterchangeFormat, PenData, RiffAudio, 
+		                               WindowsForms10PersistentObject, System.String, 
+		                               SymbolicLink, TaggedImageFileFormat, WaveAudio. 
+		                               Default: WindowsForms10PersistentObject (the 
+		                               only one that works in Feb 2020 as a result of 
+		                               an incomplete silent patch - - will not be 
+		                               useful to target text based fields anymore)
+		  -c, --command=VALUE        the command to be executed
+		  -t, --test                 whether to run payload locally. Default: false
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		      --ust, --usesimpletype This is to remove additional info only when 
+		                               minifying and FormatterAssemblyStyle=Simple. 
+		                               Default: true
+		
+	(*) DotNetNuke (Generates payload for DotNetNuke CVE-2017-9822)
+		Options:
+		  -m, --mode=VALUE           the payload mode: read_file, write_file, 
+		                               run_command.
+		  -c, --command=VALUE        the command to be executed in run_command mode.
+		  -u, --url=VALUE            the url to fetch the file from in write_file 
+		                               mode.
+		  -f, --file=VALUE           the file to read in read_file mode or the file 
+		                               to write to in write_file_mode.
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		
+	(*) Resx (Generates RESX and .RESOURCES files)
+		Options:
+		  -M, --mode=VALUE           the payload mode: indirect_resx_file, 
+		                               CompiledDotResources (useful for CVE-2020-0932 
+		                               for example), BinaryFormatter, SoapFormatter.
+		  -c, --command=VALUE        the command to be executed in BinaryFormatter 
+		                               and CompiledDotResources. If this is provided 
+		                               for SoapFormatter, it will be used as a file for 
+		                               ActivitySurrogateSelectorFromFile
+		  -g, --gadget=VALUE         The gadget chain used for BinaryFormatter and 
+		                               CompiledDotResources (default: 
+		                               TextFormattingRunProperties).
+		  -F, --file=VALUE           UNC file path location: this is used in 
+		                               indirect_resx_file mode.
+		      --of, --outputfile=VALUE
+		                             a file path location for CompiledDotResources to 
+		                               store the .resources file (default: payloa-
+		                               d.resources)
+		  -t, --test                 Whether to run payload locally. Default: false
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		      --ust, --usesimpletype This is to remove additional info only when 
+		                               minifying and FormatterAssemblyStyle=Simple. 
+		                               Default: true
+		
+	(*) SessionSecurityTokenHandler (Generates XML payload for the SessionSecurityTokenHandler class)
+		Options:
+		  -c, --command=VALUE        the command to be executed e.g. "cmd /c calc"
+		  -t, --test                 whether to run payload locally. Default: false
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		      --ust, --usesimpletype This is to remove additional info only when 
+		                               minifying and FormatterAssemblyStyle=Simple. 
+		                               Default: true
+		
+	(*) SharePoint (Generates payloads for the following SharePoint CVEs: CVE-2020-1147, CVE-2019-0604, CVE-2018-8421)
+		Options:
+		      --cve=VALUE            the CVE reference: CVE-2020-1147 (result is safe 
+		                               for a POST request), CVE-2019-0604, CVE-2018-8421
+		      --useurl               to use the XAML url rather than using the direct 
+		                               command in CVE-2019-0604 and CVE-2018-8421
+		  -g, --gadget=VALUE         a gadget chain that supports LosFormatter for 
+		                               CVE-2020-1147. Default: TypeConfuseDelegate 
+		  -c, --command=VALUE        the command to be executed e.g. "cmd /c calc" or 
+		                               the XAML url e.g. "http://b8.ee/x" to make the 
+		                               payload shorter with the `--useurl` argument
+		
+	(*) TransactionManagerReenlist (Generates payload for the TransactionManager.Reenlist method)
+		Options:
+		  -c, --command=VALUE        the command to be executed
+		  -t, --test                 whether to run payload locally. Default: false
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		      --ust, --usesimpletype This is to remove additional info only when 
+		                               minifying and FormatterAssemblyStyle=Simple. 
+		                               Default: true
+		
+	(*) ViewState (Generates a ViewState using known MachineKey parameters)
+		Options:
+		      --examples             to show a few examples. Other parameters will be 
+		                               ignored
+		  -g, --gadget=VALUE         a gadget chain that supports LosFormatter. 
+		                               Default: ActivitySurrogateSelector
+		  -c, --command=VALUE        the command suitable for the used gadget (will 
+		                               be ignored for ActivitySurrogateSelector)
+		      --upayload=VALUE       the unsigned LosFormatter payload in (base64 
+		                               encoded). The gadget and command parameters will 
+		                               be ignored
+		      --generator=VALUE      the __VIEWSTATEGENERATOR value which is in HEX, 
+		                               useful for .NET <= 4.0. When not empty, 'legacy' 
+		                               will be used and 'path' and 'apppath' will be 
+		                               ignored.
+		      --path=VALUE           the target web page. example: /app/folder1/pag-
+		                               e.aspx
+		      --apppath=VALUE        the application path. this is needed in order to 
+		                               simulate TemplateSourceDirectory
+		      --islegacy             when provided, it uses the legacy algorithm 
+		                               suitable for .NET 4.0 and below
+		      --isencrypted          this will be used when the legacy algorithm is 
+		                               used to bypass WAFs
+		      --viewstateuserkey=VALUE
+		                             this to set the ViewStateUserKey parameter that 
+		                               sometimes used as the anti-CSRF token
+		      --decryptionalg=VALUE  the encryption algorithm can be set to  DES, 
+		                               3DES, AES. Default: AES
+		      --decryptionkey=VALUE  this is the decryptionKey attribute from 
+		                               machineKey in the web.config file
+		      --validationalg=VALUE  the validation algorithm can be set to SHA1, 
+		                               HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES, 
+		                               AES. Default: HMACSHA256
+		      --validationkey=VALUE  this is the validationKey attribute from 
+		                               machineKey in the web.config file
+		      --showraw              to stop URL-encoding the result. Default: false
+		      --minify               Whether to minify the payloads where applicable 
+		                               (experimental). Default: false
+		      --ust, --usesimpletype This is to remove additional info only when 
+		                               minifying and FormatterAssemblyStyle=Simple. 
+		                               Default: true
+		      --isdebug              to show useful debugging messages!
+		
 
 Note: Machine authentication code (MAC) key modifier is not being used for LosFormatter in ysoserial.net. Therefore, LosFormatter (base64 encoded) can be used to create ObjectStateFormatter payloads.
 
@@ -444,44 +364,44 @@ Options:
   -g, --gadget=VALUE         The gadget chain.
   -f, --formatter=VALUE      The formatter.
   -c, --command=VALUE        The command to be executed.
-      --rawcmd               Command will be executed as is without `cmd /c `
-                               being appended (anything after first space is an
+      --rawcmd               Command will be executed as is without `cmd /c ` 
+                               being appended (anything after first space is an 
                                argument).
-  -s, --stdin                The command to be executed will be read from
+  -s, --stdin                The command to be executed will be read from 
                                standard input.
       --bgc, --bridgedgadgetchains=VALUE
-                             Chain of bridged gadgets separated by comma (,).
-                               Each gadget will be used to complete the next
-                               bridge gadget. The last one will be used in the
-                               requested gadget. This will be ignored when
+                             Chain of bridged gadgets separated by comma (,). 
+                               Each gadget will be used to complete the next 
+                               bridge gadget. The last one will be used in the 
+                               requested gadget. This will be ignored when 
                                using the searchformatter argument.
   -t, --test                 Whether to run payload locally. Default: false
-      --outputpath=VALUE     The output file path. It will be ignored if
+      --outputpath=VALUE     The output file path. It will be ignored if 
                                empty.
-      --minify               Whether to minify the payloads where applicable.
+      --minify               Whether to minify the payloads where applicable. 
                                Default: false
-      --ust, --usesimpletype This is to remove additional info only when
-                               minifying and FormatterAssemblyStyle=Simple
-                               (always `true` with `--minify` for binary
+      --ust, --usesimpletype This is to remove additional info only when 
+                               minifying and FormatterAssemblyStyle=Simple 
+                               (always `true` with `--minify` for binary 
                                formatters). Default: true
       --raf, --runallformatters
-                             Whether to run all the gadgets with the provided
-                               formatter (ignores gadget name, output format,
-                               and the test flag arguments). This will search
-                               in formatters and also show the displayed
+                             Whether to run all the gadgets with the provided 
+                               formatter (ignores gadget name, output format, 
+                               and the test flag arguments). This will search 
+                               in formatters and also show the displayed 
                                payload length. Default: false
       --sf, --searchformatter=VALUE
-                             Search in all formatters to show relevant
-                               gadgets and their formatters (other parameters
+                             Search in all formatters to show relevant 
+                               gadgets and their formatters (other parameters 
                                will be ignored).
-      --debugmode            Enable debugging to show exception errors and
+      --debugmode            Enable debugging to show exception errors and 
                                output length
   -h, --help                 Shows this message and exit.
-      --fullhelp             Shows this message + extra options for gadgets
+      --fullhelp             Shows this message + extra options for gadgets 
                                and plugins and exit.
-      --credit               Shows the credit/history of gadgets and plugins
+      --credit               Shows the credit/history of gadgets and plugins 
                                (other parameters will be ignored).
-      --runmytest            Runs that `Start` method of `TestingArenaHome` -
+      --runmytest            Runs that `Start` method of `TestingArenaHome` - 
                                useful for testing and debugging.
 ```
 
@@ -595,96 +515,80 @@ ysoserial.net has been originally developed by Alvaro Munoz (@pwntester)
 this tool is being maintained by Soroush Dalili (@irsdl) and Alvaro Munoz (@pwntester) 
 
 Credits for available gadgets:
-        ActivitySurrogateDisableTypeCheck
-                [Finders: Nick Landers]
-        ActivitySurrogateSelector
-                [Finders: James Forshaw] [Contributors: Alvaro Munoz, zcgonvh]
-        ActivitySurrogateSelectorFromFile
-                [Finders: James Forshaw] [Contributors: Alvaro Munoz, zcgonvh]
-        AxHostState
-                [Finders: Soroush Dalili]
-        BaseActivationFactory
-                [Finders: Piotr Bazydlo]
-        ClaimsIdentity
-                [Finders: Soroush Dalili]
-        ClaimsPrincipal
-                [Finders: jang]
-        DataSet
-                [Finders: James Forshaw] [Contributors: Soroush Dalili]
-        DataSetOldBehaviour
-                [Finders: Steven Seeley] [Contributors: Soroush Dalili]
-        DataSetOldBehaviourFromFile
-                [Finders: Steven Seeley, Markus Wulftange] [Contributors: Soroush Dalili]
-        DataSetTypeSpoof
-                [Finders: James Forshaw] [Contributors: Soroush Dalili, Markus Wulftange, Jang]
-        GenericPrincipal
-                [Finders: Soroush Dalili]
-        GetterCompilerResults
-                [Finders: Piotr Bazydlo]
-        GetterSecurityException
-                [Finders: Piotr Bazydlo]
-        GetterSettingsPropertyValue
-                [Finders: Piotr Bazydlo]
-        ObjectDataProvider
-                [Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili, Dane Evans]
-        ObjRef
-                [Finders: Markus Wulftange]
-        PSObject
-                [Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz]
-        ResourceSet
-                [Finders: Soroush Dalili]
-        RolePrincipal
-                [Finders: Soroush Dalili]
-        SessionSecurityToken
-                [Finders: @mufinnnnnnn, Soroush Dalili] [Contributors: Soroush Dalili]
-        SessionViewStateHistoryItem
-                [Finders: Soroush Dalili]
-        TextFormattingRunProperties
-                [Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Soroush Dalili, Piotr Bazydlo]
-        ToolboxItemContainer
-                [Finders: @frycos]
-        TypeConfuseDelegate
-                [Finders: James Forshaw] [Contributors: Alvaro Munoz]
-        TypeConfuseDelegateMono
-                [Finders: James Forshaw] [Contributors: Denis Andzakovic, Soroush Dalili]
-        WindowsClaimsIdentity
-                [Finders: Soroush Dalili]
-        WindowsIdentity
-                [Finders: Levi Broderick] [Contributors: Alvaro Munoz, Soroush Dalili]
-        WindowsPrincipal
-                [Finders: Steven Seeley of Qihoo 360 Vulcan Team] [Contributors: Chris Anastasio]
-        XamlAssemblyLoadFromFile
-                [Finders: Soroush Dalili] [Contributors: russtone]
-        XamlImageInfo
-                [Finders: Piotr Bazydlo]
+	ActivitySurrogateDisableTypeCheck
+		[Finders: Nick Landers]
+	ActivitySurrogateSelector
+		[Finders: James Forshaw] [Contributors: Alvaro Munoz, zcgonvh]
+	ActivitySurrogateSelectorFromFile
+		[Finders: James Forshaw] [Contributors: Alvaro Munoz, zcgonvh]
+	AxHostState
+		[Finders: Soroush Dalili]
+	ClaimsIdentity
+		[Finders: Soroush Dalili]
+	ClaimsPrincipal
+		[Finders: jang]
+	DataSet
+		[Finders: James Forshaw] [Contributors: Soroush Dalili]
+	DataSetOldBehaviour
+		[Finders: Steven Seeley] [Contributors: Soroush Dalili]
+	DataSetOldBehaviourFromFile
+		[Finders: Steven Seeley, Markus Wulftange] [Contributors: Soroush Dalili]
+	DataSetTypeSpoof
+		[Finders: James Forshaw] [Contributors: Soroush Dalili, Markus Wulftange, Jang]
+	GenericPrincipal
+		[Finders: Soroush Dalili]
+	ObjectDataProvider
+		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz, Soroush Dalili, Dane Evans]
+	ObjRef
+		[Finders: Markus Wulftange]
+	PSObject
+		[Finders: Oleksandr Mirosh, Alvaro Munoz] [Contributors: Alvaro Munoz]
+	ResourceSet
+		[Finders: Soroush Dalili]
+	RolePrincipal
+		[Finders: Soroush Dalili]
+	SessionSecurityToken
+		[Finders: @mufinnnnnnn, Soroush Dalili] [Contributors: Soroush Dalili]
+	SessionViewStateHistoryItem
+		[Finders: Soroush Dalili]
+	TextFormattingRunProperties
+		[Finders: Oleksandr Mirosh and Alvaro Munoz] [Contributors: Oleksandr Mirosh, Soroush Dalili]
+	ToolboxItemContainer
+		[Finders: @frycos]
+	TypeConfuseDelegate
+		[Finders: James Forshaw] [Contributors: Alvaro Munoz]
+	TypeConfuseDelegateMono
+		[Finders: James Forshaw] [Contributors: Denis Andzakovic, Soroush Dalili]
+	WindowsClaimsIdentity
+		[Finders: Soroush Dalili]
+	WindowsIdentity
+		[Finders: Levi Broderick] [Contributors: Alvaro Munoz, Soroush Dalili]
+	WindowsPrincipal
+		[Finders: Steven Seeley of Qihoo 360 Vulcan Team] [Contributors: Chris Anastasio]
+	XamlAssemblyLoadFromFile
+		[Finders: Soroush Dalili] [Contributors: russtone]
 
 Credits for available plugins:
-        ActivatorUrl
-                Harrison Neal
-        Altserialization
-                Soroush Dalili
-        ApplicationTrust
-                Soroush Dalili
-        Clipboard
-                Soroush Dalili
-        DotNetNuke
-                discovered by Oleksandr Mirosh and Alvaro Munoz, implemented by Alvaro Munoz, tested by @GlitchWitch
-        GetterCallGadgets
-                Piotr Bazydlo
-        NetNonRceGadgets
-                Piotr Bazydlo
-        Resx
-                Soroush Dalili
-        SessionSecurityTokenHandler
-                Soroush Dalili
-        SharePoint
-                CVE-2018-8421: Soroush Dalili, CVE-2019-0604: Markus Wulftange, CVE-2020-1147: Oleksandr Mirosh, Markus Wulftange, Jonathan Birch, Steven Seeley (write-up)  - implemented by Soroush Dalili
-        ThirdPartyGadgets
-                Piotr Bazydlo
-        TransactionManagerReenlist
-                Soroush Dalili
-        ViewState
-                Soroush Dalili
+	ActivatorUrl
+		Harrison Neal
+	Altserialization
+		Soroush Dalili
+	ApplicationTrust
+		Soroush Dalili
+	Clipboard
+		Soroush Dalili
+	DotNetNuke
+		discovered by Oleksandr Mirosh and Alvaro Munoz, implemented by Alvaro Munoz, tested by @GlitchWitch
+	Resx
+		Soroush Dalili
+	SessionSecurityTokenHandler
+		Soroush Dalili
+	SharePoint
+		CVE-2018-8421: Soroush Dalili, CVE-2019-0604: Markus Wulftange, CVE-2020-1147: Oleksandr Mirosh, Markus Wulftange, Jonathan Birch, Steven Seeley (write-up)  - implemented by Soroush Dalili
+	TransactionManagerReenlist
+		Soroush Dalili
+	ViewState
+		Soroush Dalili
 
 Various other people have also donated their time and contributed to this project.
 Please see https://github.com/pwntester/ysoserial.net/graphs/contributors to find those who have helped developing more features or have fixed bugs.
