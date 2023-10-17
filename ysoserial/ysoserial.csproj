@@ -28,6 +28,8 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -131,7 +133,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Polenter.SharpSerializer, Version=3.0.1.0, Culture=neutral, PublicKeyToken=8f4f20011571ee5f, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpSerializer.3.0.1\lib\net452\Polenter.SharpSerializer.dll</HintPath>
@@ -186,6 +187,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\BaseActivationFactoryGenerator.cs" />
+    <Compile Include="Generators\GetterCompilerResultsGenerator.cs" />
+    <Compile Include="Generators\XamlImageInfo.cs" />
     <Compile Include="Generators\GenericPrincipalGenerator.cs" />
     <Compile Include="Generators\DataSetOldBehaviourFromFileGenerator.cs" />
     <Compile Include="Generators\DataSetOldBehaviourGenerator.cs" />
@@ -193,6 +197,8 @@
     <Compile Include="Generators\ClaimsPrincipalGenerator.cs" />
     <Compile Include="Generators\DataSetGenerator.cs" />
     <Compile Include="Generators\DataSetTypeSpoofGenerator.cs" />
+    <Compile Include="Generators\GetterSecurityExceptionGenerator.cs" />
+    <Compile Include="Generators\GetterSettingsPropertyValueGenerator.cs" />
     <Compile Include="Generators\XamlAssemblyLoadFromFileGenerator.cs" />
     <Compile Include="Generators\ObjRefGenerator.cs" />
     <Compile Include="Generators\ResourceSetGenerator.cs" />
@@ -202,7 +208,9 @@
     <Compile Include="Generators\ClaimsIdentityGenerator.cs" />
     <Compile Include="Generators\ToolboxItemContainerGenerator.cs" />
     <Compile Include="Generators\WindowsPrincipalGenerator.cs" />
+    <Compile Include="Helpers\GadgetSurrogates\GetterSettingsPropertyValueSurrogates.cs" />
     <Compile Include="Helpers\LocalCodeCompiler.cs" />
+    <Compile Include="Helpers\MessagePackGetterSettingsPropertyValueHelper.cs" />
     <Compile Include="Helpers\MessagePackObjectDataProviderHelper.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\AdvancedBinaryFormatterParser.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\binarycommonclasses.cs" />
@@ -244,6 +252,9 @@
     <Compile Include="Helpers\TestingArena\TestingArenaHome.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
     <Compile Include="Helpers\YamlDocumentHelper.cs" />
+    <Compile Include="Plugins\GetterCallGadgetsPlugin.cs" />
+    <Compile Include="Plugins\ThirdPartyGadgetsPlugin.cs" />
+    <Compile Include="Plugins\NetNonRceGadgetsPlugin.cs" />
     <Compile Include="Plugins\ActivatorUrlPlugin.cs" />
     <Compile Include="Plugins\AltserializationPlugin.cs" />
     <Compile Include="Plugins\ApplicationTrustPlugin.cs" />
@@ -262,7 +273,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
       <Visible>False</Visible>
