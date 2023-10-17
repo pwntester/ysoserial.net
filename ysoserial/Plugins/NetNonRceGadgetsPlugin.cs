@@ -17,7 +17,7 @@ namespace ysoserial.Plugins
         private static string formatter = "";
         private static bool showList;
         private static bool test;
-
+        private static bool minify;
         private static readonly OptionSet options = new OptionSet
         {
             {
@@ -35,7 +35,12 @@ namespace ysoserial.Plugins
                     if (v != null) test = true;
                 }
             },
-
+            {
+                "minify", "minify gadget", v =>
+                {
+                    if (v != null) minify = true;
+                }
+            }
         };
 
         public string Name()
@@ -246,6 +251,15 @@ Exemplary usage:
             {
                 Console.WriteLine("Gadget " + gadget + " does not exist! Use -l option to show available gadgets");
                 Environment.Exit(-1);
+            }
+
+            //minify
+            if (minify)
+            {
+                if (formatter.ToLower() == "json.net" || formatter.ToLower() == "javascriptserializer")
+                {
+                    payload = JsonHelper.Minify(payload, null, null);
+                }
             }
 
             //tests

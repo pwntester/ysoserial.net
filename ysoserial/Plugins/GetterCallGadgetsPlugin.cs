@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using NDesk.Options;
 using ysoserial.Helpers;
 
@@ -10,7 +11,7 @@ namespace ysoserial.Plugins
     // Implements arbitrary getter call gadgets for .NET 
     // Gadgets implemented for Json.Net only
     // Feel free to implement new gadgets or contribute by adding new formatters (JavaScriptSerializer, MessagePack or any other)
-
+    // On more details about chaining arbitrary getter call gadgets with different gadgets, see: https://github.com/thezdi/presentations/blob/main/2023_Hexacon/whitepaper-net-deser.pdf
 
     public class GetterCallGadgetsPlugin : IPlugin
     {
@@ -19,6 +20,7 @@ namespace ysoserial.Plugins
         private static string member = "";
         private static bool showList;
         private static bool test;
+        private static bool minify;
 
         private static readonly OptionSet options = new OptionSet
         {
@@ -37,6 +39,12 @@ namespace ysoserial.Plugins
                     if (v != null) test = true;
                 }
             },
+            {
+                "minify", "minify gadget", v =>
+                {
+                    if (v != null) minify = true;
+                }
+            }
         };
 
         public string Name()
@@ -46,7 +54,7 @@ namespace ysoserial.Plugins
 
         public string Description()
         {
-            return "Implements arbitrary getter call gadgets for .NET Framework and .NET 5/6/7 with WPF enabled";
+            return "Implements arbitrary getter call gadgets for .NET Framework and .NET 5/6/7 with WPF enabled, run with -l for more help";
         }
         public string Credit()
         {
@@ -60,6 +68,16 @@ namespace ysoserial.Plugins
         public string GadgetsList()
         {
             return @"
+Plugin allows you to chain any ""insecure serialization"" gadget with the arbitrary getter call gadget. 
+You can use this pluing to chain serialization gadgets found in different codebases with arbitrary getter call gadget and reach malicious getter call.
+Several chain of gadgets are already implemented in the ysoserial.net, see following gadgets:
+- GetterSecurityException
+- GetterSettingsPropertyValue
+- GetterCompilerResults
+- GetterActiveMQObjectMessage in ThirdPartyGadgets plugin
+
+For more information about chaining arbitrary getter call gadgets with insecure getter gadgets, see following white paper (""Arbitrary Getter Call Gadget Idea"" and ""Combining Getter Gadgets with Insecure Serialization Gadgets""): https://github.com/thezdi/presentations/blob/main/2023_Hexacon/whitepaper-net-deser.pdf
+
 Gadgets are implemented for Json.NET only, but some of them are applicable to different serializers too (like JavaScriptSerializer or MessagePack).
 
 Gadgets:
@@ -73,7 +91,7 @@ Gadgets:
     (*) CheckedListBox - requires member to be specified
         [Finders: Piotr Bazydlo]
 
-    (*) ComboBox - requires member to be specified
+    (*) ComboBox - requires member to be specified (may execute your inner gadget twice)
         [Finders: Piotr Bazydlo]
 
 Exemplary usage: 
@@ -217,6 +235,13 @@ Exemplary usage:
             {
                 Console.WriteLine("Gadget " + gadget + " does not exist! Use -l option to show available gadgets");
                 Environment.Exit(-1);
+            }
+
+            //minify
+            if (minify)
+            {
+                //If different formatters get implemented, please make sure that we verify formatter here
+                payload = JsonHelper.Minify(payload, null, null);
             }
 
             //tests

@@ -46,7 +46,7 @@ namespace ysoserial.Generators
             OptionSet options = new OptionSet()
             {
                 {"var|variant=", "Variant number. Variant defines a different getter-call gadget. Choices: \r\n1 (default) - PropertyGrid getter-call gadget, " +
-                "\r\n2 - ComboBox getter-call gadget" +
+                "\r\n2 - ComboBox getter-call gadget (may execute code twice)" +
                 "\r\n3 - ListBox getter-call gadget" +
                 "\r\n4 - CheckedListBox getter-call gadget", v => int.TryParse(v, out variant_number) },
             };

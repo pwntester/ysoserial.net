@@ -22,6 +22,7 @@ namespace ysoserial.Plugins
         private static bool showList;
         private static bool removeVersion;
         private static bool test;
+        private static bool minify;
 
         private static readonly OptionSet options = new OptionSet
         {
@@ -45,7 +46,12 @@ namespace ysoserial.Plugins
                     if (v != null) test = true;
                 }
             },
-
+            {
+                "minify", "minify gadget", v =>
+                {
+                    if (v != null) minify = true;
+                }
+            }
         };
 
         public string Name()
@@ -553,6 +559,15 @@ Exemplary usage:
             if (removeVersion)
             {
                 payload = RemoveVersion(payload);
+            }
+
+            //minify
+            if (minify)
+            {
+                if (formatter.ToLower() == "json.net" || formatter.ToLower() == "javascriptserializer")
+                {
+                    payload = JsonHelper.Minify(payload, null, null);
+                }
             }
 
             //tests

