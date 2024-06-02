@@ -26,6 +26,26 @@ In order to obtain the latest version, it is recommended to download it from [th
 
 You can install the previous releases of YSoSerial.NET from [the releases page](https://github.com/pwntester/ysoserial.net/releases)
 
+## Build from source:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+choco install visualstudio2022community --yes
+choco install visualstudio2022-workload-nativedesktop --yes
+choco install choco install msbuild.communitytasks --yes
+choco install nuget.commandline --yes
+choco install git --yes
+
+git clone https://github.com/pwntester/ysoserial.net
+cd ysoserial.net
+nuget restore ysoserial.sln
+msbuild ysoserial.sln -p:Configuration=Release
+
+.\ysoserial\bin\Release\ysoserial.exe -h
+```
+
+
 ## Usage
 ```
 $ ./ysoserial.exe --fullhelp
