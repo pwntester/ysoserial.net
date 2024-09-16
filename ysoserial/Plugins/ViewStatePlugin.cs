@@ -230,11 +230,14 @@ namespace ysoserial.Plugins
             var readOnlyField = typeof(ConfigurationElement).GetField("_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic);
             readOnlyField.SetValue(config, false);
             // we don't really need the encryption/decyption keys to create a valid legacy viewstate but this is used when isEncrypted=true
-            if (!String.IsNullOrEmpty(decryptionKey) && (!isLegacy || (isLegacy && isEncrypted)))
+            if (!String.IsNullOrEmpty(decryptionKey))
             {
                 if (isDebug)
                 {
-                    Console.WriteLine("Encryption is on!");
+                    if (!isLegacy || (isLegacy && isEncrypted))
+                        Console.WriteLine("Encryption is on!");
+                    else if (validationAlg.ToUpper().Equals("3DES") || validationAlg.ToUpper().Equals("AES"))
+                        Console.WriteLine("Legacy AES/3DES encryption is on!");
                 }
                 config.Decryption = decryptionAlg;
                 config.DecryptionKey = decryptionKey;
