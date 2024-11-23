@@ -15,7 +15,25 @@ namespace ysoserial.Helpers
 
         public static byte[] CompileToAsmBytes(string fileChain)
         {
-            return CompileToAsmBytes(fileChain, "", "");
+            if (fileChain.EndsWith(".dll") && !fileChain.Contains(".cs;"))
+            {
+                return GetAsmBytes(fileChain);
+            }
+            else
+            {
+                return CompileToAsmBytes(fileChain, "", "");
+            }
+        }
+
+        private static byte[] GetAsmBytes(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                Console.Error.WriteLine("Assembly not found!");
+                Environment.Exit(-1);
+            }
+
+            return File.ReadAllBytes(filePath);
         }
 
         public static byte[] CompileToAsmBytes(string fileChain, string compilerLanguage, string compilerOptions)
