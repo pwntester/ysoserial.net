@@ -129,7 +129,6 @@
     </Reference>
     <Reference Include="NDesk.Options, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -149,10 +148,15 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
-    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IdentityModel">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>dlls\Microsoft.PowerShell.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IdentityModel.Services">
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
@@ -210,6 +214,7 @@
     <Compile Include="Generators\WindowsPrincipalGenerator.cs" />
     <Compile Include="Helpers\GadgetSurrogates\GetterSettingsPropertyValueSurrogates.cs" />
     <Compile Include="Helpers\LocalCodeCompiler.cs" />
+    <Compile Include="Helpers\MachineKeyHelper.cs" />
     <Compile Include="Helpers\MessagePackGetterSettingsPropertyValueHelper.cs" />
     <Compile Include="Helpers\MessagePackObjectDataProviderHelper.cs" />
     <Compile Include="Helpers\ModifiedVulnerableBinaryFormatters\AdvancedBinaryFormatterParser.cs" />
@@ -253,6 +258,7 @@
     <Compile Include="Helpers\XmlHelper.cs" />
     <Compile Include="Helpers\YamlDocumentHelper.cs" />
     <Compile Include="Plugins\GetterCallGadgetsPlugin.cs" />
+    <Compile Include="Plugins\MachineKeySessionSecurityTokenHandlerPlugin.cs" />
     <Compile Include="Plugins\ThirdPartyGadgetsPlugin.cs" />
     <Compile Include="Plugins\NetNonRceGadgetsPlugin.cs" />
     <Compile Include="Plugins\ActivatorUrlPlugin.cs" />
