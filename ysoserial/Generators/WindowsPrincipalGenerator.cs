@@ -12,7 +12,7 @@ namespace ysoserial.Generators
     public class WindowsPrincipalGenerator : GenericGenerator
     {
         // A double "Fook Sao" from BinaryFormatter constructor/callback to BinaryFormatter
-        // Useful for Json.Net since it invokes ISerializable callbacks during deserialization
+        // Useful for Json.NET since it invokes ISerializable callbacks during deserialization
 
         // WindowsIdentity extends ClaimsIdentity and WindowsPrincipal / WindowsClaimsPrincipal uses WindowsIdentity
         // https://referencesource.microsoft.com/#mscorlib/system/security/claims/ClaimsIdentity.cs,60342e51e4acc828,references
@@ -34,7 +34,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "DataContractJsonSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter" };
+            return new List<string> { "BinaryFormatter", "Json.NET", "DataContractSerializer", "DataContractJsonSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter" };
         }
 
         public override string Name()

@@ -25,7 +25,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net" }; 
+            return new List<string> { "Json.NET" }; 
         }
 
         public override string Name()

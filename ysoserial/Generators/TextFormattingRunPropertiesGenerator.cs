@@ -65,7 +65,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer", "Json.Net" };
+            return new List<string> { "BinaryFormatter", "SoapFormatter", "NetDataContractSerializer", "LosFormatter", "DataContractSerializer", "Json.NET" };
         }
 
         public override OptionSet Options()
@@ -226,7 +226,7 @@ namespace ysoserial.Generators
 
                 return payload;
             }
-            else if (formatter.ToLower().Equals("Json.Net", StringComparison.OrdinalIgnoreCase))
+            else if (formatter.ToLower().Equals("Json.NET", StringComparison.OrdinalIgnoreCase))
             {
                 //Xaml Generation borrowed from ObjectDataProviderGenerator
                 ProcessStartInfo psi = new ProcessStartInfo();

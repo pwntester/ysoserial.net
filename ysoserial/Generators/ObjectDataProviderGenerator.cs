@@ -32,7 +32,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Xaml (4)", "Json.Net", "FastJson", "JavaScriptSerializer", "XmlSerializer (2)", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml", "MessagePackTypeless", "MessagePackTypelessLz4" };
+            return new List<string> { "Xaml (4)", "Json.NET", "FastJson", "JavaScriptSerializer", "XmlSerializer (2)", "DataContractSerializer (2)", "YamlDotNet < 5.0.0", "FsPickler", "SharpSerializerBinary", "SharpSerializerXml", "MessagePackTypeless", "MessagePackTypelessLz4" };
         }
 
         public override OptionSet Options()

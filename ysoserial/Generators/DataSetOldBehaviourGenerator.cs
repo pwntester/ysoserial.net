@@ -23,9 +23,9 @@ namespace ysoserial.Generators
                 
                 3- Markus Wulftange's idea of loading assembly byte code to bypass restrictions we currently have for ActivitySurrogateSelector
                 
-                This gadget targets and old behaviour of DataSet which uses XML format (https://github.com/microsoft/referencesource/blob/dae14279dd0672adead5de00ac8f117dcf74c184/System.Data/System/Data/DataSet.cs#L323) which is different than what was found in the DataSet gadget by James Forshaw
+                This gadget targets an old behavior of DataSet which uses XML format (https://github.com/microsoft/referencesource/blob/dae14279dd0672adead5de00ac8f117dcf74c184/System.Data/System/Data/DataSet.cs#L323) which is different than what was found in the DataSet gadget by James Forshaw
              */
-            var info = @"This gadget targets and old behaviour of DataSet which uses XML format";
+            var info = @"This gadget targets an old behavior of DataSet which uses XML format";
 
             return info;
         }

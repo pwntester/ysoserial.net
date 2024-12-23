@@ -69,7 +69,7 @@ namespace ysoserial.Plugins
                 {"apppath=", "the application path. this is needed in order to simulate TemplateSourceDirectory", v => IISAppInPathOrVirtualDir = v},
                 {"islegacy", "when provided, it uses the legacy algorithm suitable for .NET 4.0 and below", v => isLegacy = v != null},
                 {"isencrypted", "this will be used when the legacy algorithm is used to bypass WAFs", v => isEncrypted = v!= null},
-                {"viewstateuserkey=", "this to set the ViewStateUserKey parameter that sometimes used as the anti-CSRF token", v => viewStateUserKey = v},
+                {"viewstateuserkey=", "this sets the ViewStateUserKey parameter that is sometimes used as the anti-CSRF token", v => viewStateUserKey = v},
                 {"decryptionalg=", "the encryption algorithm can be set to  DES, 3DES, AES. Default: AES", v => decryptionAlg = v},
                 {"decryptionkey=", "this is the decryptionKey attribute from machineKey in the web.config file", v => decryptionKey = v},
                 {"validationalg=", "the validation algorithm can be set to SHA1, HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES, AES. Default: HMACSHA256", v => validationAlg = v},

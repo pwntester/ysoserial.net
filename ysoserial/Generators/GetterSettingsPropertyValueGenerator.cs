@@ -28,7 +28,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net", "Xaml", "MessagePackTypeless", "MessagePackTypelessLz4" };
+            return new List<string> { "Json.NET", "Xaml", "MessagePackTypeless", "MessagePackTypelessLz4" };
         }
 
         public override string Name()

@@ -9,7 +9,7 @@ namespace ysoserial.Generators
     public class WindowsIdentityGenerator : GenericGenerator
     {
         // Bridge from BinaryFormatter constructor/callback to BinaryFormatter
-        // Usefule for Json.Net since it invokes ISerializable callbacks during deserialization
+        // Usefule for Json.NET since it invokes ISerializable callbacks during deserialization
 
         // WindowsIdentity extends ClaimsIdentity
         // https://referencesource.microsoft.com/#mscorlib/system/security/claims/ClaimsIdentity.cs,60342e51e4acc828,references
@@ -28,7 +28,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "Json.Net", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter" };
+            return new List<string> { "BinaryFormatter", "Json.NET", "DataContractSerializer", "NetDataContractSerializer", "SoapFormatter", "LosFormatter" };
         }
 
         public override string Name()

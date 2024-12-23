@@ -38,7 +38,7 @@ namespace ysoserial.Generators
 
         public override string AdditionalInfo()
         {
-            return "Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use semicolon to separate the file from additionally required assemblies, e. g., '-c ExploitClass.cs;System.Windows.Forms.dll'";
+            return "Another variant of the ActivitySurrogateSelector gadget. This gadget interprets the command parameter as path to the .cs file that should be compiled as exploit class. Use a semicolon to separate the file from any additional required assemblies, e.g., '-c ExploitClass.cs;System.Windows.Forms.dll'";
         }
 
         public override string Name()

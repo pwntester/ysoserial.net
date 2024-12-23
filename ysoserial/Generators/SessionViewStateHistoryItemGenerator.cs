@@ -12,7 +12,7 @@ namespace ysoserial.Generators
     {
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "BinaryFormatter", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "Json.Net" , "DataContractSerializer" };
+            return new List<string> { "BinaryFormatter", "NetDataContractSerializer", "SoapFormatter", "LosFormatter", "Json.NET" , "DataContractSerializer" };
         }
 
         public override string Name()
