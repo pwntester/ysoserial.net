@@ -31,6 +31,11 @@ namespace ysoserial.Generators
             return "Markus Wulftange";
         }
 
+        public override List<string> Labels()
+        {
+            return new List<string> { GadgetTypes.NotBridgeNotDerived };
+        }
+
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             var uri = new Uri(inputArgs.Cmd, UriKind.Absolute);

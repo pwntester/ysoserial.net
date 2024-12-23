@@ -646,7 +646,7 @@ namespace ysoserial
 
                             Console.WriteLine();
                             Console.Write("\t\tFormatters: ");
-                            Console.WriteLine(string.Join(" , ", gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase)) + "");
+                            Console.WriteLine(string.Join(", ", gg.SupportedFormatters().OrderBy(s => s, StringComparer.OrdinalIgnoreCase)) + "");
 
                             if (show_fullhelp)
                             {

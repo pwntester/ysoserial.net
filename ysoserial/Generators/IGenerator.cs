@@ -51,7 +51,7 @@ namespace ysoserial.Generators
         FastJson = "FastJson",
         FsPickler = "FsPickler",
         JavaScriptSerializer = "JavaScriptSerializer",
-        JsonNet = "Json.Net",
+        JsonNet = "Json.NET",
         SharpSerializerBinary = "SharpSerializerBinary",
         Xaml = "Xaml",
         XmlSerializer = "XmlSerializer",

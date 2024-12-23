@@ -233,7 +233,7 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters
         public bool IsPrimitive = false;
 
         [NonSerialized]
-        // This field can be used to minimize the Json.Net output 
+        // This field can be used to minimize the Json.NET output 
         // It will not serialize informational items when it is set to false
         public bool KeepInfoFieldsForJson = true;
 
