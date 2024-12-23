@@ -114,6 +114,10 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
+            if (validationAlg.ToUpper().Equals("SHA1"))
+            {
+                validationAlg = "HMACSHA1"; // MachineKeySessionSecurityTokenHandler uses HMACSHA1 instead of SHA1
+            }
 
             byte[] serializedData = (byte[])new TextFormattingRunPropertiesGenerator().GenerateWithNoTest("BinaryFormatter", inputArgs);
             DeflateCookieTransform myDeflateCookieTransform = new DeflateCookieTransform();

@@ -170,7 +170,7 @@ namespace ysoserial.Helpers
             }
 
             [MethodImpl(MethodImplOptions.NoOptimization)]
-            private static bool BuffersAreEqual(byte[] buffer1, int buffer1Offset, int buffer1Count, byte[] buffer2, int buffer2Offset, int buffer2Count)
+            public static bool BuffersAreEqual(byte[] buffer1, int buffer1Offset, int buffer1Count, byte[] buffer2, int buffer2Offset, int buffer2Count)
             {
                 bool success = (buffer1Count == buffer2Count); // can't possibly be successful if the buffers are of different lengths
                 for (int i = 0; i < buffer1Count; i++)
@@ -180,7 +180,7 @@ namespace ysoserial.Helpers
                 return success;
             }
 
-            private static class SP800_108
+            public static class SP800_108
             {
                 public static byte[] DeriveKey(byte[] keyDerivationKey, string primaryPurpose, params string[] specificPurposes)
                 {
@@ -195,7 +195,7 @@ namespace ysoserial.Helpers
                     }
                 }
 
-                private static byte[] DeriveKeyImpl(HMAC hmac, byte[] label, byte[] context, int keyLengthInBits)
+                public static byte[] DeriveKeyImpl(HMAC hmac, byte[] label, byte[] context, int keyLengthInBits)
                 {
                     checked
                     {
@@ -234,7 +234,7 @@ namespace ysoserial.Helpers
                     }
                 }
 
-                private static void WriteUInt32ToByteArrayBigEndian(uint value, byte[] buffer, int offset)
+                public static void WriteUInt32ToByteArrayBigEndian(uint value, byte[] buffer, int offset)
                 {
                     buffer[offset + 0] = (byte)(value >> 24);
                     buffer[offset + 1] = (byte)(value >> 16);
@@ -244,7 +244,7 @@ namespace ysoserial.Helpers
 
             }
 
-            private static void GetKeyDerivationParameters(out byte[] label, out byte[] context, string primaryPurpose, params string[] specificPurposes)
+            public static void GetKeyDerivationParameters(out byte[] label, out byte[] context, string primaryPurpose, params string[] specificPurposes)
             {
                 label = SecureUTF8Encoding.GetBytes(primaryPurpose);
 
@@ -259,7 +259,7 @@ namespace ysoserial.Helpers
                 }
             }
 
-            private static byte[] HexToBinary(string data)
+            public static byte[] HexToBinary(string data)
             {
                 if (data == null || data.Length % 2 != 0)
                 {
