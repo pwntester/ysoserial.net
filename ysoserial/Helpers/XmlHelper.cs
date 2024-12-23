@@ -466,11 +466,14 @@ Not sure why this one did not work so I had to change $vtheElem/descendant::* to
 
         private static String NetDataContractorIdMinifier(String xmlDocument)
         {
-            // the first tag can be shortened - we use the letter w here for no reason!
+            // The first tag can be shortened - we use the letter 'w' here for no specific reason.
+            // This has been removed as it was causing issues with the XML parsing - BUG #158
+            /*
             string rootTagPattern = @"^\<([^\>\s""']+)";
             Regex rootTagRegEx = new Regex(rootTagPattern, RegexOptions.Compiled);
             string rootTag = rootTagRegEx.Match(xmlDocument).Groups[1].Value.Replace(".",@"\.");
             xmlDocument = Regex.Replace(xmlDocument, @"(\<\/?)" + rootTag + @"([\>\s""']+)", @"$1w$2");
+            */
 
             string refIdPattern = @"\:Id=""(\d+)""";
             Regex refIdRegEx = new Regex(refIdPattern, RegexOptions.Compiled);
