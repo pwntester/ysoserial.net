@@ -19,7 +19,7 @@ namespace ysoserial.Generators
         {
             this.variant_number = variant_number;
             this.inputArgs = inputArgs;
-            base.assemblyBytes = LocalCodeCompiler.CompileToAsmBytes(file);
+            base.assemblyBytes = LocalCodeCompiler.GetAsmBytes(file);
         }
     }
 

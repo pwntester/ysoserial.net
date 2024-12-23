@@ -13,19 +13,21 @@ namespace ysoserial.Helpers
     public static class LocalCodeCompiler
     {
 
-        public static byte[] CompileToAsmBytes(string fileChain)
+        public static byte[] GetAsmBytes(string fileChain)
         {
             if (fileChain.EndsWith(".dll") && !fileChain.Contains(".cs;"))
             {
-                return GetAsmBytes(fileChain);
+                // we have a DLL file
+                return GetAsmBytesFromDLL(fileChain);
             }
             else
             {
+                // we need to compile the code
                 return CompileToAsmBytes(fileChain, "", "");
             }
         }
 
-        private static byte[] GetAsmBytes(string filePath)
+        private static byte[] GetAsmBytesFromDLL(string filePath)
         {
             if (!File.Exists(filePath))
             {

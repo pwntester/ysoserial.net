@@ -73,7 +73,7 @@ namespace ysoserial.Generators
         public override object Generate(string formatter, InputArgs inputArgs)
         {
             var files = inputArgs.Cmd;
-            byte[] asmData = LocalCodeCompiler.CompileToAsmBytes(files);
+            byte[] asmData = LocalCodeCompiler.GetAsmBytes(files);
             string xmlResourceDict = "";
 
             if (isCompressed)
