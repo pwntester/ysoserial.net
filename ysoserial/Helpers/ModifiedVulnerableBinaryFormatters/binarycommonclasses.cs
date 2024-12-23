@@ -2178,7 +2178,16 @@ namespace ysoserial.Helpers.ModifiedVulnerableBinaryFormatters{
             if (assemblyInfo == null)
                 throw new SerializationException(Environment.GetResourceString("Serialization_Assembly",objectName));
 
-            objectType = objectReader.GetType(assemblyInfo, objectName);
+            // added by @irsdl
+            try
+            {
+                objectType = objectReader.GetType(assemblyInfo, objectName);
+            }
+            catch (Exception ex)
+            {
+                // error will be ignored here to make the binaryformatter to json work when the assembly is not available
+                Console.WriteLine("Assembly is not available - this would fail in a normal scenario but we ignore it in YSoSerial.Net!");
+            }
 
             memberTypes = new Type[memberNames.Length];
 

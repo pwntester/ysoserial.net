@@ -42,7 +42,7 @@ namespace ysoserial
         static OptionSet options = new OptionSet()
             {
                 {"p|plugin=", "The plugin to be used.", v => plugin_name = v },
-                {"o|output=", "The output format (raw|base64|raw-urlencode|base64-urlencode|hex). Default: raw", v => outputformat = v },
+                {"o|output=", "The output format (raw|base64|raw-urlencode|base64-urlencode|hex).", v => outputformat = v },
                 {"g|gadget=", "The gadget chain.", v => gadget_name = v },
                 {"f|formatter=", "The formatter.", v => formatter_name = v },
                 {"c|command=", "The command to be executed.", v => cmd = v },
