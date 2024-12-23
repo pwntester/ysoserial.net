@@ -453,48 +453,62 @@ ysoserial.net generates deserialization payloads for a variety of .NET formatter
 		
 	(*) ViewState (Generates a ViewState using known MachineKey parameters)
 		Options:
-		      --examples             to show a few examples. Other parameters will be 
-		                               ignored
-		  -g, --gadget=VALUE         a gadget chain that supports LosFormatter. 
-		                               Default: ActivitySurrogateSelector
-		  -c, --command=VALUE        the command suitable for the used gadget (will 
-		                               be ignored for ActivitySurrogateSelector)
+		      --examples             Show a few examples. Other parameters will be 
+		                               ignored.
+		      --dryrun               Create a valid ViewState without using an 
+		                               exploit payload. The gadget and command 
+		                               parameters will be ignored.
+		  -g, --gadget=VALUE         A gadget chain that supports LosFormatter. 
+		                               Default: ActivitySurrogateSelector.
+		  -c, --command=VALUE        The command suitable for the used gadget (will 
+		                               be ignored for ActivitySurrogateSelector).
+		      --rawcmd               Command will be executed as is without `cmd /c ` 
+		                               being appended (anything after the first space 
+		                               is an argument).
 		  -s, --stdin                The command to be executed will be read from 
 		                               standard input.
-		      --upayload=VALUE       the unsigned LosFormatter payload in (base64 
+		      --usp, --unsignedpayload=VALUE
+		                             The unsigned LosFormatter payload (base64 
 		                               encoded). The gadget and command parameters will 
-		                               be ignored
-		      --generator=VALUE      the __VIEWSTATEGENERATOR value which is in HEX, 
-		                               useful for .NET <= 4.0. When not empty, 'legacy' 
-		                               will be used and 'path' and 'apppath' will be 
-		                               ignored.
-		      --path=VALUE           the target web page. example: /app/folder1/pag-
-		                               e.aspx
-		      --apppath=VALUE        the application path. this is needed in order to 
-		                               simulate TemplateSourceDirectory
-		      --islegacy             when provided, it uses the legacy algorithm 
-		                               suitable for .NET 4.0 and below
-		      --isencrypted          this will be used when the legacy algorithm is 
-		                               used to bypass WAFs
-		      --viewstateuserkey=VALUE
-		                             this sets the ViewStateUserKey parameter that is 
-		                               sometimes used as the anti-CSRF token
-		      --decryptionalg=VALUE  the encryption algorithm can be set to  DES, 
-		                               3DES, AES. Default: AES
-		      --decryptionkey=VALUE  this is the decryptionKey attribute from 
-		                               machineKey in the web.config file
-		      --validationalg=VALUE  the validation algorithm can be set to SHA1, 
+		                               be ignored.
+		      --isfileusp            Indicates that the unsigned payload contains a 
+		                               file name (e.g., payload.txt).
+		      --vsg, --generator=VALUE
+		                             The __VIEWSTATEGENERATOR value in HEX, useful 
+		                               for .NET <= 4.0. When not empty, 'legacy' will 
+		                               be used and 'path' and 'apppath' will be ignored.
+		      --path=VALUE           The target web page. Example: /app/folder1/pag-
+		                               e.aspx.
+		      --pathisclass          Indicates that the path is a class name and 
+		                               should not be modified.
+		      --apppath=VALUE        The application path. Needed to simulate 
+		                               TemplateSourceDirectory.
+		      --islegacy             Use the legacy algorithm suitable for .NET 4.0 
+		                               and below.
+		      --isencrypted          Use when the legacy algorithm is used to bypass 
+		                               WAFs.
+		      --vsuk, --viewstateuserkey=VALUE
+		                             Sets the ViewStateUserKey parameter, sometimes 
+		                               used as the anti-CSRF token.
+		      --da, --decryptionalg=VALUE
+		                             The encryption algorithm can be set to DES, 3DE-
+		                               S, or AES. Default: AES.
+		      --dk, --decryptionkey=VALUE
+		                             The decryptionKey attribute from machineKey in 
+		                               the web.config file.
+		      --va, --validationalg=VALUE
+		                             The validation algorithm can be set to SHA1, 
 		                               HMACSHA256, HMACSHA384, HMACSHA512, MD5, 3DES, 
-		                               AES. Default: HMACSHA256
-		      --validationkey=VALUE  this is the validationKey attribute from 
-		                               machineKey in the web.config file
-		      --showraw              to stop URL-encoding the result. Default: false
-		      --minify               Whether to minify the payloads where applicable 
-		                               (experimental). Default: false
-		      --ust, --usesimpletype This is to remove additional info only when 
-		                               minifying and FormatterAssemblyStyle=Simple. 
-		                               Default: true
-		      --isdebug              to show useful debugging messages!
+		                               or AES. Default: HMACSHA256.
+		      --vk, --validationkey=VALUE
+		                             The validationKey attribute from machineKey in 
+		                               the web.config file.
+		      --showraw              Stop URL-encoding the result. Default: false.
+		      --minify               Minify the payloads where applicable 
+		                               (experimental). Default: false.
+		      --ust, --usesimpletype Remove additional info only when minifying and 
+		                               FormatterAssemblyStyle=Simple. Default: true.
+		      --isdebug              Show useful debugging messages.
 		
 
 Note: Machine authentication code (MAC) key modifier is not being used for LosFormatter in ysoserial.net. Therefore, LosFormatter (base64 encoded) can be used to create ObjectStateFormatter payloads.
@@ -503,7 +517,7 @@ Usage: ysoserial.exe [options]
 Options:
   -p, --plugin=VALUE         The plugin to be used.
   -o, --output=VALUE         The output format (raw|base64|raw-
-                               urlencode|base64-urlencode|hex). Default: raw
+                               urlencode|base64-urlencode|hex).
   -g, --gadget=VALUE         The gadget chain.
   -f, --formatter=VALUE      The formatter.
   -c, --command=VALUE        The command to be executed.
