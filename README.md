@@ -28,6 +28,8 @@ You can install the previous releases of YSoSerial.NET from [the releases page](
 
 ## Build from source:
 
+**Windows**
+
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
@@ -45,6 +47,18 @@ msbuild ysoserial.sln -p:Configuration=Release
 .\ysoserial\bin\Release\ysoserial.exe -h
 ```
 
+**Nix**
+
+```bash
+git clone https://github.com/pwntester/ysoserial.net
+cd ysoserial.net
+
+nix develop --impure
+nuget restore ysoserial.sln
+dotnet build ysoserial.sln --configuration=Release
+
+mono ysoserial/bin/Debug/ysoserial.exe -h
+```
 
 ## Usage
 ```
